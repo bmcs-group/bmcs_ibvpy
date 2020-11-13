@@ -4,13 +4,17 @@ channels:
 dependencies:
 - appmode
 - jupyter_contrib_nbextensions
-- traits
+- traits>=6.1.1
+- traitsui
 - matplotlib-base
 - numpy
 - scipy
 - sympy
 - ipywidgets
 - ipympl
+- vtk
+- mayavi
+- pip
 - pip:
   - -e .
   - bmcs_utils
