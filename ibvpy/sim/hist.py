@@ -8,7 +8,7 @@ from traits.api import \
     provides, List, Dict, WeakRef, Property, cached_property
 from ibvpy.view.plot2d import Vis2D
 import numpy as np
-
+import copy
 from .i_hist import IHist
 
 
@@ -48,6 +48,7 @@ class Hist(Vis2D):
         self.U_list = []
         self.F_list = []
         self.state_vars = []
+        # self.Eps_t = {}
         for vis in self.record_dict.values():
             vis.setup()
 
@@ -59,9 +60,24 @@ class Hist(Vis2D):
         self.timesteps.append(t)
         self.U_list.append(np.copy(U))
         self.F_list.append(np.copy(F))
-        self.state_vars.append(state_vars)
+        self.state_vars.append(copy.deepcopy(state_vars))
         for vis in self.record_dict.values():
             vis.update()
+
+    # def insert_Eps(self, Eps):
+    #     for Eps_d in Eps:
+    #
+    #     self.Eps_t
+    #     keys = self.Eps_t[0,0].keys()
+    #     Eps_t = self.Eps_t[idx,0]
+    #     if reduce_dim:
+    #         eps_tEms = eps_tEms[0,...]
+    #         Eps_Dt = Eps_t[0]
+    #     else:
+    #         Eps_Dt = {
+    #             key: np.array([Eps[key] for i, Eps in enumerate(Eps_t)], dtype=np.float_)
+    #             for key in keys
+    #         }
 
     U_t = Property(depends_on='timesteps_items')
 

@@ -101,4 +101,4 @@ class TStep(tr.HasStrictTraits):
     '''
     @tr.cached_property
     def _get_sim(self):
-        return Simulator(tstep=self)
+        return Simulator(self)

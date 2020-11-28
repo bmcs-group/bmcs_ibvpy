@@ -34,18 +34,21 @@ class TLoop(TLineMixIn):
     def _get_hist(self):
         return self.tstep.hist
 
-    paused = tr.Bool(False)
+    interrupt = tr.Bool(False)
+
+    def reset(self):
+        self.restart = True
 
     restart = tr.Bool(True)
 
     user_wants_abort = tr.Property
 
     def _get_user_wants_abort(self):
-        return self.restart or self.paused
+        return self.interrupt
 
     def init(self):
-        if self.paused:
-            self.paused = False
+        if self.interrupt:
+            self.interrupt = False
         if self.restart:
             self.tline.val = self.tline.min
             self.tstep.init_state()

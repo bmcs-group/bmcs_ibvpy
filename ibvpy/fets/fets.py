@@ -8,10 +8,10 @@ from scipy.spatial.distance import \
     cdist
 from ibvpy.core.tstepper_eval import TStepperEval
 from traits.api import \
-    Array, Bool, Float, provides, \
-    Instance, Int, Trait, List, Any, \
+    Bool, Float, provides, \
+    Int, Trait, List, Any, \
     Delegate, Property, cached_property, Dict, \
-    Type
+    Type, Array
 from traitsui.api import \
     View, Item, Group
 from ibvpy.core.rtrace_eval import \
@@ -30,7 +30,7 @@ from .i_fets import IFETSEval
 def oriented_3d_array(arr, axis):
     '''In order to use the indices as spatial locators
     the array of gauss points is augmented with newaxes into 3D
-    so that the carthesian broadcasting can be done.
+    so that the cartesian broadcasting can be done.
 
     There is only the expand_dim function available in numpy.
     Here we want to  put the supplied array in 3d space along
@@ -38,7 +38,7 @@ def oriented_3d_array(arr, axis):
     '''
     shape = [None, None, None]
     shape[axis] = slice(None)
-    _arr = array(arr, dtype='float_')
+    _arr = np.np.array(arr, dtype='float_')
     return _arr[tuple(shape)]
 
 #-------------------------------------------------------------------
@@ -51,10 +51,10 @@ class FETSEval(TStepperEval):
 
     dots_class = Type(DOTSEval)
 
-    dof_r = Array('float_',
+    dof_r = Array(np.float_,
                   desc='Local coordinates of nodes included in the field ansatz')
 
-    geo_r = Array('float_',
+    geo_r = Array(np.float_,
                   desc='Local coordinates of nodes included in the geometry ansatz')
 
     n_nodal_dofs = Int(desc='Number of nodal degrees of freedom')
@@ -79,7 +79,7 @@ class FETSEval(TStepperEval):
     #-------------------------------------------------------------------------
 
     vtk_r = Array(
-        Float, desc='Local coordinates of nodes included in the field visualization')
+        np.float_, desc='Local coordinates of nodes included in the field visualization')
 
     vtk_cell_types = Any(
         desc='Tuple of vtk cell types in the same order as they are specified in the vtk_cells list')
@@ -117,9 +117,9 @@ class FETSEval(TStepperEval):
 
         if isinstance(self.vtk_cells[0], int):
             # just a single cell defined
-            return (array([0, ], dtype=int),
-                    array(self.vtk_cells.shape[0], dtype=int),
-                    array(self.vtk_cells, dtype=int),
+            return (np.array([0, ], dtype=int),
+                    np.array(self.vtk_cells.shape[0], dtype=int),
+                    np.array(self.vtk_cells, dtype=int),
                     cell_types)
 
         offset_list = []
@@ -133,10 +133,10 @@ class FETSEval(TStepperEval):
             offset_list.append(vtk_offset)
             vtk_offset += cell_len + 1
 
-        return (array(offset_list, dtype=int),
-                array(length_list, dtype=int),
-                array(cell_list, dtype=int),
-                array(cell_types, dtype=int))
+        return (np.array(offset_list, dtype=int),
+                np.array(length_list, dtype=int),
+                np.array(cell_list, dtype=int),
+                np.array(cell_types, dtype=int))
 
     vtk_ip_cell_data = Property(depends_on='vtk_cells, vtk_cell_types')
 
@@ -145,11 +145,11 @@ class FETSEval(TStepperEval):
 
         n_ip_pnts = self.ip_coords.shape[0]
 
-        cell_types = array([(tvtk_helper.get_class('PolyVertex')()).cell_type])
+        cell_types = np.array([(tvtk_helper.get_class('PolyVertex')()).cell_type])
 
-        return (array([0, ], dtype=int),
-                array([n_ip_pnts], dtype=int),
-                arange(n_ip_pnts),
+        return (np.array([0, ], dtype=int),
+                np.array([n_ip_pnts], dtype=int),
+                np.arange(n_ip_pnts),
                 cell_types)
 
     n_vtk_r = Property(Int, depends_on='vtk_r')
@@ -186,13 +186,13 @@ class FETSEval(TStepperEval):
         mapping of the visualization point to the integration points
         according to mutual proximity in the local coordinates
         '''
-        vtk_pt_arr = zeros((1, 3), dtype='float_')
-        ip_map = zeros(vtk_r.shape[0], dtype='int_')
+        vtk_pt_arr = np.zeros((1, 3), dtype='float_')
+        ip_map = np.zeros(vtk_r.shape[0], dtype='int_')
         for i, vtk_pt in enumerate(vtk_r):
             vtk_pt_arr[0, self.dim_slice] = vtk_pt[self.dim_slice]
             # get the nearest ip_coord
-            ip_map[i] = argmin(cdist(vtk_pt_arr, self.ip_coords))
-        return array(ip_map)
+            ip_map[i] = np.argmin(cdist(vtk_pt_arr, self.ip_coords))
+        return np.array(ip_map)
 
     #-------------------------------------------------------------------------
     # NUMERICAL INTEGRATION
@@ -221,7 +221,7 @@ class FETSEval(TStepperEval):
         # broadcast the values to construct all combinations of all gauss point
         # coordinates.
         #
-        x, y, z = broadcast_arrays(*gp_coords)
+        x, y, z = np.broadcast_arrays(*gp_coords)
         return x, y, z
 
     gp_w_grid = Property(depends_on='ngp_r,ngp_s,ngp_t')
@@ -247,7 +247,7 @@ class FETSEval(TStepperEval):
         '''Generate the flat array of ip_coords used for integration.
         '''
         x, y, z = self.gp_r_grid
-        return c_[x.flatten(), y.flatten(), z.flatten()]
+        return np.c_[x.flatten(), y.flatten(), z.flatten()]
 
     r_m = Property
 
@@ -259,7 +259,7 @@ class FETSEval(TStepperEval):
     def _get_ip_coords_grid(self):
         '''Generate the grid of ip_coords
         '''
-        return c_[self.gp_r_grid]
+        return np.c_[self.gp_r_grid]
 
     ip_weights = Property(depends_on='ngp_r,ngp_s,ngp_t')
 
@@ -332,11 +332,11 @@ class FETSEval(TStepperEval):
                 w.append(oriented_3d_array(self._GP_WEIGHTS[n_gp], dim_idx))
                 r.append(oriented_3d_array(self._GP_COORDS[n_gp], dim_idx))
                 ix.append(dim_idx)
-        r_grid = broadcast_arrays(*r)
-        r_c = c_[tuple([r.flatten() for r in r_grid])]
+        r_grid = np.broadcast_arrays(*r)
+        r_c = np.c_[tuple([r.flatten() for r in r_grid])]
         w_grid = reduce(lambda x, y: x * y, w)
         if isinstance(w_grid, float):
-            w_grid = array([w_grid], dtype='float_')
+            w_grid = np.array([w_grid], dtype='float_')
         else:
             w_grid = w_grid.flatten()
         return r_c, w_grid, ix
@@ -354,7 +354,7 @@ class FETSEval(TStepperEval):
         if len(self.vtk_r) == 0:
             raise ValueError(
                 'Cannot generate plot, no vtk_r specified in fets_eval')
-        return array(self.vtk_r)
+        return np.array(self.vtk_r)
 
     def get_vtk_r_glb_arr(self, X_mtx, r_mtx=None):
         '''
@@ -374,13 +374,13 @@ class FETSEval(TStepperEval):
         # a possibility - we only need to augment the matrix with zero coordinates in the
         # in the unhandled dimensions.
         #
-        X3D = array([dot(self.get_N_geo_mtx(r_pnt), X_mtx)[0, :]
+        X3D = np.array([np.dot(self.get_N_geo_mtx(r_pnt), X_mtx)[0, :]
                      for r_pnt in r_mtx])
         n_dims = r_mtx.shape[1]
         n_add = 3 - n_dims
         if n_add > 0:
-            X3D = hstack([X3D,
-                          zeros([r_mtx.shape[0], n_add], dtype='float_')])
+            X3D = np.hstack([X3D,
+                          np.zeros([r_mtx.shape[0], n_add], dtype='float_')])
         return X3D
 
     def get_X_pnt(self, sctx):
@@ -406,7 +406,7 @@ class FETSEval(TStepperEval):
         # a possibility - we only need to augment the matrix with zero coordinates in the
         # in the unhandled dimensions.
         #
-        return dot(self.get_N_geo(r_pnt), x_mtx)
+        return np.dot(self.get_N_geo(r_pnt), x_mtx)
 
     def map_r2X(self, r_pnt, X_mtx):
         '''
@@ -416,7 +416,7 @@ class FETSEval(TStepperEval):
         '''
         # print "mapping ",dot( self.get_N_geo_mtx(r_pnt)[0], X_mtx )," ",
         # r_pnt
-        return dot(self.get_N_geo(r_pnt), X_mtx)
+        return np.dot(self.get_N_geo(r_pnt), X_mtx)
 
     # Number of element DOFs
     #
@@ -428,10 +428,10 @@ class FETSEval(TStepperEval):
     # Parameters for the time-loop
     #
     def new_cntl_var(self):
-        return zeros(self.n_e_dofs, float_)
+        return np.zeros(self.n_e_dofs, np.float_)
 
     def new_resp_var(self):
-        return zeros(self.n_e_dofs, float_)
+        return np.zeros(self.n_e_dofs, np.float_)
 
     def get_state_array_size(self):
         r_range = max(1, self.ngp_r)
@@ -448,156 +448,6 @@ class FETSEval(TStepperEval):
     ngp_r = Int(0, label='Number of Gauss points in r-direction')
     ngp_s = Int(0, label='Number of Gauss points in s-direction')
     ngp_t = Int(0, label='Number of Gauss points in t-direction')
-
-    #-------------------------------------------------------------------
-    # Overloadable methods
-    #-------------------------------------------------------------------
-    def get_corr_pred(self, sctx, u, du, tn, tn1,
-                      eps_avg=None,
-                      B_mtx_grid=None,
-                      J_det_grid=None,
-                      ip_coords=None,
-                      ip_weights=None):
-        '''
-        Corrector and predictor evaluation.
-
-        @param u current element displacement vector
-        '''
-        u_avg = eps_avg  # temporary
-        if J_det_grid == None or B_mtx_grid == None:
-            #            if self.dim_slice:
-            #                X_mtx = sctx.X[:, self.dim_slice]
-            #            else:
-            X_mtx = sctx.X
-
-        show_comparison = True
-        if ip_coords == None:
-            ip_coords = self.ip_coords
-            show_comparison = False
-        if ip_weights == None:
-            ip_weights = self.ip_weights
-
-        # Use for Jacobi Transformation
-
-        n_e_dofs = self.n_e_dofs
-        K = zeros((n_e_dofs, n_e_dofs))
-        F = zeros(n_e_dofs)
-        sctx.fets_eval = self
-
-        ip = 0      # use enumerate
-
-        # Element formulation-specific adjustment of the spatial context
-        # for the material level (needed for combination of regularized
-        # material models with elements of lower dimensions.
-        #
-        self.adjust_spatial_context_for_point(sctx)
-
-        # Numerical quadrature loop
-        #
-        for r_pnt, wt in zip(ip_coords, ip_weights):
-
-            sctx.r_pnt = r_pnt
-            if J_det_grid == None:
-                J_det = self._get_J_det(r_pnt, X_mtx)
-            else:
-                J_det = J_det_grid[ip, ...]
-            if B_mtx_grid == None:
-                B_mtx = self.get_B_mtx(r_pnt, X_mtx)
-            else:
-                B_mtx = B_mtx_grid[ip, ...]
-
-            # Map displacements to strains
-            #
-            eps_mtx = dot(B_mtx, u)
-            d_eps_mtx = dot(B_mtx, du)
-
-            # Set the state array slice into the spatial context
-            #
-            sctx.mats_state_array = sctx.elem_state_array[
-                ip * self.m_arr_size: (ip + 1) * self.m_arr_size]
-
-            # Evaluate the corrector and predictor for the current iteration
-            #
-            if u_avg != None:
-                eps_avg = dot(B_mtx, u_avg)
-                sig_mtx, D_mtx = self.get_mtrl_corr_pred(
-                    sctx, eps_mtx, d_eps_mtx, tn, tn1, eps_avg)
-            else:
-                sig_mtx, D_mtx = self.get_mtrl_corr_pred(
-                    sctx, eps_mtx, d_eps_mtx, tn, tn1)
-
-            # Evaluate the element stiffness matrix
-            #
-            k = dot(B_mtx.T, dot(D_mtx, B_mtx))
-            k *= (wt * J_det)
-            K += k
-
-            # Evaluate the internal force vector
-            #
-            f = dot(B_mtx.T, sig_mtx)
-            f *= (wt * J_det)
-            F += f
-
-            ip += 1
-
-        return F, K
-
-    #-------------------------------------------------------------------
-    # Standard evaluation methods
-    #-------------------------------------------------------------------
-    def get_J_mtx(self, r_pnt, X_mtx):
-        dNr_geo_mtx = self.get_dNr_geo_mtx(r_pnt)
-        return dot(dNr_geo_mtx, X_mtx)
-
-    #-------------------------------------------------------------------
-    # Required methods
-    #-------------------------------------------------------------------
-
-    def get_N_geo_mtx(self, r_pnt):
-        raise NotImplementedError
-
-    def get_dNr_geo_mtx(self, r_pnt):
-        raise NotImplementedError
-
-    def get_N_mtx(self, r_pnt):
-        raise NotImplementedError
-
-    def get_B_mtx(self, r_pnt, X_mtx):
-        '''
-        Get the matrix for kinematic mapping between displacements and strains.
-        @param r local position within the element.
-        @param X nodal coordinates of the element.
-
-        @TODO[jakub] generalize
-        '''
-        raise NotImplementedError
-
-    def get_mtrl_corr_pred(self, sctx, eps_eng, d_eps_eng, tn, tn1, eps_avg=None):
-        if self.mats_eval.initial_strain:
-            X_pnt = self.get_X_pnt(sctx)
-            x_pnt = self.get_x_pnt(sctx)
-            eps_ini_mtx = self.mats_eval.initial_strain(X_pnt, x_pnt)
-            eps0_eng = self.mats_eval.map_eps_mtx_to_eng(eps_ini_mtx)
-            eps_eng -= eps0_eng
-        if eps_avg != None:
-            sig_mtx, D_mtx = self.mats_eval.get_corr_pred(
-                sctx, eps_eng, d_eps_eng, tn, tn1, eps_avg)
-        else:
-            sig_mtx, D_mtx = self.mats_eval.get_corr_pred(
-                sctx, eps_eng, d_eps_eng, tn, tn1,)
-        return sig_mtx, D_mtx
-
-    #-------------------------------------------------------------------
-    # Private methods
-    #-------------------------------------------------------------------
-
-    def get_J_det(self, r_pnt, X_mtx):
-        return array(self._get_J_det(r_pnt, X_mtx), dtype='float_')
-
-    def _get_J_det(self, r_pnt3d, X_mtx):
-        if self.dim_slice:
-            r_pnt = r_pnt3d[self.dim_slice]
-        return det(self.get_J_mtx(r_pnt, X_mtx))
 
     # if no gauss point is defined in one direction (e.g. for ngp_t=0 for a 2D-problem)
     # then the default value for ngp_t=0 is used and a weighting coefficient of value 1.
@@ -645,7 +495,7 @@ class FETSEval(TStepperEval):
         X_mtx = sctx.X
         r_pnt = sctx.loc
         B_mtx = self.get_B_mtx(r_pnt, X_mtx)
-        eps_eng = dot(B_mtx, u)
+        eps_eng = np.dot(B_mtx, u)
         return eps_eng
 
     def get_eps1t_eng(self, sctx, u):
@@ -663,7 +513,7 @@ class FETSEval(TStepperEval):
     def get_eps0_mtx33(self, sctx, u):
         '''Get epsilon without the initial strain
         '''
-        eps0_mtx33 = zeros((3, 3), dtype='float_')
+        eps0_mtx33 = np.zeros((3, 3), dtype='float_')
         if self.mats_eval.initial_strain:
             X_pnt = self.get_X_pnt(sctx)
             x_pnt = self.get_x_pnt(sctx)
@@ -673,7 +523,7 @@ class FETSEval(TStepperEval):
 
     def get_eps_mtx33(self, sctx, u):
         eps_eng = self.get_eps_eng(sctx, u)
-        eps_mtx33 = zeros((3, 3), dtype='float_')
+        eps_mtx33 = np.zeros((3, 3), dtype='float_')
         eps_mtx33[self.dim_slice, self.dim_slice] = self.mats_eval.map_eps_eng_to_mtx(
             eps_eng)
         return eps_mtx33
@@ -692,12 +542,12 @@ class FETSEval(TStepperEval):
         X_mtx = sctx.X
         r_pnt = sctx.loc
         B_mtx = self.get_B_mtx(r_pnt, X_mtx)
-        eps = dot(B_mtx, u)
+        eps = np.dot(B_mtx, u)
         return eps
 
     def get_u(self, sctx, u):
         N_mtx = self.get_N_mtx(sctx.loc)
-        return dot(N_mtx, u)
+        return np.dot(N_mtx, u)
 
     debug_on = Bool(False)
 
@@ -717,7 +567,7 @@ class FETSEval(TStepperEval):
                     'B_mtx2': RTraceEvalElemFieldVar(eval=lambda sctx, u: self.get_B_mtx(sctx.loc, sctx.X)[2],
                                                      ts=self),
                     'J_det': RTraceEvalElemFieldVar(eval=lambda sctx, u:
-                                                    array(
+                                                    np.array(
                                                         [det(self.get_J_mtx(sctx.loc, sctx.X))]),
                                                     ts=self)}
         else:
@@ -787,11 +637,9 @@ class RTraceIntegEvalElemFieldVar(RTraceEval):
 #            else:
 
         show_comparison = True
-        if ip_coords == None:
-            ip_coords = self.ip_coords
-            show_comparison = False
-        if ip_weights == None:
-            ip_weights = self.ip_weights
+        ip_coords = self.ip_coords
+        show_comparison = False
+        ip_weights = self.ip_weights
 
         # Use for Jacobi Transformation
 

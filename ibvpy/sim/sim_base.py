@@ -56,6 +56,10 @@ class Simulator(BMCSTreeNode, TLineMixIn):
         return self.tstep.tloop_type(tstep=self.tstep,
                                      tline=self.tline)
 
+    def __init__(self, tstep, *args, **kw):
+        self.tstep = tstep
+        super(Simulator, self).__init__(*args, **kw)
+
     tstep = tr.WeakRef(ITStep)
 
     hist = tr.Property
@@ -69,15 +73,15 @@ class Simulator(BMCSTreeNode, TLineMixIn):
         self.tloop()
         return
 
-    def pause(self):
-        self.tloop.paused = True
+    interrupt = tr.DelegatesTo('tloop')
 
-    def stop(self):
-        self.tloop.restart = True
+    def reset(self):
+        self.tloop.reset()
 
     ipw_view = bu.View(
-        simulator='tloop',
-        time_variable='t',
+        run_method='tloop',
+        reset_method='reset',
+        interrupt_var='interrupt',
+        time_var = 't',
         time_max='t_max',
-        reset_simulator='stop'
     )

@@ -8,12 +8,13 @@ from traits.api import \
     provides, Callable, \
     Tuple, Int, Type, Array, Float, Instance, Bool, DelegatesTo
 from ibvpy.view.ui.bmcs_tree_node import BMCSTreeNode
+from ibvpy.mesh.i_fe_uniform_domain import IFEUniformDomain
 
 import numpy as np
 
 
 @provides(IXDomain)
-class XDomainFEGrid(BMCSTreeNode):
+class XDomainFE(BMCSTreeNode):
 
     hidden = Bool(False)
     #=========================================================================
@@ -94,24 +95,16 @@ class XDomainFEGrid(BMCSTreeNode):
         )
         return Diff1_abcd
 
-    #=========================================================================
-    # Finite element discretization respecting the FE definition
-    #=========================================================================
-    mesh = Property(Instance(FEGrid), depends_on='MESH,GEO')
+    mesh = Instance(IFEUniformDomain)
 
-    @cached_property
-    def _get_mesh(self):
-        return FEGrid(coord_min=self.coord_min,
-                      coord_max=self.coord_max,
-                      shape=self.shape,
-                      geo_transform=self.geo_transform,
-                      fets_eval=self.fets)
+    X_Id = DelegatesTo('mesh')
+    I_Ei = DelegatesTo('mesh')
 
     x_Eia = Property(depends_on='MESH,GEO,CS,FE')
 
     def _get_x_Eia(self):
-        x_Ia = self.mesh.X_Id
-        I_Ei = self.mesh.I_Ei
+        x_Ia = self.X_Id
+        I_Ei = self.I_Ei
         x_Eia = x_Ia[I_Ei, :]
         return x_Eia
 
@@ -136,7 +129,7 @@ class XDomainFEGrid(BMCSTreeNode):
 
     @cached_property
     def _get_o_Eia(self):
-        I_Ei = self.mesh.I_Ei
+        I_Ei = self.I_Ei
         return self.o_Ia[I_Ei]
 
     B1_Einabc = Property(depends_on='MESH,GEO,CS,FE')
@@ -147,8 +140,10 @@ class XDomainFEGrid(BMCSTreeNode):
     @cached_property
     def _get_B1_Einabc(self):
         inv_J_Enar = np.linalg.inv(self.J_Enar)
+        print('************************************* inv_J', inv_J_Enar)
         return np.einsum(
             'abcd,imr,Eidr->Eimabc',
+#            'abcd,imr,Emrd->Eimabc',
             self.Diff1_abcd, self.fets.dN_inr, inv_J_Enar
         )
 
@@ -223,9 +218,19 @@ class XDomainFEGrid(BMCSTreeNode):
     def _get_n_dofs(self):
         return self.mesh.n_dofs
 
+    def U2u(self, U_Eia):
+        return U_Eia
+
+    def f2F(self, f_Eic):
+        return f_Eic
+
+    def k2K(self, K_Eicjd):
+        return K_Eicjd
+
     def map_U_to_field(self, U):
-        n_c = self.fets.n_nodal_dofs
         U_Eia = U[self.o_Eia]
+        # coordinate transform to local
+        U_Eia = self.xU2u(U_Eia)
         eps_Emab = np.einsum(
             'Eimabc,Eic->Emab',
             self.B_Eimabc, U_Eia
@@ -233,23 +238,31 @@ class XDomainFEGrid(BMCSTreeNode):
         return eps_Emab
 
     def map_field_to_F(self, sig_Emab):
-        _, n_i, _, _, _, n_c = self.B_Eimabc.shape
         f_Eic = self.integ_factor * np.einsum(
             'm,Eimabc,Emab,Em->Eic',
             self.fets.w_m, self.B_Eimabc, sig_Emab, self.det_J_Em
         )
+        # coordinate transform to global
+        f_Eic = self.xf2F(f_Eic)
+        _, n_i, n_c = f_Eic.shape
         f_Ei = f_Eic.reshape(-1, n_i * n_c)
         o_E = self.o_Eia.reshape(-1, n_i * n_c)
         return o_E.flatten(), f_Ei.flatten()
 
     def map_field_to_K(self, D_Emabef):
-        K_Eicjd = self.integ_factor * np.einsum(
+        k_Eicjd = self.integ_factor * np.einsum(
             'Emicjdabef,Emabef->Eicjd',
             self.BB_Emicjdabef, D_Emabef
         )
+        _, _, n_a, n_b, _,_ = D_Emabef.shape
+        # coordinate transform to global
+        _K_Eicjd = self.k2K(k_Eicjd)
+        K_Eicjd = self.xk2K(k_Eicjd)
+        # print(_K_Eicjd - K_Eicjd)
         _, n_i, n_c, n_j, n_d = K_Eicjd.shape
         K_Eij = K_Eicjd.reshape(-1, n_i * n_c, n_j * n_d)
         o_Ei = self.o_Eia.reshape(-1, n_i * n_c)
+        #print(K_Eij)
         return SysMtxArray(mtx_arr=K_Eij, dof_map_arr=o_Ei)
 
     debug_cell_data = Bool(False)
@@ -355,3 +368,26 @@ class XDomainFEGrid(BMCSTreeNode):
         '''Return the number of points defining one cell'''
         return self.fets.n_vtk_r
 
+@provides(IXDomain)
+class XDomainFEGrid(XDomainFE):
+
+    #=========================================================================
+    # Finite element discretization respecting the FE definition
+    #=========================================================================
+    mesh = Property(Instance(FEGrid), depends_on='MESH,GEO')
+
+    @cached_property
+    def _get_mesh(self):
+        return FEGrid(coord_min=self.coord_min,
+                      coord_max=self.coord_max,
+                      shape=self.shape,
+                      geo_transform=self.geo_transform,
+                      fets_eval=self.fets)
+
+
+if __name__ == '__main__':
+    from ibvpy.fets.fets1D5.fets1d52ulrhfatigue import FETS1D52ULRHFatigue
+    xd = XDomainFEGrid(coord_max=(1,), shape=(1,),
+                       dim_u=2, fets=FETS1D52ULRHFatigue())
+    print(xd.BB_Emicjdabef.shape)
+    print(xd.get_vtk_cell_data('nodes', 0, 0))
