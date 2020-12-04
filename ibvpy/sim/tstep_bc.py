@@ -11,7 +11,7 @@ from .domain_state import DomainState
 from .i_tstep import ITStep
 from .tloop_implicit import TLoopImplicit
 from .tstep import TStep
-from ibvpy.xdomain.xdomain import XDomain
+from .xdomain import XDomain
 
 
 @tr.provides(ITStep)

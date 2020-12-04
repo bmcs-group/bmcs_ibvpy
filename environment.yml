@@ -10,6 +10,7 @@ dependencies:
 - numpy
 - scipy
 - sympy
+- k3d
 - ipywidgets
 - ipympl
 - vtk

@@ -223,9 +223,11 @@ class XDomainFEGrid(BMCSTreeNode):
     def _get_n_dofs(self):
         return self.mesh.n_dofs
 
-    def map_U_to_field(self, U):
+    ##################################################################
+    #
+    def map_U_to_field(self, U_o):
         n_c = self.fets.n_nodal_dofs
-        U_Eia = U[self.o_Eia]
+        U_Eia = U_o[self.o_Eia]
         eps_Emab = np.einsum(
             'Eimabc,Eic->Emab',
             self.B_Eimabc, U_Eia
@@ -251,6 +253,8 @@ class XDomainFEGrid(BMCSTreeNode):
         K_Eij = K_Eicjd.reshape(-1, n_i * n_c, n_j * n_d)
         o_Ei = self.o_Eia.reshape(-1, n_i * n_c)
         return SysMtxArray(mtx_arr=K_Eij, dof_map_arr=o_Ei)
+
+    ###########
 
     debug_cell_data = Bool(False)
     # @todo - comment this procedure`
