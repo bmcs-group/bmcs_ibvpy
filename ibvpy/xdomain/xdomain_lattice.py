@@ -11,11 +11,12 @@ from ibvpy.view.ui import BMCSLeafNode
 import matplotlib.pyplot as plt
 import numpy as np
 import traitsui.api as ui
-
+import bmcs_utils.api as bu
 
 class LatticeTessellation(BMCSLeafNode):
     '''Lattice tessellation
     '''
+    name = 'Tessellation'
     node_name = 'tessellation'
 
     X_Ia = Array(np.float_,
@@ -49,6 +50,11 @@ class LatticeTessellation(BMCSLeafNode):
     vtk_expand_operator = Array(np.float_, value=np.identity(3))
 
     n_nodal_dofs = Constant(3)
+
+    plot_backend = 'k3d'
+
+    def update_plot(self, k3d_plot):
+        k3d_plot
 
 
 @provides(IXDomain)
