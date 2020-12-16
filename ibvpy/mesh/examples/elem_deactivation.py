@@ -13,8 +13,8 @@
 # Created on Jan 21, 2011 by: rch
 
 
-from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
-from ibvpy.mats.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
+from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+from ibvpy.tmodel.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
 from ibvpy.api import FEDomain, FEGrid, FERefinementGrid, TStepper as TS, TLoop, \
     BCSlice, RTraceDomainListField
 from ibvpy.fets.fets2D.fets2D4q import FETS2D4Q

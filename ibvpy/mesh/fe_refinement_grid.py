@@ -4,11 +4,9 @@ from traits.api import \
     Event
 from traitsui.api import View, Item, Include
 
-from ibvpy.dots.subdots_eval import SubDOTSEval
-from ibvpy.fets.i_fets_eval import IFETSEval
+from ibvpy.fets.i_fets import IFETSEval
 from ibvpy.mesh.cell_grid.cell_array import ICellArraySource
 from ibvpy.mesh.cell_grid.cell_spec import CellSpec
-from ibvpy.rtrace.rt_domain import RTraceDomain
 import numpy as np
 
 from .fe_grid import FEGrid, MElem
@@ -27,29 +25,10 @@ class FERefinementGrid(FERefinementLevel):
     @on_trait_change('+changed_structure')
     def set_changed_structure(self):
         self.changed_structure = True
-    #-----------------------------------------------------------------
-    # Feature: response tracer background mesh
-    #-----------------------------------------------------------------
-
-    rt_bg_domain = Property(depends_on='changed_structure,+changed_geometry')
-
-    @cached_property
-    def _get_rt_bg_domain(self):
-        return RTraceDomain(sd=self)
 
     #-----------------------------------------------------------------
     # Feature: domain time-stepper
     #-----------------------------------------------------------------
-
-    dots = Property
-
-    @cached_property
-    def _get_dots(self):
-        '''Construct and return a new instance of domain
-        time stepper.
-        '''
-        return SubDOTSEval(sdomain=self,
-                           dots_integ=self.fets_eval.dots_class(sdomain=self))
 
     _fets_eval = Instance(IFETSEval)
     # inherit the fets_eval from the parent. This does not necessarily
@@ -486,7 +465,7 @@ if __name__ == '__main__':
         ibvpy_app.main()
 
     def example_1d():
-        from ibvpy.mats.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
+        from ibvpy.tmodel.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
         from ibvpy.fets.fets1D.fets1D2l import FETS1D2L
         fets_eval = FETS1D2L(mats_eval=MATS1DElastic())
         # Discretization
@@ -519,7 +498,7 @@ if __name__ == '__main__':
     #    print ts.rtrace_list[0].trace.ydata
 
     def example_3d():
-        from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
+        from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
         from ibvpy.fets.fets3D.fets3D8h import FETS3D8H
 
         fets_eval = FETS3D8H(mats_eval=MATS3DElastic())

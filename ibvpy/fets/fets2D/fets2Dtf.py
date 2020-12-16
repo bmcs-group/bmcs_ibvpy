@@ -174,7 +174,7 @@ def example_with_new_domain():
     from ibvpy.api import \
         TStepper as TS, RTraceDomainListField, TLoop, TLine
 
-    from ibvpy.mats.mats2D5.mats2D5_bond.mats2D_bond import MATS2D5Bond
+    from ibvpy.tmodel.mats2D5.mats2D5_bond.mats2D_bond import MATS2D5Bond
     from ibvpy.api import BCDofGroup
     from ibvpy.fets.fets2D.fets2D4q import FETS2D4Q
     fets_eval = FETS2DTF(parent_fets=FETS2D4Q(),

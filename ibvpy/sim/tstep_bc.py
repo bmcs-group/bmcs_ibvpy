@@ -1,5 +1,5 @@
 
-from ibvpy.core.bcond_mngr import \
+from ibvpy.bcond.bcond_mngr import \
     BCondMngr
 from ibvpy.mathkit.linalg.sys_mtx_assembly import \
     SysMtxAssembly
@@ -11,7 +11,7 @@ from .domain_state import DomainState
 from .i_tstep import ITStep
 from .tloop_implicit import TLoopImplicit
 from .tstep import TStep
-from .xdomain import XDomain
+from .xmodel import XModel
 
 
 @tr.provides(ITStep)
@@ -111,10 +111,10 @@ class TStepBC(TStep):
     @tr.cached_property
     def _get_fe_domain(self):
         domains = [
-            DomainState(tstep=self, xdomain=xdomain, tmodel=tmodel)
-            for xdomain, tmodel in self.domains
+            DomainState(tstep=self, xmodel=xmodel, tmodel=tmodel)
+            for xmodel, tmodel in self.domains
         ]
-        return XDomain(domains)
+        return XModel(domains)
 
     corr_pred = tr.Property(depends_on='primary_var_changed,t_n1')
 

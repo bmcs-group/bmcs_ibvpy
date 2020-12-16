@@ -8,12 +8,10 @@ from numpy import \
 from traits.api import \
     Array, Property, cached_property, \
     Instance, Trait, Button, on_trait_change, Tuple, \
-    Int, Float, provides, Delegate, Callable
+    Int, Float, provides, Delegate, Callable, HasTraits
 from traitsui.api import \
     View, Item
 
-from ibvpy.core.sdomain import \
-    SDomain
 from ibvpy.view.plot3d.mayavi_util.pipelines import \
     MVStructuredGrid
 
@@ -26,7 +24,7 @@ from .cell_spec import CellSpec, GridCell
 # CellGrid
 #--------------------------------------------------------------------------
 @provides(ICellArraySource)
-class CellGrid(SDomain):
+class CellGrid(HasTraits):
     '''
     Manage an array of cells defined within a structured grid.
 

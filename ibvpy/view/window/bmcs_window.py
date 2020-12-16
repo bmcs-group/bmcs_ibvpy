@@ -144,7 +144,7 @@ class BMCSWindow(BMCSStudy):
 
 if __name__ == '__main__':
     from ibvpy.view.examples.response_tracer import ResponseTracer
-    from ibvpy.sim.api import Simulator
+    from ibvpy.sim.sim_base import Simulator
     from ibvpy.core.bcond_mngr import BCondMngr
     from ibvpy.bcond import BCDof, BCSlice
     bc_mngr = BCondMngr()

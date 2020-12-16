@@ -1,11 +1,11 @@
 
 from numpy import array, sign, argwhere
 
-from ibvpy.api import FEDomain, FERefinementGrid, FEGrid, TStepper as TS, \
+from ibvpy.api import FEDomain, FERefinementGrid, FEGrid, TStepBC as TS, \
     RTraceDomainListField, BCDof, BCSlice
-from ibvpy.core.tloop import TLoop, TLine
+from ibvpy.api import TLoop, TLine
 from ibvpy.mesh.fe_ls_domain import FELSDomain
-from ibvpy.mats.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
+from ibvpy.tmodel.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
 from ibvpy.fets.fets1D.fets1D2l import FETS1D2L
 from ibvpy.fets.fets1D.fets1D2l3u import FETS1D2L3U
 from ibvpy.fets.fets_ls.fets_crack import FETSCrack
@@ -91,10 +91,10 @@ if __name__ == '__main__':
     def example_2d():
         from ibvpy.api import FEDomain, FERefinementGrid, FEGrid, TStepper as TS, \
             BCDofGroup, RTraceDomainListField
-        from ibvpy.core.tloop import TLoop, TLine
+        from ibvpy.api import TLoop, TLine
         from ibvpy.mesh.xfe_subdomain import XFESubDomain
-        from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
-        from ibvpy.mats.mats2D import MATS2DPlastic
+        from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+        from ibvpy.tmodel.mats2D import MATS2DPlastic
         from ibvpy.fets.fets2D.fets2D4q import FETS2D4Q
         from ibvpy.fets.fets2D import FETS2D9Q
         from ibvpy.fets.fets2D.fets2D4q8u import FETS2D4Q8U
@@ -282,13 +282,13 @@ if __name__ == '__main__':
                 # Add the time-loop control
                 print('STATE: initial')
 
-                print('fe_xdomain.dots.state_elem grid')
+                print('fe_xdomain.old_dots.state_elem grid')
                 print(fe_xdomain.dots.state_start_elem_grid)
-                print('fe_tip_xdomain.dots.state_elem grid')
+                print('fe_tip_xdomain.old_dots.state_elem grid')
                 print(fe_tip_xdomain.dots.state_start_elem_grid)
-                print('fe_xdomain.dots.state_end_elem grid')
+                print('fe_xdomain.old_dots.state_end_elem grid')
                 print(fe_xdomain.dots.state_end_elem_grid)
-                print('fe_tip_xdomain.dots.state_end_elem grid')
+                print('fe_tip_xdomain.old_dots.state_end_elem grid')
                 print(fe_tip_xdomain.dots.state_end_elem_grid)
 
                 fe_xdomain.dots.state_array[:] = 25.5
@@ -302,13 +302,13 @@ if __name__ == '__main__':
 
                 print('STATE: changed')
 
-                print('fe_xdomain.dots.state_elem grid')
+                print('fe_xdomain.old_dots.state_elem grid')
                 print(fe_xdomain.dots.state_start_elem_grid)
-                print('fe_tip_xdomain.dots.state_elem grid')
+                print('fe_tip_xdomain.old_dots.state_elem grid')
                 print(fe_tip_xdomain.dots.state_start_elem_grid)
-                print('fe_xdomain.dots.state_end_elem grid')
+                print('fe_xdomain.old_dots.state_end_elem grid')
                 print(fe_xdomain.dots.state_end_elem_grid)
-                print('fe_tip_xdomain.dots.state_end_elem grid')
+                print('fe_tip_xdomain.old_dots.state_end_elem grid')
                 print(fe_tip_xdomain.dots.state_end_elem_grid)
 
                 print('state_array 25', fe_xdomain.dots.state_array.shape)

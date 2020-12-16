@@ -1,6 +1,5 @@
 
 from traits.api import Array, Int, List, Interface, Type
-from ibvpy.core.i_tstepper_eval import ITStepperEval
 
 #-------------------------------------------------------------------
 # IFETSEval - interface for fe-numerical quadrature
@@ -16,7 +15,7 @@ class IFElem( Interface ):
     n_nodal_dofs = Int
     
 
-class IFETSEval( IFElem, ITStepperEval ):
+class IFETSEval( IFElem ):
     '''Interface for time steppers.
     Unified interface for spatial and temporal resolution and integration.
     '''

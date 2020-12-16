@@ -1,7 +1,7 @@
 
 
-from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
-from ibvpy.mats.mats2D.mats2D_sdamage import MATS2DScalarDamage
+from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+from ibvpy.tmodel.mats2D.mats2D_sdamage import MATS2DScalarDamage
 from ibvpy.fets.fets2D.fets2D4q import FETS2D4Q
 from ibvpy.fets.fets2D.fets2D4q8u import FETS2D4Q8U
 from ibvpy.fets.fets_ls.fets_ls_eval import FETSLSEval #, FETSCracked

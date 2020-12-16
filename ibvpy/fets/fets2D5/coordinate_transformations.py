@@ -4,10 +4,10 @@ from numpy import \
 from scipy.linalg import \
      inv, norm
 
-from ibvpy.mats.mats2D.mats2D_tensor import \
+from ibvpy.tmodel.mats2D.mats2D_tensor import \
     map2d_eps_mtx_to_eng, map2d_sig_eng_to_mtx
 
-from ibvpy.mats.mats3D.mats3D_tensor import \
+from ibvpy.tmodel.mats3D.mats3D_tensor import \
     map3d_eps_eng_to_mtx, map3d_sig_eng_to_mtx, map3d_sig_mtx_to_eng, map3d_eps_mtx_to_eng, map3d_tns2_to_tns4, map3d_tns4_to_tns2, map3d_eps_mtx_to_eng
 
 def get_Trans_strain_from_glb_to_loc(dircos_mtx):

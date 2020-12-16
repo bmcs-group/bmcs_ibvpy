@@ -7,7 +7,7 @@ from threading import Thread
 
 from ibvpy.view.reporter import Reporter
 from ibvpy.view.reporter.reporter import ReportStudy
-from ibvpy.sim.i_model import IModel
+from ibvpy.sim.i_tmodel import ITModel
 
 import traits.api as tr
 
@@ -38,7 +38,7 @@ class BMCSStudy(ReportStudy):
     '''Combine the simulater with specification of outputs
     '''
 
-    model = tr.Instance(IModel)
+    model = tr.Instance(ITModel)
 
     sim = tr.Property(depends_on='model')
 

@@ -305,7 +305,7 @@ class FEGridLevelSetSlice(HasTraits):
 if __name__ == '__main__':
     from ibvpy.mesh.fe_grid import FEGrid
     from ibvpy.fets.fets2D.fets2D4q import FETS2D4Q
-    from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+    from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
 
     fets_eval = FETS2D4Q(mats_eval=MATS2DElastic())
     fe_grid1 = FEGrid(coord_max=(3., 2.),

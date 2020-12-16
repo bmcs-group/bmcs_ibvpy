@@ -25,13 +25,13 @@ from ibvpy.fets.fets_eval import FETSEval
 from ibvpy.fets.fets3D.fets3D8h import FETS3D8H
 
 # import the 3D elastic matrix in order  
-from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import \
+from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import \
     MATS3DElastic
 
-from ibvpy.mats.mats2D.mats2D_tensor import \
+from ibvpy.tmodel.mats2D.mats2D_tensor import \
     map2d_eps_mtx_to_eng, map2d_sig_eng_to_mtx
 
-from ibvpy.mats.mats3D.mats3D_tensor import \
+from ibvpy.tmodel.mats3D.mats3D_tensor import \
     map3d_eps_eng_to_mtx, map3d_sig_eng_to_mtx, map3d_sig_mtx_to_eng, map3d_eps_mtx_to_eng, map3d_tns2_to_tns4, map3d_tns4_to_tns2, map3d_eps_mtx_to_eng
 
 #from i_fets_eval import IFETSEval
@@ -350,8 +350,8 @@ if __name__ == '__main__':
         TStepper as TS, RTDofGraph, RTraceDomainListField, TLoop, \
         TLine, BCDofGroup, IBVPSolve as IS, DOTSEval
 
-#    from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
-    from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+#    from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
+    from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
 
 #    fets_eval = FETS3D8H(mats_eval = MATS3DElastic(nu = 0.25))
     fets_eval = FETS2D58H( mats_eval = MATS2DElastic( nu = 0.25, stress_state = "plane_strain" ) )

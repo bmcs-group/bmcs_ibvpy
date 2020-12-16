@@ -8,19 +8,23 @@ from traits.api import \
 
 import numpy as np
 
-from .i_model import IModel
-from .i_xdomain import IXDomain
+from .i_tmodel import ITModel
+from .i_xmodel import IXModel
 
 
 class DomainState(HasStrictTraits):
+    '''
+    Container of spatial domains represented according to XModel.
+    and corresponding state derived using the TModel instance
+    '''
 
     tstep = WeakRef
 
     hist = DelegatesTo('tstep')
 
-    xdomain = Instance(IXDomain)
+    xmodel = Instance(IXModel)
 
-    tmodel = Instance(IModel)
+    tmodel = Instance(ITModel)
 
     state_n = Property(Dict(Str, Array),
                        depends_on='model_structure_changed')
@@ -30,7 +34,7 @@ class DomainState(HasStrictTraits):
     '''
     @cached_property
     def _get_state_n(self):
-        xmodel_shape = self.xdomain.state_var_shape
+        xmodel_shape = self.xmodel.state_var_shape
         tmodel_shapes = self.tmodel.state_var_shapes
         return {
             name: np.zeros(xmodel_shape + mats_sa_shape, dtype=np.float_)
@@ -45,13 +49,13 @@ class DomainState(HasStrictTraits):
     '''
 
     def get_corr_pred(self, U_k, t_n, t_n1):
-        U_k_field = self.xdomain.map_U_to_field(U_k)
+        U_k_field = self.xmodel.map_U_to_field(U_k)
         self.state_k = copy.deepcopy(self.state_n)
         sig_k, D_k = self.tmodel.get_corr_pred(
             U_k_field, t_n1, **self.state_k
         )
-        K_k = self.xdomain.map_field_to_K(D_k)
-        dof_E, f_Ei = self.xdomain.map_field_to_F(sig_k)
+        K_k = self.xmodel.map_field_to_K(D_k)
+        dof_E, f_Ei = self.xmodel.map_field_to_F(sig_k)
         return f_Ei, K_k, dof_E
 
     def record_state(self):

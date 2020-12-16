@@ -10,11 +10,9 @@ from traits.api import \
     provides, Float, \
     Callable, Str, Enum
 
-from ibvpy.dots.xdots_eval import XDOTSEval
-from ibvpy.fets.fets_eval import FETSEval
+from ibvpy.fets import FETSEval
 from ibvpy.mesh.i_fe_grid_slice import IFEGridSlice
 from ibvpy.mesh.i_fe_uniform_domain import IFEUniformDomain
-from ibvpy.rtrace.rt_domain import RTraceDomain
 
 from .fe_grid import MElem
 from .fe_subdomain import FESubDomain
@@ -112,19 +110,6 @@ class XFESubDomain(FESubDomain):
         time stepper.
         '''
         return XDOTSEval(sdomain=self)
-
-    #-----------------------------------------------------------------
-    # Response tracer domain
-    #-----------------------------------------------------------------
-
-    rt_bg_domain = Property(depends_on='+changed_structure,+changed_geometry')
-
-    @cached_property
-    def _get_rt_bg_domain(self):
-        return RTraceDomain(sd=self)
-
-    def redraw(self):
-        self.rt_bg_domain.redraw()
 
     #-----------------------------------------------------------------
     # Boundary level set - define the boundary of the subdomain

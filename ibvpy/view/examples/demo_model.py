@@ -31,7 +31,7 @@ from traits.api import Instance, List,  HasStrictTraits,\
     Property, cached_property, Bool
 
 
-from ibvpy.time_functions.tfun_pwl_interactive import TFunPWLInteractive
+from ibvpy.tfunction.tfun_pwl_interactive import TFunPWLInteractive
 from ibvpy.bcond import BCDof
 from ibvpy.sim.tline import TLine
 import numpy as np

@@ -8,7 +8,7 @@ from traits.api import Array, Bool, Enum, Float, HasTraits, \
 from traitsui.api import \
     HSplit, Group
 
-from ibvpy.core.i_bcond import \
+from .i_bcond import \
     IBCond
 from ibvpy.view.plot3d.mayavi_util.pipelines import \
     MVPointLabels

@@ -1,4 +1,4 @@
-from ibvpy.core.i_bcond import \
+from .i_bcond import \
     IBCond
 from ibvpy.mathkit.mfn import MFnLineArray
 from traits.api import Float, \
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     from ibvpy.api import \
         TStepper as TS, RTDofGraph, TLoop, \
         TLine
-    from ibvpy.mats.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
+    from ibvpy.tmodel.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
 
     fets_eval = FETS1D2L(mats_eval=MATS1DElastic(E=10., A=1.))
 

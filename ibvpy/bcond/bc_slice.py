@@ -12,7 +12,7 @@
 #
 # Created on May 26, 2009 by: rchx
 
-from ibvpy.core.i_bcond import \
+from .i_bcond import \
     IBCond
 from ibvpy.mesh.fe_grid_idx_slice import FEGridIdxSlice
 from ibvpy.view.plot3d.mayavi_util.pipelines import \

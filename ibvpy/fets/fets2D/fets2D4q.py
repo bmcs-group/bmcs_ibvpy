@@ -148,8 +148,8 @@ def example_with_new_domain():
         TStepper as TS, RTDofGraph, RTraceDomainListField, \
         RTraceDomainListInteg, TLoop, \
         TLine, BCDof, DOTSEval
-    from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
-    from ibvpy.mats.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
+    from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+    from ibvpy.tmodel.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
 
     from ibvpy.api import BCDofGroup
 

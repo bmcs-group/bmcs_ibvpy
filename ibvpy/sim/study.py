@@ -6,7 +6,7 @@
 from threading import Thread
 from ibvpy.view.reporter import Reporter
 from ibvpy.view.reporter.reporter import ReportStudy
-from .model import Model
+from .tmodel import TModel
 from ibvpy.view.window.bmcs_viz_sheet import BMCSVizSheet
 import traits.api as tr
 
@@ -34,7 +34,7 @@ class XBMCSStudy(ReportStudy):
     '''Combine the model with specification of outputs
     '''
 
-    model = tr.Instance(Model)
+    model = tr.Instance(TModel)
     '''Model of the studied phoenomenon.
     '''
 

@@ -106,7 +106,7 @@ def run_example():
         TStepper as TS, RTDofGraph, RTraceDomainListField, \
         RTraceDomainListInteg, TLoop, \
         TLine, BCDof, IBVPSolve as IS, DOTSEval
-    from ibvpy.mats.mats2D.mats2D_conduction.mats2D_conduction import MATS2DConduction
+    from ibvpy.tmodel.mats2D.mats2D_conduction.mats2D_conduction import MATS2DConduction
 
     from ibvpy.api import BCDofGroup
     fets_eval = FETS2D4Q4T(mats_eval=MATS2DConduction(k=1.))

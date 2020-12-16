@@ -6,18 +6,13 @@ from scipy.linalg import \
     det
 from scipy.spatial.distance import \
     cdist
-from ibvpy.core.tstepper_eval import TStepperEval
 from traits.api import \
     Bool, Float, provides, \
     Int, Trait, List, Any, \
     Delegate, Property, cached_property, Dict, \
-    Type, Array
+    Type, Array, HasTraits
 from traitsui.api import \
     View, Item, Group
-from ibvpy.core.rtrace_eval import \
-    RTraceEval
-from ibvpy.dots.dots_eval import \
-    DOTSEval
 import numpy as np
 from tvtk.tvtk_classes import tvtk_helper
 
@@ -47,9 +42,7 @@ def oriented_3d_array(arr, axis):
 
 
 @provides(IFETSEval)
-class FETSEval(TStepperEval):
-
-    dots_class = Type(DOTSEval)
+class FETSEval(HasTraits):
 
     dof_r = Array(np.float_,
                   desc='Local coordinates of nodes included in the field ansatz')
@@ -549,58 +542,6 @@ class FETSEval(TStepperEval):
         N_mtx = self.get_N_mtx(sctx.loc)
         return np.dot(N_mtx, u)
 
-    debug_on = Bool(False)
-
-    def _debug_rte_dict(self):
-        '''
-        RTraceEval dictionary with field variables used to verify the element implementation
-        '''
-        if self.debug_on:
-            return {'Ngeo_mtx': RTraceEvalElemFieldVar(eval=lambda sctx, u: self.get_N_geo_mtx(sctx.loc),
-                                                       ts=self),
-                    'N_mtx': RTraceEvalElemFieldVar(eval=lambda sctx, u: self.get_N_mtx(sctx.loc)[0],
-                                                    ts=self),
-                    'B_mtx0': RTraceEvalElemFieldVar(eval=lambda sctx, u: self.get_B_mtx(sctx.loc, sctx.X)[0],
-                                                     ts=self),
-                    'B_mtx1': RTraceEvalElemFieldVar(eval=lambda sctx, u: self.get_B_mtx(sctx.loc, sctx.X)[1],
-                                                     ts=self),
-                    'B_mtx2': RTraceEvalElemFieldVar(eval=lambda sctx, u: self.get_B_mtx(sctx.loc, sctx.X)[2],
-                                                     ts=self),
-                    'J_det': RTraceEvalElemFieldVar(eval=lambda sctx, u:
-                                                    np.array(
-                                                        [det(self.get_J_mtx(sctx.loc, sctx.X))]),
-                                                    ts=self)}
-        else:
-            return {}
-
-    # List of mats that are to be chained
-    #
-
-    # Declare and fill-in the rte_dict - it is used by the clients to
-    # assemble all the available time-steppers.
-    #
-    rte_dict = Trait(Dict)
-
-    def _rte_dict_default(self):
-        '''
-        RTraceEval dictionary with standard field variables.
-        '''
-        rte_dict = self._debug_rte_dict()
-        for key, v_eval in list(self.mats_eval.rte_dict.items()):
-
-            # add the eval into the loop.
-            #
-            rte_dict[key] = RTraceEvalElemFieldVar(name=key,
-                                                   u_mapping=self.get_eps1t_eng,
-                                                   eval=v_eval)
-
-        rte_dict.update({'eps_app': RTraceEvalElemFieldVar(eval=self.get_eps_mtx33),
-                         'eps0_app': RTraceEvalElemFieldVar(eval=self.get_eps0_mtx33),
-                         'eps1t_app': RTraceEvalElemFieldVar(eval=self.get_eps1t_mtx33),
-                         'u': RTraceEvalElemFieldVar(eval=self.get_u)})
-
-        return rte_dict
-
     traits_view = View(
         Group(
             Item('n_e_dofs'),
@@ -622,62 +563,3 @@ class FETSEval(TStepperEval):
         height=0.4
     )
 
-
-class RTraceIntegEvalElemFieldVar(RTraceEval):
-
-    integral = True
-    # To be specialized for element level
-    #
-
-    def __call__(self, sctx, u, B_mtx_grid=None, J_det_grid=None):
-        if J_det_grid == None or B_mtx_grid == None:
-            X_mtx = sctx.X
-#            if self.dim_slice:
-#                X_mtx = sctx.X[:, self.dim_slice]
-#            else:
-
-        show_comparison = True
-        ip_coords = self.ip_coords
-        show_comparison = False
-        ip_weights = self.ip_weights
-
-        # Use for Jacobi Transformation
-
-        F = 0.0
-        sctx.fets_eval = self
-
-        ip = 0      # use enumerate
-
-        for r_pnt, wt in zip(ip_coords, ip_weights):
-            sctx.r_pnt = r_pnt
-            if J_det_grid == None:
-                J_det = self._get_J_det(r_pnt, X_mtx)
-            else:
-                J_det = J_det_grid[ip, ...]
-            if B_mtx_grid == None:
-                B_mtx = self.get_B_mtx(r_pnt, X_mtx)
-            else:
-                B_mtx = B_mtx_grid[ip, ...]
-            eps_mtx = dot(B_mtx, u)
-            sctx.mats_state_array = sctx.elem_state_array[
-                ip * self.m_arr_size: (ip + 1) * self.m_arr_size]
-            f = self.eval(sctx, eps_mtx)
-            f *= (wt * J_det)
-            F += f
-
-        return F
-
-
-class RTraceEvalElemFieldVar(RTraceEval):
-
-    # To be specialized for element level
-    #
-    field_entity_type = Delegate('ts')
-    vtk_r_arr = Delegate('ts')
-    get_vtk_r_glb_arr = Delegate('ts')
-    field_vertexes = Delegate('ts')
-    field_lines = Delegate('ts')
-    field_faces = Delegate('ts')
-    field_volumes = Delegate('ts')
-    n_vtk_cells = Delegate('ts')
-    vtk_cell_data = Delegate('ts')

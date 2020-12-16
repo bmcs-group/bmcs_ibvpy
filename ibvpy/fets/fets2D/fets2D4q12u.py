@@ -7,7 +7,7 @@ from traits.api import \
     Array, Float, \
     Instance, Int
 from ibvpy.fets.fets_eval import FETSEval
-from ibvpy.mats.mats_eval import MATSEval
+from ibvpy.tmodel.mats_eval import MATSEval
 
 
 #-------------------------------------------------------------------------
@@ -208,10 +208,10 @@ if __name__ == '__main__':
         TStepper as TS, RTraceDomainListField, TLoop, \
         TLine, BCDofGroup
 
-    #from lib.mats.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
-#    from lib.mats.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
-#    from lib.mats.mats2D.mats2D_sdamage.strain_norm2d import *
-    from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+    #from lib.tmodel.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
+#    from lib.tmodel.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
+#    from lib.tmodel.mats2D.mats2D_sdamage.strain_norm2d import *
+    from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
 #    fets_eval = FETS2D4Q12U(mats_eval = MATS2DScalarDamage(strain_norm = Euclidean()))
     fets_eval = FETS2D4Q12U(mats_eval=MATS2DElastic())
     #fets_eval = FETS2D9Q(mats_eval = MACMDM())

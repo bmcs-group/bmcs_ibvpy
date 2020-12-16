@@ -10,8 +10,8 @@ from ibvpy.api import \
 
 from ibvpy.mesh.fe_grid import FEGrid
 
-from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
-from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
+from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
 
 # linear
 from ibvpy.fets.fets3D.fets3D8h import FETS3D8H
@@ -36,10 +36,10 @@ from ibvpy.fets.fets2D5.fets2D58h24u import FETS2D58H24U
 
 from ibvpy.util.simgrid import simgrid
 
-from ibvpy.mats.mats2D5.mats2D5_cmdm.mats2D5_cmdm import \
+from ibvpy.tmodel.mats2D5.mats2D5_cmdm.mats2D5_cmdm import \
     MATS2D5MicroplaneDamage
 
-from ibvpy.mats.matsXD.matsXD_cmdm.matsXD_cmdm_phi_fn import \
+from ibvpy.tmodel.matsXD.matsXD_cmdm.matsXD_cmdm_phi_fn import \
     PhiFnStrainSoftening, PhiFnGeneral
 
 

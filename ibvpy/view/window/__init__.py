@@ -1,5 +1,5 @@
 
-from ibvpy.core.tline import TLine
+from ibvpy.sim.tline import TLine
 
 from .bmcs_tree_view_handler import \
     BMCSTreeViewHandler, menu_save, \

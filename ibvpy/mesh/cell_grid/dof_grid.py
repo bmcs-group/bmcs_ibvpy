@@ -10,7 +10,7 @@ from traitsui.api import \
 from traitsui.tabular_adapter import \
     TabularAdapter
 
-from ibvpy.core.sdomain import \
+from ibvpy.mesh.sdomain import \
     SDomain
 from ibvpy.view.plot3d.mayavi_util.pipelines import \
     MVPolyData, MVPointLabels

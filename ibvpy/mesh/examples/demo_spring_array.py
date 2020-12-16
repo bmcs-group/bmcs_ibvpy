@@ -19,9 +19,8 @@ from ibvpy.mesh.fe_grid import FEGrid
 from ibvpy.mesh.fe_refinement_grid import FERefinementGrid
 from ibvpy.mesh.fe_domain import FEDomain
 
-from ibvpy.mesh.fe_spring_array import FESpringArray
 from ibvpy.fets.fets1D.fets1D2l import FETS1D2L
-from ibvpy.mats.mats1D import MATS1DElastic
+from ibvpy.tmodel.mats1D import MATS1DElastic
 
 if __name__ == '__main__':
 

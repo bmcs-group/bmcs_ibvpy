@@ -7,7 +7,6 @@ from ibvpy.mesh.cell_grid.cell_grid import CellGrid
 from ibvpy.mesh.cell_grid.cell_spec import CellSpec
 from ibvpy.mesh.cell_grid.dof_grid import DofCellGrid, DofCellView
 from ibvpy.mesh.cell_grid.geo_grid import GeoCellGrid, GeoCellView
-from ibvpy.rtrace.rt_domain import RTraceDomain
 from numpy import copy, zeros, array_equal
 from traits.api import \
     Instance, Array, Int, on_trait_change, Property, cached_property, \
@@ -674,38 +673,6 @@ class FEGrid(FEGridActivationMap):
     def get_ls_value(self, X_pnt):
         # @TODO: make it work for 3d
         return self.ls_function.level_set_fn(X_pnt[0], X_pnt[1])
-
-    #-----------------------------------------------------------------
-    # Response tracer background mesh
-    #-----------------------------------------------------------------
-
-    rt_bg_domain = Property
-
-    @cached_property
-    def _get_rt_bg_domain(self):
-        return RTraceDomain(sd=self)
-
-    mesh_plot_button = Button('Draw mesh')
-
-    def _mesh_plot_button_fired(self):
-        self.rt_bg_domain.redraw()
-
-    refresh_button = Button('Draw grid')
-
-    @on_trait_change('refresh_button')
-    def redraw(self):
-        '''Redraw the point grid.
-        '''
-        self.rt_bg_domain.redraw()
-
-    fe_cell_array = Button('Browse elements')
-
-    def _fe_cell_array_fired(self):
-        elem_array = self.geo_grid.cell_node_map
-        self.show_array = CellArray(data=elem_array,
-                                    cell_view=FECellView(cell_grid=self))
-        self.show_array.current_row = 0
-        self.show_array.configure_traits(kind='live')
 
     _grids = Property(
         depends_on='fets_eval.dof_r,fets_eval.geo_r,shape+,coord_min+,coord_max+,fets_eval.n_nodal_dofs,dof_offset,geo_transform')

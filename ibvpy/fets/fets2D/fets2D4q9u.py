@@ -9,7 +9,7 @@ from traits.api import \
     Instance, Int
 
 from ibvpy.fets import FETSEval
-from ibvpy.mats import MATSEval
+from ibvpy.tmodel import MATSEval
 
 
 #-------------------------------------------------------------------------
@@ -210,9 +210,9 @@ if __name__ == '__main__':
         TStepper as TS, RTDofGraph, RTraceDomainListField, TLoop, \
         TLine, BCDofGroup
 
-    #from lib.mats.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
-    from ibvpy.mats.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
-    #from ibvpy.mats.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+    #from lib.tmodel.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
+    from ibvpy.tmodel.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
+    #from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
     from ibvpy.mesh.fe_grid import FEGrid
 
     fets_eval = FETS2D4Q9U(mats_eval=MATS2DScalarDamage())

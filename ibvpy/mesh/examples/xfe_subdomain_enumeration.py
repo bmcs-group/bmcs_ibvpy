@@ -14,11 +14,10 @@
 
 if __name__ == '__main__':
     def example_1d():
-        from ibvpy.api import FEDomain, FERefinementGrid, FEGrid, TStepper as TS, \
-            BCDofGroup, RTraceDomainListField
-        from ibvpy.core.tloop import TLoop, TLine
+        from ibvpy.api import FEDomain, FERefinementGrid, FEGrid, TStepBC as TS, \
+            BCDofGroup, RTraceDomainListField, TLoop, TLine
         from ibvpy.mesh.xfe_subdomain import XFESubDomain
-        from ibvpy.mats.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
+        from ibvpy.tmodel.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
         from ibvpy.fets.fets1D.fets1D2l import FETS1D2L
         from ibvpy.fets.fets1D.fets1D2l3u import FETS1D2L3U
         from ibvpy.fets.fets_ls.fets_crack import FETSCrack

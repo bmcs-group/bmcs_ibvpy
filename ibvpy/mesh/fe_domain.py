@@ -27,8 +27,8 @@ class FEDomain(HasStrictTraits):
         '''
         s = np.array(self.subdomains)
         for s1, s2 in zip(s[:-1], s[1:]):
-            s1.xdomain.mesh.next_domain = s2
-            s2.xdomain.mesh.previous_domain = s1
+            s1.xmodel.mesh.next_domain = s2
+            s2.xmodel.mesh.previous_domain = s1
         return self.subdomains
 
     nonempty_subdomains = Property(depends_on='changed_structure')
@@ -37,7 +37,7 @@ class FEDomain(HasStrictTraits):
     def _get_nonempty_subdomains(self):
         d_list = []
         for d in self.serialized_subdomains:
-            if d.xdomain.mesh.n_active_elems > 0:
+            if d.xmodel.mesh.n_active_elems > 0:
                 d_list.append(d)
         return d_list
 
@@ -48,7 +48,7 @@ class FEDomain(HasStrictTraits):
         Use the last subdomain's: dof_offset + n_dofs 
         '''
         last_d = self.serialized_subdomains[-1]
-        return last_d.xdomain.mesh.dof_offset + last_d.xdomain.mesh.n_dofs
+        return last_d.xmodel.mesh.dof_offset + last_d.xmodel.mesh.n_dofs
 
     dof_offset_arr = Property
 
@@ -57,7 +57,7 @@ class FEDomain(HasStrictTraits):
         Return array of the dof offsets 
         from serialized subdomains
         '''
-        a = np.array([domain.xdomain.mesh.dof_offset
+        a = np.array([domain.xmodel.mesh.dof_offset
                       for domain in self.serialized_subdomains])
         return a
 

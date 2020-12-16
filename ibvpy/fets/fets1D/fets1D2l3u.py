@@ -91,7 +91,7 @@ def example_with_new_domain():
     from ibvpy.api import \
         TStepper as TS, RTDofGraph, RTraceDomainListField, TLoop, \
         TLine, BCDof, IBVPSolve as IS, DOTSEval
-    from ibvpy.mats.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
+    from ibvpy.tmodel.mats1D.mats1D_elastic.mats1D_elastic import MATS1DElastic
 
     fets_eval = FETS1D2L3U(mats_eval=MATS1DElastic(E=10.))
 

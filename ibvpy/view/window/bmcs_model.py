@@ -2,7 +2,7 @@
 @author: rch
 '''
 
-from ibvpy.core.tline import TLine
+from ibvpy.sim.tline import TLine
 from traits.api import \
     Instance, List, Bool, on_trait_change, Str, provides
 from ibvpy.view.ui.bmcs_tree_node import \

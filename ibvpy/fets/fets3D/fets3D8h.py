@@ -154,7 +154,7 @@ if __name__ == '__main__':
         TStepper as TS, RTDofGraph, RTraceDomainListField, TLoop, \
         TLine, BCDofGroup, IBVPSolve as IS, DOTSEval
 
-    from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
+    from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
 
     fets_eval = FETS3D8H(mats_eval=MATS3DElastic(nu=0.25))
 

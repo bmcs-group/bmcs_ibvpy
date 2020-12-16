@@ -119,11 +119,11 @@ def example_with_new_domain():
         TStepper as TS, RTraceDomainListField, TLoop, \
         TLine, BCSlice
     from ibvpy.fets.fets2D.fets2D4q8u import FETS2D4Q8U
-    from ibvpy.mats.mats3D.mats3D_cmdm import \
+    from ibvpy.tmodel.mats3D.mats3D_cmdm import \
         MATS3DMicroplaneDamage
-    from ibvpy.mats.matsXD.matsXD_cmdm import PhiFnStrainSoftening
+    from ibvpy.tmodel.matsXD.matsXD_cmdm import PhiFnStrainSoftening
 
-#    mats =  MATS2DElastic(E=2,nu= .2,
+#    tmodel =  MATS2DElastic(E=2,nu= .2,
 #                          stress_state= 'rotational_symetry')
     mats = MATS3DMicroplaneDamage(model_version='stiffness',
                                   E=34e3,

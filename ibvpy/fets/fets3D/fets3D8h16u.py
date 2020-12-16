@@ -283,10 +283,10 @@ if __name__ == '__main__':
         TStepper as TS, RTDofGraph, RTraceDomainListField, TLoop, \
         TLine, BCDofGroup, IBVPSolve as IS, DOTSEval
 
-    #from lib.mats.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
-    from ibvpy.mats.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
-    from ibvpy.mats.mats2D.mats2D_sdamage.strain_norm2d import *
-    from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
+    #from lib.tmodel.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
+    from ibvpy.tmodel.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
+    from ibvpy.tmodel.mats2D.mats2D_sdamage.strain_norm2d import *
+    from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import MATS3DElastic
 
     fets_eval = FETS3D8H16U( mats_eval = MATS3DElastic(), )
 

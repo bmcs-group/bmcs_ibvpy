@@ -11,13 +11,13 @@ from ibvpy.fets.fets_eval import FETSEval
 from ibvpy.fets.fets3D.fets3D8h16u import FETS3D8H16U
 
 # import the 3D elastic matrix in order
-from ibvpy.mats.mats3D.mats3D_elastic.mats3D_elastic import \
+from ibvpy.tmodel.mats3D.mats3D_elastic.mats3D_elastic import \
     MATS3DElastic
 
-from ibvpy.mats.mats2D.mats2D_tensor import \
+from ibvpy.tmodel.mats2D.mats2D_tensor import \
     map2d_eps_mtx_to_eng, map2d_sig_eng_to_mtx
 
-from ibvpy.mats.mats3D.mats3D_tensor import \
+from ibvpy.tmodel.mats3D.mats3D_tensor import \
     map3d_eps_eng_to_mtx, map3d_sig_eng_to_mtx, map3d_sig_mtx_to_eng, map3d_eps_mtx_to_eng, map3d_tns2_to_tns4, map3d_tns4_to_tns2, map3d_eps_mtx_to_eng
 
 # from coordinate_transformations import \

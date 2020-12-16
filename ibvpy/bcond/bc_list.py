@@ -20,7 +20,7 @@ from traitsui.api import \
     VSplit, \
     View, UItem, Item, TableEditor, VGroup
 
-from ibvpy.core.i_bcond import \
+from .i_bcond import \
     IBCond
 from traitsui.table_column \
     import ObjectColumn

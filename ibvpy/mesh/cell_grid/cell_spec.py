@@ -7,10 +7,7 @@ from traits.api import \
 from traitsui.api import \
     View, Item
 
-from ibvpy.core.i_sdomain import \
-    ISDomain
-
-from ibvpy.core.sdomain import \
+from ibvpy.mesh.sdomain import \
     SDomain
 
 from numpy import \
