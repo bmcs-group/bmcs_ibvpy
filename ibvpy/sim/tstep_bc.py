@@ -11,7 +11,7 @@ from .domain_state import DomainState
 from .i_tstep import ITStep
 from .tloop_implicit import TLoopImplicit
 from .tstep import TStep
-from .xmodel import XModel
+from .domain_state_container import DomainStateContainer
 
 
 @tr.provides(ITStep)
@@ -114,7 +114,7 @@ class TStepBC(TStep):
             DomainState(tstep=self, xmodel=xmodel, tmodel=tmodel)
             for xmodel, tmodel in self.domains
         ]
-        return XModel(domains)
+        return DomainStateContainer(domains)
 
     corr_pred = tr.Property(depends_on='primary_var_changed,t_n1')
 

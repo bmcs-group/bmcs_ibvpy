@@ -50,7 +50,7 @@ class DomainState(HasStrictTraits):
 
     def get_corr_pred(self, U_k, t_n, t_n1):
         U_k_field = self.xmodel.map_U_to_field(U_k)
-        self.state_k = copy.deepcopy(self.state_n)
+        self.state_k = copy.deepcopy(self.state_n) # todo: optimize memory management.
         sig_k, D_k = self.tmodel.get_corr_pred(
             U_k_field, t_n1, **self.state_k
         )

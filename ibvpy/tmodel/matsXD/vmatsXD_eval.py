@@ -68,11 +68,11 @@ class MATSXDEval(MATSEval):
     #=========================================================================
     # Response variables
     #=========================================================================
-    def get_eps_ab(self, eps_ab, tn1, **state):
+    def get_eps_ab(self, eps_ab, tn1, **Eps):
         return eps_ab
 
-    def get_sig_ab(self, eps_ab, tn1, **state):
-        return self.get_sig(eps_ab, tn1, **state)
+    def get_sig_ab(self, eps_ab, tn1, **Eps):
+        return self.get_sig(eps_ab, tn1, **Eps)
 
     var_dict = Property(Dict(Str, Callable))
     '''Dictionary of response variables

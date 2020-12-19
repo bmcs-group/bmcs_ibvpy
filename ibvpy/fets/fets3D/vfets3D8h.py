@@ -4,7 +4,7 @@ Created on 15.02.2018
 @author: abaktheer
 '''
 
-from ibvpy.fets import FETSEval
+from .fets3D import FETS3D
 import numpy as np
 import sympy as sp
 import traits.api as tr
@@ -64,11 +64,10 @@ dN_xi_ir = sp.Matrix((((-1.0 / 8.0) * (-1.0 + xi_2) * (-1.0 + xi_3),
                        (1.0 / 8.0) * (1.0 + xi_1) * (1.0 + xi_3),
                        (1.0 / 8.0) * (1.0 + xi_1) * (1.0 + xi_2))), dtype=np.float_)
 
-# symetrization operator
 delta = np.identity(3)
 
 
-class FETS3D8H(FETSEval):
+class FETS3D8H(FETS3D):
     dof_r = tr.Array(np.float_,
                      value=[[-1, -1, -1], [1, -1, -1],
                             [-1, 1, -1], [1, 1, -1],
@@ -125,8 +124,9 @@ class FETS3D8H(FETSEval):
     '''
     @tr.cached_property
     def _get_shape_function_values(self):
+
         N_mi = np.array([N_xi_i.subs(list(zip([xi_1, xi_2, xi_3], xi)))
-                         for xi in self.xi_m], dtype=np.float_)
+                         for xi in self.xi_m], dtype=np.float_)[...,0]
         N_im = np.einsum('mi->im', N_mi)
         dN_mir = np.array(
             [dN_xi_ir.subs(list(zip([xi_1, xi_2, xi_3], xi)))

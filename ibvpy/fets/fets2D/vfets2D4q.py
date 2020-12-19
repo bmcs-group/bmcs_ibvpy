@@ -4,7 +4,7 @@ Created on Feb 8, 2018
 @author: rch
 '''
 
-from ibvpy.fets import FETSEval
+from .fets2D import FETS2D
 from ibvpy.mathkit.tensor import DELTA23_ab
 import numpy as np
 import sympy as sp
@@ -38,7 +38,7 @@ dN_xi_ir = sp.Matrix(((-(1.0 / 4.0) * (1.0 - xi_2), -(1.0 / 4.0) * (1.0 - xi_1))
 
 get_dN_xi_ir = sp.lambdify((xi_1, xi_2), dN_xi_ir, 'numpy')
 
-class FETS2D4Q(FETSEval):
+class FETS2D4Q(FETS2D):
     dof_r = tr.Array(np.float_,
                      value=[[-1, -1], [1, -1], [1, 1], [-1, 1]])
     geo_r = tr.Array(np.float_,

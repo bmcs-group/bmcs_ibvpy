@@ -77,7 +77,11 @@ class XDomainFEGrid(BMCSTreeNode):
     '''Finite element type
     '''
 
-    dim_u = Int(2)
+    n_u = Property
+    """Dimension of the field variables in the finite element formulation
+    """
+    def _get_n_u(self):
+       return self.fets.n_nodal_dofs
 
     Diff1_abcd = Array(np.float_, input=True)
     '''Symmetric operator distributing the first order
@@ -86,7 +90,7 @@ class XDomainFEGrid(BMCSTreeNode):
     '''
 
     def _Diff1_abcd_default(self):
-        delta = np.identity(self.dim_u)
+        delta = np.identity(self.n_u)
         # symmetrization operator
         Diff1_abcd = 0.5 * (
             np.einsum('ac,bd->abcd', delta, delta) +

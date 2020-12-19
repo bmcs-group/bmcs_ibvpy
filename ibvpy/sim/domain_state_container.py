@@ -7,7 +7,7 @@ from traits.api import \
 import numpy as np
 
 
-class XModel(HasStrictTraits):
+class DomainStateContainer(HasStrictTraits):
     '''Model of the spatial domain - base class approximations and discretizations.
 
     The XModel represents one subdomain within a spatial domain.
