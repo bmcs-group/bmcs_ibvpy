@@ -17,7 +17,7 @@ import numpy as np
 from tvtk.tvtk_classes import tvtk_helper
 
 from .i_fets import IFETSEval
-
+from bmcs_utils.api import InteractiveModel
 
 #-------------------------------------------------------------------
 # Numpy extension
@@ -42,7 +42,7 @@ def oriented_3d_array(arr, axis):
 
 
 @provides(IFETSEval)
-class FETSEval(HasTraits):
+class FETSEval(InteractiveModel):
 
     dof_r = Array(np.float_,
                   desc='Local coordinates of nodes included in the field ansatz')

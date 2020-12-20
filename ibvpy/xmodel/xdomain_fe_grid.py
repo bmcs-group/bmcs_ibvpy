@@ -200,7 +200,7 @@ class XDomainFEGrid(BMCSTreeNode):
     def _get_B1_Eimabc(self):
         inv_J_Emar = np.linalg.inv(self.J_Emar)
         return np.einsum(
-            'abcd,inr,Emrd->Einabc',
+            'abcd,imr,Emrd->Eimabc',
             self.Diff1_abcd, self.fets.dN_imr, inv_J_Emar
         )
 
@@ -230,7 +230,7 @@ class XDomainFEGrid(BMCSTreeNode):
     ##################################################################
     #
     def map_U_to_field(self, U_o):
-        n_c = self.fets.n_nodal_dofs
+#        n_c = self.fets.n_nodal_dofs
         U_Eia = U_o[self.o_Eia]
         eps_Emab = np.einsum(
             'Eimabc,Eic->Emab',

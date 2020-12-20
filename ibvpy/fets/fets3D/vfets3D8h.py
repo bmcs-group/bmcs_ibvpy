@@ -8,66 +8,46 @@ from .fets3D import FETS3D
 import numpy as np
 import sympy as sp
 import traits.api as tr
+from bmcs_utils.api import InjectSymbExpr, SymbExpr
+import k3d
 
+xi_1, xi_2, xi_3 = sp.symbols('xi_1, xi_2, xi_3')
+
+xi_i = sp.Matrix([xi_1, xi_2, xi_3])
 
 #=================================================
 # 8 nodes isoparametric volume element (3D)
 #=================================================
-# generate shape functions with sympy
-xi_1 = sp.symbols('xi_1')
-xi_2 = sp.symbols('xi_2')
-xi_3 = sp.symbols('xi_3')
+import sympy as sp
+
+class FETS3D8HSymbExpr(SymbExpr):
+
+    xi_i = xi_i
+
+    N_xi_i = sp.Matrix([(1 - xi_1) * (1 - xi_2) * (1 - xi_3) / 8,
+                        (1 + xi_1) * (-1 + xi_2) * (-1 + xi_3) / 8,  # 2
+                        (-1 + xi_1) * (1 + xi_2) * (-1 + xi_3) / 8,
+                        (-1 - xi_1) * (-1 - xi_2) * (1 - xi_3) / 8,
+                        (-1 + xi_1) * (-1 + xi_2) * (1 + xi_3) / 8,
+                        (-1 - xi_1) * (1 - xi_2) * (-1 - xi_3) / 8,  # 6
+                        (1 - xi_1) * (-1 - xi_2) * (-1 - xi_3) / 8,
+                        (1 + xi_1) * (1 + xi_2) * (1 + xi_3) / 8, ]).T
+
+    dN_xi_ai_ = [N_xi.diff(xi_i) for N_xi in N_xi_i]
+    dN_xi_ai = sp.Matrix.hstack(*dN_xi_ai_)
+
+    symb_model_params = []
+
+    symb_expressions = [
+        ('N_xi_i', ('xi_i',)),
+        ('dN_xi_ai', ('xi_i',))
+    ]
 
 
-#=========================================================================
-# Finite element specification
-#=========================================================================
+class FETS3D8H(FETS3D, InjectSymbExpr):
 
-N_xi_i = sp.Matrix([(1.0 - xi_1) * (1.0 - xi_2) * (1.0 - xi_3) / 8.0,
-                    (1.0 + xi_1) * (-1.0 + xi_2) * (-1.0 + xi_3) / 8.0,  # 2
-                    (-1.0 + xi_1) * (1.0 + xi_2) * (-1.0 + xi_3) / 8.0,
-                    (-1.0 - xi_1) * (-1.0 - xi_2) * (1.0 - xi_3) / 8.0,
-                    (-1.0 + xi_1) * (-1.0 + xi_2) * (1.0 + xi_3) / 8.0,
-                    (-1.0 - xi_1) * (1.0 - xi_2) * (-1.0 - xi_3) / 8.0,  # 6
-                    (1.0 - xi_1) * (-1.0 - xi_2) * (-1.0 - xi_3) / 8.0,
-                    (1.0 + xi_1) * (1.0 + xi_2) * (1.0 + xi_3) / 8.0, ], dtype=np.float_)
+    symb_class = FETS3D8HSymbExpr
 
-dN_xi_ir = sp.Matrix((((-1.0 / 8.0) * (-1.0 + xi_2) * (-1.0 + xi_3),
-                       (-1.0 / 8.0) * (-1.0 + xi_1) * (-1.0 + xi_3),
-                       (-1.0 / 8.0) * (-1.0 + xi_1) * (-1.0 + xi_2)),
-
-                      ((1.0 / 8.0) * (-1.0 + xi_2) * (-1.0 + xi_3),  # 2
-                       (1.0 / 8.0) * (1.0 + xi_1) * (-1.0 + xi_3),
-                       (1.0 / 8.0) * (1.0 + xi_1) * (-1.0 + xi_2)),
-
-                      ((1.0 / 8.0) * (1.0 + xi_2) * (-1.0 + xi_3),
-                       (1.0 / 8.0) * (-1.0 + xi_1) * (-1.0 + xi_3),
-                       (1.0 / 8.0) * (-1.0 + xi_1) * (1.0 + xi_2)),
-
-                      ((-1.0 / 8.0) * (1.0 + xi_2) * (-1.0 + xi_3),
-                       (-1.0 / 8.0) * (1.0 + xi_1) * (-1.0 + xi_3),
-                       (-1.0 / 8.0) * (1.0 + xi_1) * (1.0 + xi_2)),
-
-                      ((1.0 / 8.0) * (-1.0 + xi_2) * (1.0 + xi_3),
-                       (1.0 / 8.0) * (-1.0 + xi_1) * (1.0 + xi_3),
-                       (1.0 / 8.0) * (-1.0 + xi_1) * (-1.0 + xi_2)),
-
-                      ((-1.0 / 8.0) * (-1.0 + xi_2) * (1.0 + xi_3),  # 6
-                       (-1.0 / 8.0) * (1.0 + xi_1) * (1.0 + xi_3),
-                       (-1.0 / 8.0) * (1.0 + xi_1) * (-1.0 + xi_2)),
-
-                      ((-1.0 / 8.0) * (1.0 + xi_2) * (1.0 + xi_3),
-                       (-1.0 / 8.0) * (-1.0 + xi_1) * (1.0 + xi_3),
-                       (-1.0 / 8.0) * (-1.0 + xi_1) * (1.0 + xi_2)),
-
-                      ((1.0 / 8.0) * (1.0 + xi_2) * (1.0 + xi_3),
-                       (1.0 / 8.0) * (1.0 + xi_1) * (1.0 + xi_3),
-                       (1.0 / 8.0) * (1.0 + xi_1) * (1.0 + xi_2))), dtype=np.float_)
-
-delta = np.identity(3)
-
-
-class FETS3D8H(FETS3D):
     dof_r = tr.Array(np.float_,
                      value=[[-1, -1, -1], [1, -1, -1],
                             [-1, 1, -1], [1, 1, -1],
@@ -85,6 +65,8 @@ class FETS3D8H(FETS3D):
                             [-1, -1, 1], [1, -1, 1],
                             [-1, 1, 1], [1, 1, 1], ])
     n_nodal_dofs = 3
+
+    delta = np.identity(n_nodal_dofs)
 
     vtk_cells = [[0, 1, 3, 2, 4, 5, 7, 6]]
     vtk_cell_types = 'Hexahedron'
@@ -119,47 +101,29 @@ class FETS3D8H(FETS3D):
     def _get_n_m(self):
         return len(self.w_m)
 
-    shape_function_values = tr.Property(tr.Tuple)
-    '''The values of the shape functions and their derivatives at the IPs
-    '''
-    @tr.cached_property
-    def _get_shape_function_values(self):
-
-        N_mi = np.array([N_xi_i.subs(list(zip([xi_1, xi_2, xi_3], xi)))
-                         for xi in self.xi_m], dtype=np.float_)[...,0]
-        N_im = np.einsum('mi->im', N_mi)
-        dN_mir = np.array(
-            [dN_xi_ir.subs(list(zip([xi_1, xi_2, xi_3], xi)))
-             for xi in self.xi_m], dtype=np.float_
-        ).reshape(8, 8, 3)
-        dN_nir = np.array(
-            [dN_xi_ir.subs(list(zip([xi_1, xi_2, xi_3], xi)))
-             for xi in self.vtk_r], dtype=np.float_
-        ).reshape(8, 8, 3)
-        dN_imr = np.einsum('mir->imr', dN_mir)
-        dN_inr = np.einsum('nir->inr', dN_nir)
-        return (N_im, dN_imr, dN_inr)
-
     N_im = tr.Property()
     '''Shape function values in integration poindots.
     '''
-
+    @tr.cached_property
     def _get_N_im(self):
-        return self.shape_function_values[0]
+        N_im = self.symb.get_N_xi_i(self.xi_m.T)
+        return N_im
 
     dN_imr = tr.Property()
-    '''Shape function derivatives in integration poindots.
+    '''Shape function derivatives in integration points.
     '''
-
+    @tr.cached_property
     def _get_dN_imr(self):
-        return self.shape_function_values[1]
+        N_rim = self.symb.get_dN_xi_ai(self.xi_m.T)
+        return np.einsum('rim->imr', N_rim)
 
     dN_inr = tr.Property()
-    '''Shape function derivatives in visualization poindots.
+    '''Shape function derivatives in visualization points.
     '''
-
+    @tr.cached_property
     def _get_dN_inr(self):
-        return self.shape_function_values[2]
+        N_rin = self.symb.get_dN_xi_ai(self.dof_r.T)
+        return np.einsum('rin->inr', N_rin)
 
     I_sym_abcd = tr.Array(np.float)
 
@@ -167,3 +131,22 @@ class FETS3D8H(FETS3D):
         return 0.5 * \
             (np.einsum('ac,bd->abcd', delta, delta) +
              np.einsum('ad,bc->abcd', delta, delta))
+
+    plot_backend = 'k3d'
+
+    def update_plot(self, axes):
+        ax = axes
+        import numpy as np
+        v = np.linspace(-1,1,10)
+        x, y, z = np.meshgrid(v,v,v)
+        X_aIJK = np.array([x, y, z], dtype=np.float_)
+        xmin, xmax, ymin, ymax, zmin, zmax = -1, 1, -1, 1, -1, 1
+        N_IJK = fets.symb.get_N_xi_i(X_aIJK)[0,...]
+        N_IJK.shape
+        plt_iso = k3d.marching_cubes(N_IJK[0,...],compression_level=9,
+                                     xmin=xmin, xmax=xmax,
+                                 ymin=ymin, ymax=ymax,
+                                 zmin=zmin, zmax=zmax, level=0.5,
+                                flat_shading=False)
+        k3d_plot += plt_iso
+        k3d_plot.display()
