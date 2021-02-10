@@ -31,10 +31,6 @@ class Vis3DField(Vis3D):
         cell_offset = 0
         for domain in fe_domain:
             xdomain = domain.xmodel
-            print('VAR')
-            print(self.var)
-            print('DOMAIN')
-            print(domain.tmodel.var_dict)
             var_function = domain.tmodel.var_dict.get(self.var, None)
             if var_function == None or xdomain.hidden:
                 continue
