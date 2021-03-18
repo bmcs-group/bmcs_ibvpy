@@ -33,7 +33,7 @@ def oriented_3d_array(arr, axis):
     '''
     shape = [None, None, None]
     shape[axis] = slice(None)
-    _arr = np.np.array(arr, dtype='float_')
+    _arr = np.array(arr, dtype='float_')
     return _arr[tuple(shape)]
 
 #-------------------------------------------------------------------

@@ -4,7 +4,7 @@ from traitsui.api import \
     Item, View, VSplit, Group, Spring
 from ibvpy.util.traits.either_type import \
     EitherType
-
+import bmcs_utils.api as bu
 import numpy as np
 import traits.api as tr
 
@@ -27,25 +27,35 @@ class MATS3DScalarDamage(MATS3DEval):
     r'''Selector of the stiffness calculation.
     '''
     strain_norm = EitherType(klasses=[Rankine,
-                                      ], input=True)
+                                      ], MAT=True)
     r'''Selector of the strain norm defining the load surface.
     '''
 
-    epsilon_0 = tr.Float(5e-2,
+    # TODO - generalize
+    # damage_fn = EitherType(klasses=[], MAT=True)
+    # r'''Selector of the damage function.
+    # '''
+
+    epsilon_0 = bu.Float(5e-2,
                          label="eps_0",
                          desc="Strain at the onset of damage",
                          auto_set=False,
-                         input=True)
+                         MAT=True)
     r'''Damage function parameter - slope of the damage function.
     '''
 
-    epsilon_f = tr.Float(191e-1,
+    epsilon_f = bu.Float(191e-1,
                          label="eps_f",
                          desc="Slope of the damage function",
                          auto_set=False,
-                         input=True)
+                         MAT=True)
     r'''Damage function parameter - slope of the damage function.
     '''
+
+    ipw_view = bu.View(
+        bu.Item('epsilon_0'),
+        bu.Item('epsilon_f')
+    )
 
     changed = tr.Event
     r'''This event can be used by the clients to trigger 
@@ -72,7 +82,7 @@ class MATS3DScalarDamage(MATS3DEval):
         r'''
         Corrector predictor computation.
         '''
-        I = self.update_state_variables(eps_Emab_n1, kappa, omega)
+        self.update_state_variables(eps_Emab_n1, kappa, omega)
         phi_Em = (1.0 - omega)
         D_Emabcd = np.einsum(
             '...,abcd->...abcd',
@@ -177,5 +187,4 @@ class MATS3DScalarDamage(MATS3DEval):
     rte_dict = tr.Trait(tr.Dict)
 
     def _rte_dict_default(self):
-        return {'sig_app': self.get_sig_app,
-                'omega': self.get_omega}
+        return {'omega': self.get_omega}

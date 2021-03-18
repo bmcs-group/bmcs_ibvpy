@@ -2,7 +2,8 @@
 from os.path import join
 from ibvpy.mathkit.mfn import MFnLineArray
 from traits.api import Str, Enum, \
-    Range, on_trait_change, Float, Int
+    Range, on_trait_change
+from bmcs_utils.api import Float, Int
 from ibvpy.view.plot2d import Viz2D
 from ibvpy.view.ui import BMCSLeafNode
 from ibvpy.view.reporter import RInputRecord
@@ -11,9 +12,11 @@ import numpy as np
 
 
 class LoadingScenario(MFnLineArray, BMCSLeafNode, RInputRecord):
-
+    """Loading scenario.
+    """
     def reset(self):
         return
+
     node_name = Str('loading scenario')
     loading_type = Enum("monotonic", "cyclic",
                         enter_set=True, auto_set=False,
@@ -130,7 +133,10 @@ class LoadingScenario(MFnLineArray, BMCSLeafNode, RInputRecord):
         t_arr = np.linspace(0, self.t_max, len(d_arr))
         self.xdata = t_arr
         self.ydata = d_arr
-        self.replot()
+
+    def update_plot(self, axes):
+        axes.plot(self.xdata, self.ydata)
+        axes.fill_between(self.xdata, self.ydata, 0, alpha=0.1)
 
     def write_figure(self, f, rdir, rel_study_path):
         print('FNAME', self.node_name)

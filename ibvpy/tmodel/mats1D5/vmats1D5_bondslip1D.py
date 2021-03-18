@@ -13,32 +13,25 @@ from ibvpy.tmodel.mats_damage_fn import \
     FRPDamageFn
 from ibvpy.mathkit.mfn.mfn_line.mfn_line import MFnLineArray
 from traits.api import  \
-    Float, Tuple, List, on_trait_change, \
+    Tuple, List, on_trait_change, \
     Instance, Trait, Bool, Str, Button, Property
 
+import bmcs_utils.api as bu
 import numpy as np
 import traitsui.api as ui
 
 
 class MATSBondSlipMultiLinear(MATSEval):
+    """Multilinear bond-slip law
+    """
+    name = "multilinear bond law"
 
-    node_name = "multilinear bond law"
-
-    # To use the model directly in the simulator specify the
-    # time stepping classes
-
-    def __init__(self, *args, **kw):
-        super(MATSBondSlipMultiLinear, self).__init__(*args, **kw)
-        self.bs_law.replot()
-
-    state_arr_shape = Tuple((0,))
-
-    E_m = Float(28000.0, tooltip='Stiffness of the matrix [MPa]',
+    E_m = bu.Float(28000.0, tooltip='Stiffness of the matrix [MPa]',
                 MAT=True, unit='MPa', symbol='E_\mathrm{m}',
                 desc='E-modulus of the matrix',
                 auto_set=True, enter_set=True)
 
-    E_f = Float(170000.0, tooltip='Stiffness of the fiber [MPa]',
+    E_f = bu.Float(170000.0, tooltip='Stiffness of the fiber [MPa]',
                 MAT=True, unit='MPa', symbol='E_\mathrm{f}',
                 desc='E-modulus of the reinforcement',
                 auto_set=False, enter_set=True)
@@ -73,15 +66,6 @@ class MATSBondSlipMultiLinear(MATSEval):
                         ydata=tau_data)
         self.bs_law.replot()
 
-    bs_law = Instance(MFnLineArray)
-
-    def _bs_law_default(self):
-        return MFnLineArray(
-            xdata=[0.0, 1.0],
-            ydata=[0.0, 1.0],
-            plot_diff=False
-        )
-
     #=========================================================================
     # Configurational parameters
     #=========================================================================
@@ -96,7 +80,7 @@ class MATSBondSlipMultiLinear(MATSEval):
     of the domain.
     '''
 
-    node_name = 'multiply_linear bond'
+    node_name = 'multiply linear bond'
 
     def get_corr_pred(self, s, t_n1):
 
@@ -116,6 +100,26 @@ class MATSBondSlipMultiLinear(MATSEval):
 
         return tau, D
 
+    update_bs_law = Button(label='update bond-slip law')
+
+    def _update_bs_law_fired(self):
+        s_data = np.fromstring(self.s_data, dtype=np.float_, sep=',')
+        tau_data = np.fromstring(self.tau_data, dtype=np.float_, sep=',')
+        if len(s_data) != len(tau_data):
+            raise ValueError('s array and tau array must have the same size')
+        self.bs_law.set(xdata=s_data,
+                        ydata=tau_data)
+        self.bs_law.replot()
+
+    bs_law = Instance(MFnLineArray)
+
+    def _bs_law_default(self):
+        return MFnLineArray(
+            xdata=[0.0, 1.0],
+            ydata=[0.0, 1.0],
+            plot_diff=False
+        )
+
     def write_figure(self, f, rdir, rel_path):
         fname = 'fig_' + self.node_name.replace(' ', '_') + '.pdf'
         f.write(r'''
@@ -125,7 +129,19 @@ class MATSBondSlipMultiLinear(MATSEval):
         self.bs_law.savefig(join(rdir, fname))
 
     def plot(self, ax, **kw):
-        ax.plot(self.bs_law.xdata, self.bs_law.xdata, **kw)
+        ax.plot(self.bs_law.xdata, self.bs_law.ydata, **kw)
+        ax.fill_between(self.bs_law.xdata, self.bs_law.ydata, alpha=0.1, **kw)
+
+    ipw_view = bu.View(
+        bu.Item('E_m'),
+        bu.Item('E_f'),
+        # ui.Item('s_data'),
+        # ui.Item('tau_data'),
+        # ui.UItem('update_bs_law')
+    )
+
+    def update_plot(self, axes):
+        self.plot(axes)
 
     tree_view = ui.View(
         ui.VGroup(
@@ -142,58 +158,36 @@ class MATSBondSlipMultiLinear(MATSEval):
 
 
 class MATSBondSlipD(MATSEval):
-
+    name = 'FRP damage'
     node_name = 'bond model: FRP damage model'
 
-    tree_node_list = List([])
-
-    def _tree_node_list_default(self):
-        return [self.omega_fn, ]
-
-    @on_trait_change('omega_fn_type')
-    def _update_node_list(self):
-        self.tree_node_list = [self.omega_fn]
-
-    def __init__(self, *args, **kw):
-        super(MATSBondSlipD, self).__init__(*args, **kw)
-        self._omega_fn_type_changed()
-
-    E_m = Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
+    E_m = bu.Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
                 MAT=True,
                 auto_set=True, enter_set=True)
 
-    E_f = Float(200000.0, tooltip='Stiffness of the fiber [MPa]',
+    E_f = bu.Float(200000.0, tooltip='Stiffness of the fiber [MPa]',
                 MAT=True,
                 auto_set=False, enter_set=False)
 
-    E_b = Float(10000.0, tooltip='Stiffness of the fiber [MPa]',
+    E_b = bu.Float(10000.0, tooltip='Stiffness of the fiber [MPa]',
                 MAT=True,
                 auto_set=False, enter_set=False)
 
-    omega_fn_type = Trait('FRP',
-                          dict(li=LiDamageFn,
-                               jirasek=JirasekDamageFn,
-                               abaqus=AbaqusDamageFn,
-                               FRP=FRPDamageFn,
-                               multilinear=MultilinearDamageFn
-                               ),
-                          MAT=True,
-                          )
-
-    def _omega_fn_type_changed(self):
-        self.omega_fn = self.omega_fn_type_(mats=self)
-
-    omega_fn = Instance(IDamageFn,
-                        report=True)
-
-    def _omega_fn_default(self):
-        return MultilinearDamageFn()
+    omega_fn = bu.EitherType(
+        options=[('li', LiDamageFn),
+                 ('jirasek', JirasekDamageFn),
+                 ('abaqus', AbaqusDamageFn),
+                 ('FRP', FRPDamageFn),
+                 ('multilinear', MultilinearDamageFn)
+          ],
+        MAT=True,
+    )
 
     def omega(self, k):
-        return self.omega_fn(k)
+        return self.omega_fn_(k)
 
     def omega_derivative(self, k):
-        return self.omega_fn.diff(k)
+        return self.omega_fn_.diff(k)
 
     state_var_shapes = dict(kappa_n=(), omega_n=())
 
@@ -211,6 +205,13 @@ class MATSBondSlipD(MATSEval):
         D[..., 1, 1] = ((1 - omega_n) - domega_ds * s_n1) * self.E_b
         return tau, D
 
+    ipw_view = bu.View(
+        bu.Item('E_m'),
+        bu.Item('E_f'),
+        bu.Item('E_b'),
+        bu.Item('omega_fn'),
+    )
+
     tree_view = ui.View(
         ui.VGroup(
             ui.VGroup(
@@ -218,10 +219,6 @@ class MATSBondSlipD(MATSEval):
                 ui.Item('E_f'),
                 ui.Item('E_b'),
             ),
-            ui.VGroup(
-                ui.Item('omega_fn_type'),
-            ),
-            ui.UItem('omega_fn@')
         )
     )
 
@@ -239,21 +236,21 @@ class MATSBondSlipDP(MATSEval):
     def _update_node_list(self):
         self.tree_node_list = [self.omega_fn]
 
-    E_m = Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
+    E_m = bu.Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
                 symbol='E_\mathrm{m}',
                 unit='MPa',
                 desc='Stiffness of the matrix',
                 MAT=True,
                 auto_set=True, enter_set=True)
 
-    E_f = Float(200000.0, tooltip='Stiffness of the reinforcement [MPa]',
+    E_f = bu.Float(200000.0, tooltip='Stiffness of the reinforcement [MPa]',
                 symbol='E_\mathrm{f}',
                 unit='MPa',
                 desc='Stiffness of the reinforcement',
                 MAT=True,
                 auto_set=False, enter_set=False)
 
-    E_b = Float(12900.0,
+    E_b = bu.Float(12900.0,
                 symbol="E_\mathrm{b}",
                 unit='MPa',
                 desc="Bond stiffness",
@@ -261,7 +258,7 @@ class MATSBondSlipDP(MATSEval):
                 enter_set=True,
                 auto_set=False)
 
-    gamma = Float(100.0,
+    gamma = bu.Float(100.0,
                   symbol="\gamma",
                   unit='MPa',
                   desc="Kinematic hardening modulus",
@@ -269,7 +266,7 @@ class MATSBondSlipDP(MATSEval):
                   enter_set=True,
                   auto_set=False)
 
-    K = Float(1000.0,
+    K = bu.Float(1000.0,
               symbol="K",
               unit='MPa',
               desc="Isotropic hardening modulus",
@@ -277,7 +274,7 @@ class MATSBondSlipDP(MATSEval):
               enter_set=True,
               auto_set=False)
 
-    tau_bar = Float(5.0,
+    tau_bar = bu.Float(5.0,
                     symbol=r'\bar{\tau}',
                     unite='MPa',
                     desc="Reversibility limit",
@@ -290,7 +287,7 @@ class MATSBondSlipDP(MATSEval):
                         label='Uncoupled d-p'
                         )
 
-    s_0 = Float(MAT=True,
+    s_0 = bu.Float(MAT=True,
                 desc='Elastic strain/displacement limit')
 
     def __init__(self, *args, **kw):
@@ -419,21 +416,21 @@ class MATSBondSlipEP(MATSEval):
 
     node_name = 'bond model: elasto-plasticity'
 
-    E_m = Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
+    E_m = bu.Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
                 symbol='E_\mathrm{m}',
                 unit='MPa',
                 desc='Stiffness of the matrix',
                 MAT=True,
                 auto_set=True, enter_set=True)
 
-    E_f = Float(200000.0, tooltip='Stiffness of the reinforcement [MPa]',
+    E_f = bu.Float(200000.0, tooltip='Stiffness of the reinforcement [MPa]',
                 symbol='E_\mathrm{f}',
                 unit='MPa',
                 desc='Stiffness of the reinforcement',
                 MAT=True,
                 auto_set=False, enter_set=False)
 
-    E_b = Float(12900.0,
+    E_b = bu.Float(12900.0,
                 symbol="E_\mathrm{b}",
                 unit='MPa',
                 desc="Bond stiffness",
@@ -441,7 +438,7 @@ class MATSBondSlipEP(MATSEval):
                 enter_set=True,
                 auto_set=False)
 
-    gamma = Float(100.0,
+    gamma = bu.Float(100.0,
                   symbol="\gamma",
                   unit='MPa',
                   desc="Kinematic hardening modulus",
@@ -449,7 +446,7 @@ class MATSBondSlipEP(MATSEval):
                   enter_set=True,
                   auto_set=False)
 
-    K = Float(1000.0,
+    K = bu.Float(1000.0,
               symbol="K",
               unit='MPa',
               desc="Isotropic hardening modulus",
@@ -457,7 +454,7 @@ class MATSBondSlipEP(MATSEval):
               enter_set=True,
               auto_set=False)
 
-    tau_bar = Float(5.0,
+    tau_bar = bu.Float(5.0,
                     symbol=r'\bar{\tau}',
                     unite='MPa',
                     desc="Reversibility limit",
@@ -537,71 +534,71 @@ class MATSBondSlipFatigue(MATSEval):
 
     node_name = 'bond model: bond fatigue'
 
-    E_m = Float(30000, tooltip='Stiffness of the matrix [MPa]',
+    E_m = bu.Float(30000, tooltip='Stiffness of the matrix [MPa]',
                 MAT=True,
                 auto_set=True, enter_set=True)
 
-    E_f = Float(200000, tooltip='Stiffness of the fiber [MPa]',
+    E_f = bu.Float(200000, tooltip='Stiffness of the fiber [MPa]',
                 MAT=True,
                 auto_set=False, enter_set=False)
 
-    E_b = Float(12900,
+    E_b = bu.Float(12900,
                 label="E_b",
                 desc="Bond Stiffness",
                 MAT=True,
                 enter_set=True,
                 auto_set=False)
 
-    gamma = Float(55.0,
+    gamma = bu.Float(55.0,
                   label="Gamma",
                   desc="Kinematic hardening modulus",
                   MAT=True,
                   enter_set=True,
                   auto_set=False)
 
-    K = Float(11.0,
+    K = bu.Float(11.0,
               label="K",
               desc="Isotropic harening",
               MAT=True,
               enter_set=True,
               auto_set=False)
 
-    S = Float(0.00048,
+    S = bu.Float(0.00048,
               label="S",
               desc="Damage cumulation parameter",
               enter_set=True,
               MAT=True,
               auto_set=False)
 
-    r = Float(0.5,
+    r = bu.Float(0.5,
               label="r",
               desc="Damage cumulation parameter",
               MAT=True,
               enter_set=True,
               auto_set=False)
 
-    c = Float(2.8,
+    c = bu.Float(2.8,
               label="c",
               desc="Damage cumulation parameter",
               MAT=True,
               enter_set=True,
               auto_set=False)
 
-    tau_pi_bar = Float(4.2,
+    tau_pi_bar = bu.Float(4.2,
                        label="Tau_pi_bar",
                        desc="Reversibility limit",
                        MAT=True,
                        enter_set=True,
                        auto_set=False)
 
-    pressure = Float(0,
+    pressure = bu.Float(0,
                      label="Pressure",
                      desc="Lateral pressure",
                      MAT=True,
                      enter_set=True,
                      auto_set=False)
 
-    a = Float(1.7,
+    a = bu.Float(1.7,
               label="a",
               desc="Lateral pressure coefficient",
               MAT=True,

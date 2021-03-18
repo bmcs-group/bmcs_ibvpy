@@ -52,7 +52,7 @@ class MATSXDEval(MATSEval):
             np.einsum(',il,jk->ijkl', mu, delta, delta)
         )
 
-    def get_corr_pred(self, eps_Emab, tn1):
+    def get_corr_pred(self, eps_Emab, tn1, **kw):
         '''
         Corrector predictor computation.
         @param eps_Emab input variable - strain tensor
