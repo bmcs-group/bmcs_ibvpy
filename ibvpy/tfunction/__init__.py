@@ -1,3 +1,4 @@
 
 from .loading_scenario import \
-    LoadingScenario, Viz2DLoadControlFunction
+    LoadingScenario, Viz2DLoadControlFunction, \
+    MonotonicLoadingScenario, CyclicLoadingScenario

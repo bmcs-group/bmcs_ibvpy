@@ -1,3 +1,3 @@
 
-from .mats1D5_pressure_sensitive import MATS1D5PressureSensitive
-from .mats1D5_bond import MATS1D5Bond
+from .vmats1D5_d import MATS1D5D
+from .vmats1D5_bondslip1D import MATSBondSlipMultiLinear

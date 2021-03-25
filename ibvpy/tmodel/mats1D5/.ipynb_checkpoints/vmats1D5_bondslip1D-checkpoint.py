@@ -14,13 +14,12 @@ from ibvpy.tmodel.mats_damage_fn import \
 from ibvpy.mathkit.mfn.mfn_line.mfn_line import MFnLineArray
 from traits.api import  \
     Tuple, List, on_trait_change, \
-    Instance, Trait, Bool, Str, Button, Property, cached_property
+    Instance, Trait, Bool, Str, Button, Property
 
 import bmcs_utils.api as bu
 import numpy as np
 import traitsui.api as ui
 
-import ipyregulartable as rt
 
 class MATSBondSlipMultiLinear(MATSEval):
     """Multilinear bond-slip law
@@ -37,24 +36,35 @@ class MATSBondSlipMultiLinear(MATSEval):
                 desc='E-modulus of the reinforcement',
                 auto_set=False, enter_set=True)
 
-    s_data = bu.Str('0,1', tooltip='Comma-separated list of strain values',
+    s_data = Str('', tooltip='Comma-separated list of strain values',
                  MAT=True, unit='mm', symbol='s',
                  desc='slip values',
                  auto_set=True, enter_set=False)
 
-    tau_data = bu.Str('0,1', tooltip='Comma-separated list of stress values',
+    tau_data = Str('', tooltip='Comma-separated list of stress values',
                    MAT=True, unit='MPa', symbol=r'\tau',
                    desc='shear stress values',
                    auto_set=True, enter_set=False)
 
-    s_tau_table = Property(depends_on='state_changed')
-    @cached_property
-    def _get_s_tau_table(self):
+    s_tau_table = Property
+
+    def _set_s_tau_table(self, data):
+        s_data, tau_data = data
+        if len(s_data) != len(tau_data):
+            raise ValueError('s array and tau array must have the same size')
+        self.bs_law.set(xdata=s_data,
+                        ydata=tau_data)
+
+    update_bs_law = Button(label='update bond-slip law')
+
+    def _update_bs_law_fired(self):
         s_data = np.fromstring(self.s_data, dtype=np.float_, sep=',')
         tau_data = np.fromstring(self.tau_data, dtype=np.float_, sep=',')
         if len(s_data) != len(tau_data):
             raise ValueError('s array and tau array must have the same size')
-        return s_data, tau_data
+        self.bs_law.set(xdata=s_data,
+                        ydata=tau_data)
+        self.bs_law.replot()
 
     #=========================================================================
     # Configurational parameters
@@ -84,21 +94,29 @@ class MATSBondSlipMultiLinear(MATSEval):
         shape = s.shape
         signs = np.sign(s.flatten())
         s_pos = np.fabs(s.flatten())
-        bs_law = self.bs_law
-        tau[..., 1] = (signs * bs_law(s_pos)).reshape(*shape)
+        tau[..., 1] = (signs * self.bs_law(s_pos)).reshape(*shape)
         D_tau = self.bs_law.diff(s_pos).reshape(*shape)
         D[..., 1, 1] = D_tau
 
         return tau, D
 
-    bs_law = Property(depends_on='state_changed')
-    @cached_property
-    def _get_bs_law(self):
-        print('bs_law')
-        s_data, tau_data = self.s_tau_table
+    update_bs_law = Button(label='update bond-slip law')
+
+    def _update_bs_law_fired(self):
+        s_data = np.fromstring(self.s_data, dtype=np.float_, sep=',')
+        tau_data = np.fromstring(self.tau_data, dtype=np.float_, sep=',')
+        if len(s_data) != len(tau_data):
+            raise ValueError('s array and tau array must have the same size')
+        self.bs_law.set(xdata=s_data,
+                        ydata=tau_data)
+        self.bs_law.replot()
+
+    bs_law = Instance(MFnLineArray)
+
+    def _bs_law_default(self):
         return MFnLineArray(
-            xdata=s_data,
-            ydata=tau_data,
+            xdata=[0.0, 1.0],
+            ydata=[0.0, 1.0],
             plot_diff=False
         )
 
@@ -111,15 +129,14 @@ class MATSBondSlipMultiLinear(MATSEval):
         self.bs_law.savefig(join(rdir, fname))
 
     def plot(self, ax, **kw):
-        s_data, tau_data = self.s_tau_table
-        ax.plot(s_data, tau_data, **kw)
-        ax.fill_between(s_data, tau_data, alpha=0.1, **kw)
+        ax.plot(self.bs_law.xdata, self.bs_law.ydata, **kw)
+        ax.fill_between(self.bs_law.xdata, self.bs_law.ydata, alpha=0.1, **kw)
 
     ipw_view = bu.View(
         bu.Item('E_m'),
         bu.Item('E_f'),
-        bu.Item('s_data'),
-        bu.Item('tau_data'),
+        # ui.Item('s_data'),
+        # ui.Item('tau_data'),
         # ui.UItem('update_bs_law')
     )
 

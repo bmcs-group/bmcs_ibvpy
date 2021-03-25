@@ -22,6 +22,7 @@ from .bcond.bc_slice import BCSlice
 from .fets.fets import FETSEval
 from .fets.i_fets import IFETSEval
 from .tmodel import MATSEval, IMATSEval
+from .tmodel import MATSBondSlipMultiLinear, MATS1D5D
 from .mesh.fe_domain import FEDomain
 from .mesh.fe_grid import FEGrid
 from .mesh.fe_grid_idx_slice import FEGridIdxSlice
