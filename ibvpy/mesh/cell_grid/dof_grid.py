@@ -12,8 +12,8 @@ from traitsui.tabular_adapter import \
 
 from ibvpy.mesh.sdomain import \
     SDomain
-from ibvpy.view.plot3d.mayavi_util.pipelines import \
-    MVPolyData, MVPointLabels
+# from ibvpy.view.plot3d.mayavi_util.pipelines import \
+#     MVPolyData, MVPointLabels
 import numpy as np
 
 from .cell_array import CellView, CellArray, ICellArraySource
@@ -421,21 +421,21 @@ class DofCellView(CellView):
 
     # register the pipelines for plotting labels and geometry
     #
-    mvp_elem_labels = Trait(MVPointLabels)
-
-    def _mvp_elem_labels_default(self):
-        return MVPointLabels(name='Geo node numbers',
-                             points=self._get_cell_mvpoints,
-                             vectors=self._get_cell_labels,
-                             color=(0.0, 0.411765, 0.882353))
-
-    mvp_elem_geo = Trait(MVPolyData)
-
-    def _mvp_elem_geo_default(self):
-        return MVPolyData(name='Geo node numbers',
-                          points=self._get_elem_points,
-                          lines=self._get_elem_lines,
-                          color=(0.254902, 0.411765, 0.882353))
+    # mvp_elem_labels = Trait(MVPointLabels)
+    #
+    # def _mvp_elem_labels_default(self):
+    #     return MVPointLabels(name='Geo node numbers',
+    #                          points=self._get_cell_mvpoints,
+    #                          vectors=self._get_cell_labels,
+    #                          color=(0.0, 0.411765, 0.882353))
+    #
+    # mvp_elem_geo = Trait(MVPolyData)
+    #
+    # def _mvp_elem_geo_default(self):
+    #     return MVPolyData(name='Geo node numbers',
+    #                       points=self._get_elem_points,
+    #                       lines=self._get_elem_lines,
+    #                       color=(0.254902, 0.411765, 0.882353))
 
     def _get_cell_mvpoints(self):
         return self.cell_grid.get_cell_mvpoints(self.cell_idx)

@@ -10,8 +10,8 @@ from traitsui.api import \
 
 from .i_bcond import \
     IBCond
-from ibvpy.view.plot3d.mayavi_util.pipelines import \
-    MVPointLabels
+# from ibvpy.view.plot3d.mayavi_util.pipelines import \
+#     MVPointLabels
 from traitsui.api \
     import View, Item, VSplit, TableEditor, ListEditor
 from traitsui.table_column \
@@ -139,13 +139,13 @@ class BCDofGroup(HasTraits):
 
     # register the pipelines for plotting labels and geometry
     #
-    mvp_dofs = Trait(MVPointLabels)
-
-    def _mvp_dofs_default(self):
-        return MVPointLabels(name='Boundary condition',
-                             points=self._get_mvpoints,
-                             vectors=self._get_labels,
-                             color=(0.0, 0.0, 0.882353))
+    # mvp_dofs = Trait(MVPointLabels)
+    #
+    # def _mvp_dofs_default(self):
+    #     return MVPointLabels(name='Boundary condition',
+    #                          points=self._get_mvpoints,
+    #                          vectors=self._get_labels,
+    #                          color=(0.0, 0.0, 0.882353))
 
     def _get_mvpoints(self):
         # blow up

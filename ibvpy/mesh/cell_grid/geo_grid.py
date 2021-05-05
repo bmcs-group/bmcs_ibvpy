@@ -19,8 +19,8 @@ from traitsui.tabular_adapter import \
 
 from ibvpy.mesh.sdomain import \
     SDomain
-from ibvpy.view.plot3d.mayavi_util.pipelines import \
-    MVPolyData, MVPointLabels, MVStructuredGrid
+# from ibvpy.view.plot3d.mayavi_util.pipelines import \
+#     MVPolyData, MVPointLabels, MVStructuredGrid
 from ibvpy.mathkit.level_set.level_set import ILevelSetFn, SinLSF, PlaneLSF, ElipseLSF
 
 from .cell_array import CellView, ICellView, CellArray, ICellArraySource
@@ -214,20 +214,20 @@ class GeoCellGrid(SDomain):
     # Visualization of level sets related methods
     #-----------------------------------------------------------------
 
-    mvp_point_grid = Trait(MVStructuredGrid)
-
-    def _mvp_point_grid_default(self):
-        return MVStructuredGrid(name='Point grid',
-                                dims=self.cell_grid._get_mvpoints_grid_shape,
-                                points=self.cell_grid._get_mvpoints,
-                                scalars=self.get_mvscalars)
-
-    mvp_intersect_elems = Trait(MVPolyData)
-
-    def _mvp_intersect_elems_default(self):
-        return MVPolyData(name='Intersected elements',
-                          points=self._get_ielem_points,
-                          polys=self._get_ielem_polys)
+    # mvp_point_grid = Trait(MVStructuredGrid)
+    #
+    # def _mvp_point_grid_default(self):
+    #     return MVStructuredGrid(name='Point grid',
+    #                             dims=self.cell_grid._get_mvpoints_grid_shape,
+    #                             points=self.cell_grid._get_mvpoints,
+    #                             scalars=self.get_mvscalars)
+    #
+    # mvp_intersect_elems = Trait(MVPolyData)
+    #
+    # def _mvp_intersect_elems_default(self):
+    #     return MVPolyData(name='Intersected elements',
+    #                       points=self._get_ielem_points,
+    #                       polys=self._get_ielem_polys)
 
     ls_refresh_button = Button('Draw Levelset')
 
@@ -347,21 +347,21 @@ class GeoCellView(CellView):
 
     # register the pipelines for plotting labels and geometry
     #
-    mvp_cell_node_labels = Trait(MVPointLabels)
-
-    def _mvp_cell_node_labels_default(self):
-        return MVPointLabels(name='Geo node numbers',
-                             points=self._get_cell_mvpoints,
-                             scalars=self._get_cell_node_labels,
-                             color=(0.254902, 0.411765, 0.882353))
-
-    mvp_cell_geo = Trait(MVPolyData)
-
-    def _mvp_cell_geo_default(self):
-        return MVPolyData(name='Geo node numbers',
-                          points=self._get_cell_points,
-                          lines=self._get_cell_lines,
-                          color=(0.254902, 0.411765, 0.882353))
+    # mvp_cell_node_labels = Trait(MVPointLabels)
+    #
+    # def _mvp_cell_node_labels_default(self):
+    #     return MVPointLabels(name='Geo node numbers',
+    #                          points=self._get_cell_mvpoints,
+    #                          scalars=self._get_cell_node_labels,
+    #                          color=(0.254902, 0.411765, 0.882353))
+    #
+    # mvp_cell_geo = Trait(MVPolyData)
+    #
+    # def _mvp_cell_geo_default(self):
+    #     return MVPolyData(name='Geo node numbers',
+    #                       points=self._get_cell_points,
+    #                       lines=self._get_cell_lines,
+    #                       color=(0.254902, 0.411765, 0.882353))
 
     def redraw(self):
         if self.draw_cell:

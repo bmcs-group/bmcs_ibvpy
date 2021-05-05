@@ -6,19 +6,19 @@ from traits.api import \
 from numpy import \
     array
 
-# from tvtk.api import tvtk
-# # Mayavi related imports
-# #
-# from mayavi.sources.api import VTKDataSource, VTKFileReader
-# from mayavi.modules.api import Surface
-# from mayavi.filters.api import ExtractTensorComponents, \
-#     ExtractVectorComponents
+from tvtk.api import tvtk
+# Mayavi related imports
 #
-# from mayavi.filters.api import WarpVector
+from mayavi.sources.api import VTKDataSource, VTKFileReader
+from mayavi.modules.api import Surface
+from mayavi.filters.api import ExtractTensorComponents, \
+    ExtractVectorComponents
+
+from mayavi.filters.api import WarpVector
+
+# MayaVI engine used for the pipeline construction
 #
-# # MayaVI engine used for the pipeline construction
-# #
-# from .mayavi_engine import get_engine
+from .mayavi_engine import get_engine
 
 
 class MVStructuredGrid(HasTraits):
@@ -129,6 +129,33 @@ class MVVTKSource(HasTraits):
     def _engine_default(self):
         return get_engine()
 
+#    def redraw(self):
+#        e = get_engine()
+# directory management
+#        home_dir = os.environ['HOME']
+#        base_name = os.path.basename(os.getcwd())
+#
+#        data_dir = home_dir+'/simdata'
+#        if not os.path.exists(data_dir):
+#            os.mkdir(data_dir)
+#            print "simdata directory created"
+#
+#        if not os.path.exists(data_dir +'/'+ base_name):
+#            os.mkdir(data_dir +'/'+ base_name)
+#            print base_name," directory created"
+#
+#        os.chdir(data_dir +'/'+ base_name)
+#
+#        self.src = VTKFileReader(base_file_name = 'nodes_0.vtk')
+# self.src = VTKDataSource( name = self.name, data = self.pd )
+# self.e.add_source(self.src)
+#        e.add_source(self.src)
+#        g = Surface()
+#        e.add_module(g)
+# g.module_manager.scalar_lut_manager.show_scalar_bar = True # show scalar bar
+#
+#        self.src.scene.z_plus_view()
+# self.src.data_changed = True
 
     def rebuild_pipeline(self, pd):
         src = VTKFileReader(base_file_name='%s_0.vtk' % self.position)

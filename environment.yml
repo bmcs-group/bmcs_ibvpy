@@ -13,8 +13,8 @@ dependencies:
 - k3d
 - ipywidgets
 - ipympl
-- vtk
-- mayavi
+#- vtk
+#- mayavi
 - pip
 - pip:
   - -e .

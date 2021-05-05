@@ -14,8 +14,8 @@ from numpy import \
     array, unique, min, max, mgrid, ogrid, c_, repeat, ix_, \
     arange, ones, zeros, multiply, sort, allclose, index_exp
 
-from ibvpy.view.plot3d.mayavi_util.pipelines import \
-    MVPolyData, MVPointLabels
+# from ibvpy.view.plot3d.mayavi_util.pipelines import \
+#     MVPolyData, MVPointLabels
 
 class CellSpec( HasTraits ):
     '''
@@ -136,14 +136,14 @@ class GridCell( SDomain ):
                     continue
         return array( n_map, int )
 
-    #-----------------------------------------------------------------
-    # Visualization related methods
-    #-----------------------------------------------------------------
-    mvp_mgrid_ngeo_labels = Trait( MVPointLabels )
-    def _mvp_mgrid_ngeo_labels_default( self ):
-        return MVPointLabels( name = 'Geo node numbers',
-                                  points = self._get_points,
-                                  scalars = self._get_node_distribution )
+    # #-----------------------------------------------------------------
+    # # Visualization related methods
+    # #-----------------------------------------------------------------
+    # mvp_mgrid_ngeo_labels = Trait( MVPointLabels )
+    # def _mvp_mgrid_ngeo_labels_default( self ):
+    #     return MVPointLabels( name = 'Geo node numbers',
+    #                               points = self._get_points,
+    #                               scalars = self._get_node_distribution )
 
     refresh_button = Button( 'Draw' )
     @on_trait_change( 'refresh_button' )

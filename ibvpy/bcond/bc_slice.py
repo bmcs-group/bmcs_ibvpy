@@ -15,8 +15,8 @@
 from .i_bcond import \
     IBCond
 from ibvpy.mesh.fe_grid_idx_slice import FEGridIdxSlice
-from ibvpy.view.plot3d.mayavi_util.pipelines import \
-    MVPointLabels
+# from ibvpy.view.plot3d.mayavi_util.pipelines import \
+#     MVPointLabels
 from ibvpy.mathkit.mfn import MFnLineArray
 from numpy import \
     ix_, dot, repeat, zeros
@@ -288,15 +288,15 @@ class BCSlice(BMCSTreeNode, Vis2D):
         sliceshape = self.dofs.shape
         return sliceshape[0] * sliceshape[1]
 
-    # register the pipelines for plotting labels and geometry
+    # # register the pipelines for plotting labels and geometry
+    # #
+    # mvp_dofs = Trait(MVPointLabels)
     #
-    mvp_dofs = Trait(MVPointLabels)
-
-    def _mvp_dofs_default(self):
-        return MVPointLabels(name='Boundary condition',
-                             points=self._get_mvpoints,
-                             vectors=self._get_labels,
-                             color=(0.0, 0.0, 0.882353))
+    # def _mvp_dofs_default(self):
+    #     return MVPointLabels(name='Boundary condition',
+    #                          points=self._get_mvpoints,
+    #                          vectors=self._get_labels,
+    #                          color=(0.0, 0.0, 0.882353))
 
     def _get_mvpoints(self):
         # blow up
@@ -339,15 +339,15 @@ class BCSlice(BMCSTreeNode, Vis2D):
         sliceshape = self.link_dofs.shape
         return sliceshape[0] * sliceshape[1]
 
-    # register the pipelines for plotting labels and geometry
+    # # register the pipelines for plotting labels and geometry
+    # #
+    # mvp_link_dofs = Trait(MVPointLabels)
     #
-    mvp_link_dofs = Trait(MVPointLabels)
-
-    def _mvp_link_dofs_default(self):
-        return MVPointLabels(name='Link boundary condition',
-                             points=self._get_link_mvpoints,
-                             vectors=self._get_link_labels,
-                             color=(0.0, 0.882353, 0.0))
+    # def _mvp_link_dofs_default(self):
+    #     return MVPointLabels(name='Link boundary condition',
+    #                          points=self._get_link_mvpoints,
+    #                          vectors=self._get_link_labels,
+    #                          color=(0.0, 0.882353, 0.0))
 
     def _get_link_mvpoints(self):
         # blow up

@@ -14,7 +14,7 @@ from traits.api import \
 from traitsui.api import \
     View, Item, Group
 import numpy as np
-from tvtk.tvtk_classes import tvtk_helper
+#from tvtk.tvtk_classes import tvtk_helper
 
 from .i_fets import IFETSEval
 from bmcs_utils.api import InteractiveModel
@@ -83,7 +83,7 @@ class FETSEval(InteractiveModel):
     vtk_cell_class = Property
 
     def _get_vtk_cell_class(self):
-        return tvtk_helper.get_class(self.vtk_cell_type)
+        return None # tvtk_helper.get_class(self.vtk_cell_type)
 
     # Distinguish the type of base geometric entity to be used for
     # the visualization of the results.

@@ -12,8 +12,8 @@ from traits.api import \
 from traitsui.api import \
     View, Item
 
-from ibvpy.view.plot3d.mayavi_util.pipelines import \
-    MVStructuredGrid
+# from ibvpy.view.plot3d.mayavi_util.pipelines import \
+#     MVStructuredGrid
 
 from .cell_array import CellView, CellArray, ICellArraySource
 from .cell_grid_slice import CellGridSlice
@@ -523,12 +523,12 @@ class CellGrid(HasTraits):
     # Visualization-related methods
     #-----------------------------------------------------------------
 
-    mvp_point_grid = Trait(MVStructuredGrid)
-
-    def _mvp_point_grid_default(self):
-        return MVStructuredGrid(name='Point grid',
-                                dims=self._get_mvpoints_grid_shape,
-                                points=self._get_mvpoints)
+    # mvp_point_grid = Trait(MVStructuredGrid)
+    #
+    # def _mvp_point_grid_default(self):
+    #     return MVStructuredGrid(name='Point grid',
+    #                             dims=self._get_mvpoints_grid_shape,
+    #                             points=self._get_mvpoints)
 
     refresh_button = Button('Draw')
 
