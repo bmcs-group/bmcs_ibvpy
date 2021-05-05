@@ -20,11 +20,11 @@ from ibvpy.view.ui.bmcs_tree_node import \
 import traits.api as tr
 
 from .bmcs_study import BMCSStudy
-from .bmcs_tree_view_handler import \
-    menu_tools_report_pdf, menu_tools_report_tex, \
-    BMCSTreeViewHandler, plot_self, menu_save, \
-    menu_open, menu_exit, \
-    toolbar_actions, key_bindings
+# from .bmcs_tree_view_handler import \
+#     menu_tools_report_pdf, menu_tools_report_tex, \
+#     BMCSTreeViewHandler, plot_self, menu_save, \
+#     menu_open, menu_exit, \
+#     toolbar_actions, key_bindings
 from .i_bmcs_model import IBMCSModel
 
 
@@ -39,27 +39,27 @@ else:
                       ETSConfig.toolkit)
 
 
-tree_node = TreeNode(node_for=[BMCSRootNode, BMCSTreeNode],
-                     auto_open=False,
-                     children='tree_node_list',
-                     label='node_name',
-                     view='tree_view',
-                     menu=Menu(plot_self, DeleteAction),
-                     )
-
-leaf_node = TreeNode(node_for=[BMCSLeafNode],
-                     auto_open=True,
-                     children='',
-                     label='node_name',
-                     view='tree_view',
-                     menu=Menu(plot_self)
-                     )
-
-tree_editor = TreeEditor(
-    nodes=[tree_node, leaf_node],
-    selected='selected_node',
-    orientation='vertical'
-)
+# tree_node = TreeNode(node_for=[BMCSRootNode, BMCSTreeNode],
+#                      auto_open=False,
+#                      children='tree_node_list',
+#                      label='node_name',
+#                      view='tree_view',
+#                      menu=Menu(plot_self, DeleteAction),
+#                      )
+#
+# leaf_node = TreeNode(node_for=[BMCSLeafNode],
+#                      auto_open=True,
+#                      children='',
+#                      label='node_name',
+#                      view='tree_view',
+#                      menu=Menu(plot_self)
+#                      )
+#
+# tree_editor = TreeEditor(
+#     nodes=[tree_node, leaf_node],
+#     selected='selected_node',
+#     orientation='vertical'
+# )
 
 
 class BMCSWindow(BMCSStudy):
@@ -95,7 +95,7 @@ class BMCSWindow(BMCSStudy):
                 Item('model',
                      id='bmcs.hsplit.left.tree.id',
                      dock='tab',
-                     editor=tree_editor,
+                     # editor=tree_editor,
                      resizable=True,
                      show_label=False,
                      width=300,
@@ -124,41 +124,41 @@ class BMCSWindow(BMCSStudy):
         height=1.0,
         title='BMCS',
         resizable=True,
-        handler=BMCSTreeViewHandler(),
-        key_bindings=key_bindings,
-        toolbar=ToolBar(*toolbar_actions,
-                        image_size=(32, 32),
-                        show_tool_names=False,
-                        show_divider=True,
-                        name='view_toolbar'),
-        menubar=MenuBar(Menu(menu_exit, Separator(),
-                             menu_save, menu_open,
-                             name='File'),
-                        Menu(menu_tools_report_tex,
-                             menu_tools_report_pdf,
-                             name='Tools'),
-
-                        )
+        # handler=BMCSTreeViewHandler(),
+        # key_bindings=key_bindings,
+        # toolbar=ToolBar(*toolbar_actions,
+        #                 image_size=(32, 32),
+        #                 show_tool_names=False,
+        #                 show_divider=True,
+        #                 name='view_toolbar'),
+        # menubar=MenuBar(Menu(menu_exit, Separator(),
+        #                      menu_save, menu_open,
+        #                      name='File'),
+        #                 Menu(menu_tools_report_tex,
+        #                      menu_tools_report_pdf,
+        #                      name='Tools'),
+        #
+        #                 )
     )
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     from ibvpy.view.examples.response_tracer import ResponseTracer
     from ibvpy.sim.sim_base import Simulator
-    from ibvpy.core.bcond_mngr import BCondMngr
+    # from ibvpy.core.bcond_mngr import BCondMngr
     from ibvpy.bcond import BCDof, BCSlice
-    bc_mngr = BCondMngr()
-    bc_mngr.bcond_list = [
-        BCDof(),
-        BCSlice()]
-    rt = ResponseTracer()
-    bm = Simulator(node_name='sim',
-                   tree_node_list=[BMCSTreeNode(node_name='subnode 1'),
-                                   BMCSTreeNode(node_name='subnode 2'),
-                                   rt,
-                                   bc_mngr
-                                   ])
-    bm.tree_node_list += [bm.tline]
-    tv = BMCSWindow(model=bm)
-    rt.add_viz2d('time_profile', 'time profile')
-    tv.configure_traits()
+    # bc_mngr = BCondMngr()
+    # bc_mngr.bcond_list = [
+    #     BCDof(),
+    #     BCSlice()]
+    # rt = ResponseTracer()
+    # bm = Simulator(node_name='sim',
+    #                tree_node_list=[BMCSTreeNode(node_name='subnode 1'),
+    #                                BMCSTreeNode(node_name='subnode 2'),
+    #                                rt,
+    #                                bc_mngr
+    #                                ])
+    # bm.tree_node_list += [bm.tline]
+    # tv = BMCSWindow(model=bm)
+    # rt.add_viz2d('time_profile', 'time profile')
+    # tv.configure_traits()

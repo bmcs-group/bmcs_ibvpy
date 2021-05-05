@@ -2,6 +2,7 @@
 from traits.api import Float, Callable, on_trait_change
 from bmcs_utils.api import View, Item
 from ibvpy.view.ui import BMCSLeafNode
+import bmcs_utils.api as bu
 
 
 class TLine(BMCSLeafNode):
@@ -18,16 +19,16 @@ class TLine(BMCSLeafNode):
     '''
     node_name = 'time range'
 
-    min = Float(0.0,
+    min = bu.Float(0.0,
                 TIME=True
                 )
-    max = Float(1.0,
+    max = bu.Float(1.0,
                 TIME=True
                 )
-    step = Float(0.1,
+    step = bu.Float(0.1,
                  TIME=True
                  )
-    val = Float(0.0)
+    val = bu.Float(0.0)
 
     def _val_changed(self):
         if self.time_change_notifier:

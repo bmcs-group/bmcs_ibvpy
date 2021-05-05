@@ -94,7 +94,6 @@ class MATSBondSlipMultiLinear(MATSEval):
     bs_law = Property(depends_on='state_changed')
     @cached_property
     def _get_bs_law(self):
-        print('bs_law')
         s_data, tau_data = self.s_tau_table
         return MFnLineArray(
             xdata=s_data,

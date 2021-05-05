@@ -1,7 +1,7 @@
 '''
 Created on 14. 4. 2014
 
-@author: Vancikv
+@author:
 '''
 
 import pickle
@@ -14,8 +14,8 @@ from traits.api import \
 from traitsui.api import \
     View, Item, HGroup, Handler, \
     UIInfo, spring, VGroup, Label
-from traitsui.file_dialog import \
-    open_file, save_file
+# from traitsui.file_dialog import \
+#     open_file, save_file
 from traitsui.key_bindings import \
     KeyBinding, KeyBindings
 from traitsui.menu import \
@@ -118,17 +118,17 @@ class BMCSTreeViewHandler(Handler):
         node.plot(info.object.figure)
         info.object.data_changed = True
 
-    def menu_save(self, info):
-        file_name = get_outfile(folder_name='.bmcs', file_name='')
-        file_ = save_file(file_name=file_name)
-        if file_:
-            pickle.dump(info.object.root, open(file_, 'wb'), 1)
+    # def menu_save(self, info):
+    #     file_name = get_outfile(folder_name='.bmcs', file_name='')
+    #     file_ = save_file(file_name=file_name)
+    #     if file_:
+    #         pickle.dump(info.object.root, open(file_, 'wb'), 1)
 
-    def menu_open(self, info):
-        file_name = get_outfile(folder_name='.bmcs', file_name='')
-        file_ = open_file(file_name=file_name)
-        if file_:
-            info.object.root = pickle.load(open(file_, 'rb'))
+    # def menu_open(self, info):
+    #     file_name = get_outfile(folder_name='.bmcs', file_name='')
+    #     file_ = open_file(file_name=file_name)
+    #     if file_:
+    #         info.object.root = pickle.load(open(file_, 'rb'))
 
     def menu_exit(self, info):
         if info.initialized:

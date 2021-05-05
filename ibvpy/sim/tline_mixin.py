@@ -4,6 +4,7 @@ Created on Mar 18, 2020
 @author: rch
 '''
 import traits.api as tr
+import bmcs_utils.api as bu
 
 from .tline import TLine
 
@@ -12,7 +13,7 @@ class TLineMixIn(tr.HasTraits):
     #=========================================================================
     # TIME LINE
     #=========================================================================
-    tline = tr.Instance(TLine)
+    tline = bu.Instance(TLine)
     r'''Time line defining the time range, discretization and state,  
     '''
 
