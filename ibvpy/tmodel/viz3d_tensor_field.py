@@ -73,14 +73,14 @@ class Viz3DTensorField(Viz3DField):
         self.d.initialize(fname)
         self.src = m.pipeline.add_dataset(self.d)
         self.warp_vector = m.pipeline.warp_vector(self.src)
-        self.surf = m.pipeline.surface(self.warp_vector)
+        #self.surf = m.pipeline.surface(self.warp_vector)
         engine = m.get_engine()
-        etc = ExtractTensorComponents()
-        engine.add_filter(etc, self.warp_vector)
+        self.etc = ExtractTensorComponents()
+        engine.add_filter(self.etc, self.warp_vector)
         surface2 = Surface()
-        engine.add_filter(surface2, etc)
-        etc.filter.scalar_mode = 'component'
-        lut = etc.children[0]
+        self.surface = surface2
+        engine.add_filter(surface2, self.etc)
+        lut = self.etc.children[0]
         lut.scalar_lut_manager.set(
             show_scalar_bar=True,
             show_legend=True,
@@ -104,6 +104,7 @@ class Viz3DTensorField(Viz3DField):
             italic=False,
             bold=False
         )
+        self.etc.filter.scalar_mode = 'component'
 
     traits_view = ui.View(
     )

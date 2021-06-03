@@ -6,7 +6,7 @@ Created on Feb 14, 2019
 
 from ibvpy.tmodel import MATSEval
 from ibvpy.tmodel.mats_damage_fn import \
-    IDamageFn, LiDamageFn, JirasekDamageFn, AbaqusDamageFn, \
+    IDamageFn, LiDamageFn, ExpSlopeDamageFn, AbaqusDamageFn, \
     MultilinearDamageFn, \
     FRPDamageFn
 from ibvpy.sim.i_tmodel import ITModel
@@ -35,9 +35,9 @@ class MATS1D5D(MATSEval):
     state_var_shapes = dict(omega=(),
                             kappa=())
 
-    omega_fn_type = tr.Trait('jirasek',
+    omega_fn_type = tr.Trait('exp-slope',
                              dict(li=LiDamageFn,
-                                  jirasek=JirasekDamageFn,
+                                  exp_slope=ExpSlopeDamageFn,
                                   abaqus=AbaqusDamageFn,
                                   FRP=FRPDamageFn,
                                   multilinear=MultilinearDamageFn

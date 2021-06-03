@@ -7,6 +7,10 @@ Created on 05.12.2016
 from os.path import join
 
 from ibvpy.tmodel import MATSEval
+from ibvpy.tmodel.mats_damage_fn import \
+    IDamageFn, LiDamageFn, JirasekDamageFn, AbaqusDamageFn, \
+    MultilinearDamageFn, \
+    FRPDamageFn
 from ibvpy.mathkit.mfn.mfn_line.mfn_line import MFnLineArray
 from traits.api import  \
     Tuple, List, on_trait_change, \
@@ -18,34 +22,41 @@ import traitsui.api as ui
 
 import ipyregulartable as rt
 
-class MATS1D5BondSlipTriLinear(MATSEval):
+class MATSBondSlipTriLinear(MATSEval):
     """Multilinear bond-slip law
     """
     name = "tri-linear bond law"
 
     E_m = bu.Float(28000.0, tooltip='Stiffness of the matrix [MPa]',
                 MAT=True, unit='MPa', symbol=r'E_\mathrm{m}',
-                desc='E-modulus of the matrix')
+                desc='E-modulus of the matrix',
+                auto_set=True, enter_set=True)
 
     E_f = bu.Float(170000.0, tooltip='Stiffness of the fiber [MPa]',
                 MAT=True, unit='MPa', symbol=r'E_\mathrm{f}',
-                desc='E-modulus of the reinforcement')
+                desc='E-modulus of the reinforcement',
+                auto_set=False, enter_set=True)
 
     tau_1 = bu.Float(10.0, tooltip='Shear strength [MPa]',
                 MAT=True, unit='MPa', symbol=r'\tau_1',
-                desc='shear strength')
+                desc='shear strength',
+                auto_set=False, enter_set=True)
 
     tau_2 = bu.Float(1.0, tooltip='Shear at plateau [MPa]',
                 MAT=True, unit='MPa', symbol=r'\tau_2',
-                desc='shear plateau')
+                desc='shear plateau',
+                auto_set=False, enter_set=True)
 
     s_1 = bu.Float(0.1, tooltip='Slip at peak [mm]',
                 MAT=True, unit='mm', symbol='s_1',
-                desc='slip at peak')
+                desc='slip at peak',
+                auto_set=False, enter_set=True)
 
     s_2 = bu.Float(0.5, tooltip='Slip at plateau [mm]',
                 MAT=True, unit='mm', symbol='s_2',
-                desc='slip at plateau')
+                desc='slip at plateau',
+                auto_set=False, enter_set=True)
+
 
     s_tau_table = Property(depends_on='state_changed')
     @cached_property

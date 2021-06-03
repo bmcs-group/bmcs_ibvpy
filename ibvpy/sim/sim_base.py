@@ -24,31 +24,17 @@ class Simulator(BMCSTreeNode, TLineMixIn):
     It handles also the communication between the simulation and
     the user interface in several modes of interaction.
     '''
-    tree_node_list = List([])
+    name = 'simulator'
 
-    def _tree_node_list_default(self):
-        return [
-            self.tline,
-        ]
-
-    def _update_node_list(self):
-        self.tree_node_list = [
-            self.tline,
-        ]
-
-    title = Str
-
-    desc = Str
-
-    @on_trait_change(itags_str)
-    def _model_structure_changed(self):
+    @tr.observe('state_changed')
+    def _model_structure_changed(self, event=None):
         self.tloop.restart = True
 
     #=========================================================================
     # TIME LOOP
     #=========================================================================
 
-    tloop = Property(Instance(ITLoop), depends_on=itags_str)
+    tloop = Property(Instance(ITLoop), depends_on='state_changed')
     r'''Time loop constructed based on the current model.
     '''
     @cached_property

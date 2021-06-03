@@ -26,7 +26,7 @@ itags = dict(
 itags_str = ','.join(['%s' % tag for tag in itags])
 
 
-class BMCSNodeBase(bu.InteractiveModel):
+class BMCSNodeBase(bu.Model):
 
     node_name = Str('<unnamed>')
 

@@ -1,9 +1,9 @@
 
 from os.path import join
 from ibvpy.mathkit.mfn import MFnLineArray
-from traits.api import Str, Enum, \
-    Range, Property, cached_property
-from bmcs_utils.api import Float, Int
+from traits.api import Str, \
+    Range, Property, cached_property, observe
+from bmcs_utils.api import Float, Int, Enum, FloatRangeEditor
 from ibvpy.view.plot2d import Viz2D
 from ibvpy.view.ui import BMCSLeafNode
 from ibvpy.view.reporter import RInputRecord
@@ -21,12 +21,31 @@ class LoadingScenario(MFnLineArray, BMCSLeafNode, RInputRecord):
 
     t_max = Float(1.)
 
+    xdata = Property
+    def _get_xdata(self):
+        return self.xy_arrays[0]
+
+    ydata = Property
+    def _get_ydata(self):
+        return self.xy_arrays[1]
+
+    def update_plot(self, axes):
+        axes.plot(self.xdata, self.ydata)
+        axes.fill_between(self.xdata, self.ydata, 0, alpha=0.1)
+
+
 class MonotonicLoadingScenario(LoadingScenario):
 
     n_incr = Int(10, BC=True)
+    maximum_loading = Float(1.0, BC=True,
+                            enter_set=True, auto_set=False,
+                            symbol='\phi_{\max}',
+                            desc='load factor at maximum load level',
+                            unit='-')
 
     ipw_view = bu.View(
-        bu.Item("n_incr")
+        bu.Item("n_incr"),
+        bu.Item('maximum_loading'),
     )
 
     xy_arrays = Property(depends_on="state_changed")
@@ -35,10 +54,6 @@ class MonotonicLoadingScenario(LoadingScenario):
         t_arr = np.linspace(0, self.t_max, self.n_incr)
         d_arr = np.linspace(0, self.maximum_loading, self.n_incr)
         return t_arr, d_arr
-
-    def update_plot(self, axes):
-        axes.plot(self.xdata, self.ydata)
-        axes.fill_between(self.xdata, self.ydata, 0, alpha=0.1)
 
     def write_figure(self, f, rdir, rel_study_path):
         print('FNAME', self.node_name)
@@ -53,43 +68,48 @@ class MonotonicLoadingScenario(LoadingScenario):
 
 class CyclicLoadingScenario(LoadingScenario):
 
-    number_of_cycles = Int(1,
+    number_of_cycles = Int(1, BC=True,
                            enter_set=True, auto_set=False,
                            symbol='n_\mathrm{cycles}',
                            unit='-',
                            desc='for cyclic loading',
-                           BC=True)
-    maximum_loading = Float(1.0,
+                           )
+    maximum_loading = Float(1.0, BC=True,
                             enter_set=True, auto_set=False,
-                            BC=True,
                             symbol='\phi_{\max}',
                             desc='load factor at maximum load level',
                             unit='-')
-    number_of_increments = Int(20,
+    number_of_increments = Int(20, BC=True,
                                enter_set=True, auto_set=False,
-                               BC=True,
                                symbol='n_{\mathrm{incr}}',
                                unit='-',
                                desc='number of values within a monotonic load branch')
-    unloading_ratio = Range(0., 1., value=0.5,
+    unloading_ratio = Float(0.5, BC=True,
                             enter_set=True, auto_set=False,
-                            BC=True,
                             symbol='\phi_{\mathrm{unload}}',
                             desc='fraction of maximum load at lowest load level',
                             unit='-')
-    amplitude_type = Enum("increasing", "constant",
+    amplitude_type = Enum(options=["increasing", "constant"],
                           enter_set=True, auto_set=False,
                           symbol='option',
                           unit='-',
                           desc='possible values: [increasing, constant]',
                           BC=True)
-    loading_range = Enum("non-symmetric", "symmetric",
+    loading_range = Enum(options=["non-symmetric", "symmetric"],
                          enter_set=True, auto_set=False,
                          symbol='option',
                          unit='-',
                          desc='possible values: [non-symmetric, symmetric]',
                          BC=True)
 
+    ipw_view = bu.View(
+        bu.Item('number_of_cycles'),
+        bu.Item('maximum_loading'),
+        bu.Item('number_of_increments'),
+        bu.Item('unloading_ratio'), # , editor=FloatRangeEditor(low=0, high=1)),
+        bu.Item('amplitude_type'),
+        bu.Item('loading_range'),
+    )
     xy_arrays = Property(depends_on="state_changed")
     @cached_property
     def _get_xy_arrays(self):

@@ -1,51 +1,73 @@
 '''
-Created on 05.12.2016
 
-@author: abaktheer
 '''
 
 from os.path import join
 
 from ibvpy.tmodel import MATSEval
 from ibvpy.tmodel.mats_damage_fn import \
-    IDamageFn, LiDamageFn, JirasekDamageFn, AbaqusDamageFn, \
-    MultilinearDamageFn, \
-    FRPDamageFn
+    IDamageFn, GfDamageFn, ExpSlopeDamageFn, AbaqusDamageFn, \
+    LinearDamageFn, FRPDamageFn, WeibullDamageFn
 from ibvpy.mathkit.mfn.mfn_line.mfn_line import MFnLineArray
 from traits.api import  \
-    Tuple, List, on_trait_change, \
-    Instance, Trait, Bool, Str, Button, Property, cached_property
+    observe, List, on_trait_change, \
+    Instance, Trait, Bool, Property, cached_property
 
 import bmcs_utils.api as bu
 import numpy as np
 import traitsui.api as ui
 
 import ipyregulartable as rt
+class MATSEval1D5(MATSEval):
+    """Base class defining the plot
+    """
+    s_max = bu.Float(0.5, tooltip='Visualization limit [m]')
 
-class MATSBondSlipMultiLinear(MATSEval):
+    def subplots(self, fig):
+        ax_tau = fig.subplots(1,1)
+        ax_d_tau = ax_tau.twinx()
+        return ax_tau, ax_d_tau
+
+    def update_plot(self, axes):
+        ax_tau, ax_d_tau = axes
+        s_max = self.s_max
+        n_s = 100
+        s_range = np.linspace(1e-9,s_max,n_s)
+        eps_range = np.zeros((n_s, 3))
+        eps_range[:,1] = s_range
+        state_vars = { var : np.zeros( (n_s,) + shape )
+            for var, shape in self.state_var_shapes.items()
+        }
+        sig_range, D = self.get_corr_pred(eps_range, 1, **state_vars)
+        tau_range = sig_range[:,1]
+        ax_tau.plot(s_range, tau_range,color='blue')
+        d_tau_range = D[...,1,1]
+        ax_d_tau.plot(s_range, d_tau_range,
+                      linestyle='dashed', color='gray')
+        ax_tau.set_xlabel(r'$s$ [mm]')
+        ax_tau.set_ylabel(r'$\tau$ [MPa]')
+        ax_d_tau.set_ylabel(r'$\mathrm{d} \tau / \mathrm{d} s$ [MPa/mm]')
+
+class MATS1D5BondSlipMultiLinear(MATSEval1D5):
     """Multilinear bond-slip law
     """
     name = "multilinear bond law"
 
     E_m = bu.Float(28000.0, tooltip='Stiffness of the matrix [MPa]',
                 MAT=True, unit='MPa', symbol='E_\mathrm{m}',
-                desc='E-modulus of the matrix',
-                auto_set=True, enter_set=True)
+                desc='E-modulus of the matrix')
 
     E_f = bu.Float(170000.0, tooltip='Stiffness of the fiber [MPa]',
                 MAT=True, unit='MPa', symbol='E_\mathrm{f}',
-                desc='E-modulus of the reinforcement',
-                auto_set=False, enter_set=True)
+                desc='E-modulus of the reinforcement')
 
     s_data = bu.Str('0,1', tooltip='Comma-separated list of strain values',
                  MAT=True, unit='mm', symbol='s',
-                 desc='slip values',
-                 auto_set=True, enter_set=False)
+                 desc='slip values')
 
     tau_data = bu.Str('0,1', tooltip='Comma-separated list of stress values',
                    MAT=True, unit='MPa', symbol=r'\tau',
-                   desc='shear stress values',
-                   auto_set=True, enter_set=False)
+                   desc='shear stress values')
 
     s_tau_table = Property(depends_on='state_changed')
     @cached_property
@@ -101,69 +123,56 @@ class MATSBondSlipMultiLinear(MATSEval):
             plot_diff=False
         )
 
-    def write_figure(self, f, rdir, rel_path):
-        fname = 'fig_' + self.node_name.replace(' ', '_') + '.pdf'
-        f.write(r'''
-\multicolumn{3}{r}{\includegraphics[width=5cm]{%s}}\\
-''' % join(rel_path, fname))
-        self.bs_law.replot()
-        self.bs_law.savefig(join(rdir, fname))
+    ipw_view = bu.View(
+        bu.Item('E_m'),
+        bu.Item('E_f'),
+        bu.Item('s_data'),
+        bu.Item('tau_data'),
+    )
 
     def plot(self, ax, **kw):
         s_data, tau_data = self.s_tau_table
         ax.plot(s_data, tau_data, **kw)
         ax.fill_between(s_data, tau_data, alpha=0.1, **kw)
 
-    ipw_view = bu.View(
-        bu.Item('E_m'),
-        bu.Item('E_f'),
-        bu.Item('s_data'),
-        bu.Item('tau_data'),
-        # ui.UItem('update_bs_law')
-    )
-
     def update_plot(self, axes):
         self.plot(axes)
 
-    tree_view = ui.View(
-        ui.VGroup(
-            ui.VGroup(
-                ui.Item('E_m', full_size=True, resizable=True),
-                ui.Item('E_f'),
-                ui.Item('s_data'),
-                ui.Item('tau_data'),
-                ui.UItem('update_bs_law')
-            ),
-            ui.UItem('bs_law@')
-        )
-    )
 
-
-class MATSBondSlipD(MATSEval):
-    name = 'FRP damage'
-    node_name = 'bond model: FRP damage model'
+class MATS1D5BondSlipD(MATSEval1D5):
+    name = 'damage model'
+    node_name = 'damage model'
 
     E_m = bu.Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
-                MAT=True,
-                auto_set=True, enter_set=True)
+                MAT=True)
 
     E_f = bu.Float(200000.0, tooltip='Stiffness of the fiber [MPa]',
-                MAT=True,
-                auto_set=False, enter_set=False)
+                MAT=True)
 
     E_b = bu.Float(10000.0, tooltip='Stiffness of the fiber [MPa]',
-                MAT=True,
-                auto_set=False, enter_set=False)
+                MAT=True)
 
     omega_fn = bu.EitherType(
-        options=[('li', LiDamageFn),
-                 ('jirasek', JirasekDamageFn),
+        options=[('linear', LinearDamageFn),
                  ('abaqus', AbaqusDamageFn),
-                 ('FRP', FRPDamageFn),
-                 ('multilinear', MultilinearDamageFn)
-          ],
+                 ('exp-slope', ExpSlopeDamageFn),
+                 ('fracture-energy', GfDamageFn),
+                 ('weibull-CDF', WeibullDamageFn),
+                 ('frp-analytical', FRPDamageFn),
+                 ],
         MAT=True,
+        on_option_change='link_omega_to_mats'
     )
+
+    D_alg = bu.Float(0, MAT=True)
+
+    # upon change of the type attribute set the link to the material model
+    def link_omega_to_mats(self):
+        self.omega_fn_.trait_set(mats=self,
+                                 E_name='E_b',
+                                 x_max_name='s_max')
+
+    tree = ['omega_fn']
 
     def omega(self, k):
         return self.omega_fn_(k)
@@ -171,7 +180,10 @@ class MATSBondSlipD(MATSEval):
     def omega_derivative(self, k):
         return self.omega_fn_.diff(k)
 
-    state_var_shapes = dict(kappa_n=(), omega_n=())
+    state_var_shapes = {
+        'kappa_n' : (),
+        'omega_n' : ()
+    }
 
     def get_corr_pred(self, eps_n1, t_n1, kappa_n, omega_n):
         D_shape = eps_n1.shape[:-1] + (3, 3)
@@ -183,29 +195,25 @@ class MATSBondSlipD(MATSEval):
         omega_n[...] = self.omega(kappa_n)
         tau = np.einsum('...st,...t->...s', D, eps_n1)
         tau[..., 1] = (1 - omega_n) * self.E_b * s_n1
-        domega_ds = self.omega_derivative(kappa_n)
-        D[..., 1, 1] = ((1 - omega_n) - domega_ds * s_n1) * self.E_b
+        D[..., 1, 1] = (1 - omega_n) * self.E_b
+        if self.D_alg > 0:
+            I = self.omega_fn_.get_f_trial(np.fabs(s_n1), kappa_n)
+            domega_ds_I = self.omega_derivative(kappa_n[I])
+            D_red_I = domega_ds_I * np.fabs(s_n1[I]) * self.E_b * self.D_alg
+            D[I+(1, 1)] -= D_red_I
         return tau, D
 
     ipw_view = bu.View(
-        bu.Item('E_m'),
-        bu.Item('E_f'),
-        bu.Item('E_b'),
-        bu.Item('omega_fn'),
+        bu.Item('E_m', latex=r'E_\mathrm{m}'),
+        bu.Item('E_f', latex=r'E_\mathrm{f}'),
+        bu.Item('E_b', latex=r'E_\mathrm{b}'),
+        bu.Item('omega_fn', latex=r'\omega(s)'),
+        bu.Item('D_alg', latex=r'\theta_\mathrm{alg. stiff.}',
+                editor=bu.FloatRangeEditor(low=0,high=1)),
+        bu.Item('s_max')
     )
 
-    tree_view = ui.View(
-        ui.VGroup(
-            ui.VGroup(
-                ui.Item('E_m', full_size=True, resizable=True),
-                ui.Item('E_f'),
-                ui.Item('E_b'),
-            ),
-        )
-    )
-
-
-class MATSBondSlipDP(MATSEval):
+class MATSBondSlipDP(MATSEval1D5):
 
     node_name = 'bond model: damage-plasticity'
 
@@ -287,11 +295,11 @@ class MATSBondSlipDP(MATSEval):
             self.omega_fn.s_0 = self.s_0
 
     omega_fn_type = Trait('multilinear',
-                          dict(li=LiDamageFn,
-                               jirasek=JirasekDamageFn,
+                          dict(selfregularized=GfDamageFn,
+                               exp_slope=ExpSlopeDamageFn,
                                abaqus=AbaqusDamageFn,
-                               FRP=FRPDamageFn,
-                               multilinear=MultilinearDamageFn
+                               # FRP=FRPDamageFn,
+                               # multilinear=MultilinearDamageFn
                                ),
                           MAT=True,
                           )
@@ -311,14 +319,14 @@ class MATSBondSlipDP(MATSEval):
     def omega_derivative(self, k):
         return self.omega_fn.diff(k)
 
-    state_var_shapes = dict(s_p_n=(),
+    state_var_shapes = dict(s_pl_n=(),
                             alpha_n=(),
                             z_n=(),
                             kappa_n=(),
                             omega_n=())
 
     def get_corr_pred(self, eps_n1, t_n1,
-                      s_p_n, alpha_n, z_n, kappa_n, omega_n):
+                      s_pl_n, alpha_n, z_n, kappa_n, omega_n):
 
         D_shape = eps_n1.shape[:-1] + (3, 3)
         D = np.zeros(D_shape, dtype=np.float_)
@@ -327,7 +335,7 @@ class MATSBondSlipDP(MATSEval):
 
         s_n1 = eps_n1[..., 1]
 
-        sig_pi_trial = self.E_b * (s_n1 - s_p_n)
+        sig_pi_trial = self.E_b * (s_n1 - s_pl_n)
 
         Z = self.K * z_n
 
@@ -351,7 +359,7 @@ class MATSBondSlipDP(MATSEval):
         delta_lamda_I = f_trial[I] / (self.E_b + self.gamma + np.fabs(self.K))
 
         # update all the state variables
-        s_p_n[I] += delta_lamda_I * np.sign(sig_pi_trial[I] - X[I])
+        s_pl_n[I] += delta_lamda_I * np.sign(sig_pi_trial[I] - X[I])
         z_n[I] += delta_lamda_I
         alpha_n[I] += delta_lamda_I * np.sign(sig_pi_trial[I] - X[I])
 
@@ -359,13 +367,13 @@ class MATSBondSlipDP(MATSEval):
             np.array([kappa_n[I], np.fabs(s_n1[I])]), axis=0)
         omega_n[I] = self.omega(kappa_n[I])
 
-        tau[..., 1] = (1 - omega_n) * self.E_b * (s_n1 - s_p_n)
+        tau[..., 1] = (1 - omega_n) * self.E_b * (s_n1 - s_pl_n)
 
         domega_ds_I = self.omega_derivative(kappa_n[I])
 
         # Consistent tangent operator
         D_ed_I = -self.E_b / (self.E_b + self.K + self.gamma) \
-            * domega_ds_I * self.E_b * (s_n1[I] - s_p_n[I]) \
+            * domega_ds_I * self.E_b * (s_n1[I] - s_pl_n[I]) \
             + (1 - omega_n[I]) * self.E_b * (self.K + self.gamma) / \
             (self.E_b + self.K + self.gamma)
 
@@ -394,9 +402,10 @@ class MATSBondSlipDP(MATSEval):
     )
 
 
-class MATSBondSlipEP(MATSEval):
-
-    node_name = 'bond model: elasto-plasticity'
+class MATS1D5BondSlipEP(MATSEval1D5):
+    '''Elastc plastic bond slip model
+    '''
+    name = 'elastic-plastic model'
 
     E_m = bu.Float(30000.0, tooltip='Stiffness of the matrix [MPa]',
                 symbol='E_\mathrm{m}',
@@ -444,49 +453,41 @@ class MATSBondSlipEP(MATSEval):
                     enter_set=True,
                     auto_set=False)
 
-    state_var_shapes = dict(s_p_n=(),
+    state_var_shapes = dict(s_pl_n=(),
                             alpha_n=(),
                             z_n=())
 
-    def get_corr_pred(self, eps_n1, t_n1,
-                      s_p_n, alpha_n, z_n):
+    def get_corr_pred(self, eps_n1, t_n1, s_pl_n, alpha_n, z_n):
 
         D_shape = eps_n1.shape[:-1] + (3, 3)
         D = np.zeros(D_shape, dtype=np.float_)
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
 
+        s_pl_n0 = np.copy(s_pl_n)
+        z_n0 = np.copy(z_n)
+        alpha_n0 = np.copy(alpha_n)
+
         s_n1 = eps_n1[..., 1]
-
-        sig_pi_trial = self.E_b * (s_n1 - s_p_n)
-
+        sig_pi_trial = self.E_b * (s_n1 - s_pl_n)
         Z = self.K * z_n
-
-        # for handling the negative values of isotropic hardening
-        h_1 = self.tau_bar + Z
-        pos_iso = h_1 > 1e-6
-
+        H_1 = self.tau_bar + Z
         X = self.gamma * alpha_n
 
-        # for handling the negative values of kinematic hardening (not yet)
-#         h_2 = h * np.sign(sig_pi_trial - X) * \
-#             np.sign(sig_pi_trial) + X * np.sign(sig_pi_trial)
-#         pos_kin = h_2 > 1e-6
-
-        f_trial = np.fabs(sig_pi_trial - X) - h_1 * pos_iso
+        f_trial = np.fabs(sig_pi_trial - X) - H_1
 
         I = f_trial > 1e-6
 
         tau = np.einsum('...st,...t->...s', D, eps_n1)
         # Return mapping
-        delta_lamda_I = f_trial[I] / (self.E_b + self.gamma + np.fabs(self.K))
+        delta_lamda_I = f_trial[I] / (self.E_b + self.gamma + self.K)
 
         # update all the state variables
-        s_p_n[I] += delta_lamda_I * np.sign(sig_pi_trial[I] - X[I])
+        s_pl_n[I] += delta_lamda_I * np.sign(sig_pi_trial[I] - X[I])
         z_n[I] += delta_lamda_I
         alpha_n[I] += delta_lamda_I * np.sign(sig_pi_trial[I] - X[I])
 
-        tau[..., 1] = self.E_b * (s_n1 - s_p_n)
+        tau[..., 1] = self.E_b * (s_n1 - s_pl_n)
 
         # Consistent tangent operator
         D_ed_I = (self.E_b * (self.K + self.gamma) /
@@ -496,23 +497,27 @@ class MATSBondSlipEP(MATSEval):
         D[..., 1, 1] = self.E_b
         D[I, 1, 1] = D_ed_I
 
+        Z = self.K * z_n
+        # check if the size of the elastic domain is still nonzero
+        J = self.tau_bar + Z < 0
+        tau[J, 1] = 0
+        D[J, 1, 1] = 0
         return tau, D
 
-    tree_view = ui.View(
-        ui.VGroup(
-            ui.VGroup(
-                ui.Item('E_m', full_size=True, resizable=True),
-                ui.Item('E_f'),
-                ui.Item('E_b'),
-                ui.Item('gamma'),
-                ui.Item('K'),
-                ui.Item('tau_bar'),
-            ),
-        )
+    ipw_view = bu.View(
+        bu.Item('E_m'),
+        bu.Item('E_f'),
+        bu.Item('E_b'),
+        bu.Item('gamma'),
+        bu.Item('K'),
+        bu.Item('tau_bar'),
     )
 
+    @observe('state_changed')
+    def _reset_s_max(self, event=None):
+        self.s_max = self.tau_bar / self.E_b * 10
 
-class MATSBondSlipFatigue(MATSEval):
+class MATSBondSlipFatigue(MATSEval1D5):
 
     node_name = 'bond model: bond fatigue'
 
@@ -666,59 +671,3 @@ class MATSBondSlipFatigue(MATSEval):
                   ui.Group(ui.Item('pressure'),
                            ui.Item('a'), show_border=True, label='Lateral Pressure')))
 
-
-def plot_stress_stress(m, s_max):
-    s_r = np.linspace(0, s_max, 60)
-    eps_m = np.zeros_like(s_r)
-    eps_f = np.zeros_like(s_r)
-    u_r = np.c_[eps_m, s_r, eps_f].reshape(60, -1, 3)
-    state_arr = {var: np.zeros((1,) + var_shape, dtype=np.float_)
-                 for var, var_shape in m.state_var_shapes.items()}
-    tau_D = [
-        m.get_corr_pred(u, 0.0, **state_arr)
-        for u in u_r
-    ]
-    sig = np.array([tau for tau, _ in tau_D])
-    D = np.array([D for _, D in tau_D])
-
-    D1 = D[..., 0, 1, 1]
-    tau = sig[..., 0, 1]
-    delta_s = s_max / 100
-    delta_sig = np.array([tau, tau + D1 * delta_s])
-    delta_u = np.array([s_r, s_r + delta_s])
-
-    import pylab as p
-    p.plot(s_r, tau)
-    p.plot(delta_u, delta_sig, color='red')
-    p.show()
-
-
-if __name__ == '__main__':
-    tau_bar = 3.0
-    s_max = 0.03
-    E_T = 10000
-    s_0 = tau_bar / E_T
-    m = MATSBondSlipDP(omega_fn_type='jirasek')
-    m.omega_fn.trait_set(s_0=s_0, s_f=100 * s_0)
-    m = MATSBondSlipDP(omega_fn_type='li')
-    m = MATSBondSlipD()
-    m.omega_fn_type = 'FRP'
-    m.omega_fn.trait_set(
-        B=100.4,
-        Gf=0.000019
-    )
-    # Parameters of the next model taken from the paper
-    # Baktheer, A. and Chudoba, R., 2018.
-    # Pressure-sensitive bond fatigue model with damage evolution
-    # driven by cumulative slip: Thermodynamic formulation
-    # and applications to steel-and FRP-concrete bond.
-    # International Journal of Fatigue, 113, pp.277-289.
-    m = MATSBondSlipFatigue(
-        E_b=12900,
-        tau_pi_bar=4.0,
-        K=0.0,
-        gamma=10.0,
-        S=0.0025,
-        r=1,
-        c=1)
-    plot_stress_stress(m, .2)
