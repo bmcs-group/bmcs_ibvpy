@@ -2,11 +2,11 @@
 from traits.api import HasTraits, WeakRef
 from traitsui.api import View
 from ibvpy.view.ui.bmcs_tree_node import BMCSTreeNode
-
+import bmcs_utils.api as bu
 import numpy as np
+import sympy as sp
 
-
-class StrainNorm2D(HasTraits):
+class StrainNorm2D(BMCSTreeNode):
 
     mats = WeakRef
 
@@ -16,12 +16,33 @@ class StrainNorm2D(HasTraits):
     def get_deps_eq(self, eps_Emef):
         raise NotImplementedError
 
+    def update_plot(self, ax):
+        n_i = 100
+        eps_i = np.linspace(-3, 3, n_i)
+        eps_11, eps_22 = np.meshgrid(eps_i, eps_i)
+        eps_11_ = eps_11.flatten()
+        eps_22_ = eps_22.flatten()
+        eps_ief = np.zeros((len(eps_11_), 2, 2))
+        eps_ief[:, 0, 0] = eps_11_
+        eps_ief[:, 1, 1] = eps_22_
+        kappa_i = np.zeros_like(eps_11_)
+        eps_eq_i = self.get_eps_eq(eps_ief, kappa_i)
+        eps_eq_ij = eps_eq_i.reshape(n_i,n_i)
+        ax.contour(eps_11, eps_22, eps_eq_ij) # , [1]) # , label=r'$\kappa = 1$')
+        ax.plot([0,0],[-3,3],color='black', lw=0.3)
+        ax.plot([-3,3],[0,0],color='black', lw=0.3)
+        ax.set_xlabel(r'$\varepsilon_{1}$')
+        ax.set_ylabel(r'$\varepsilon_{2}$')
+        ax.axis('equal')
+        # ax.set_xlim(-3,3)
+        # ax.set_ylim(-3,3)
+#        ax.legend()
 
-class SN2DRankine(StrainNorm2D, BMCSTreeNode):
+class SN2DRankine(StrainNorm2D):
     '''
     Computes principal strains and makes a norm of their positive part
     '''
-    node_name = 'Rankine strain norm'
+    name = 'Rankine strain norm'
 
     def get_eps_eq(self, eps_Emef, kappa_Em):
 
@@ -55,26 +76,112 @@ class SN2DRankine(StrainNorm2D, BMCSTreeNode):
 
     traits_view = View()
 
+class SN2MasarsExpr(bu.SymbExpr):
 
-if __name__ == '__main__':
-    import sympy as sp
+    eps_11, eps_12, eps_22 = sp.symbols(
+        r'\varepsilon_{11}, \varepsilon_{22}, \varepsilon_{12}')
+    eps_tns = sp.Matrix([[eps_11, eps_12],[eps_12, eps_22]])
+    eps_1, eps_2 = eps_tns.eigenvals()
+    def pos(x):
+        return sp.Piecewise((0, x<0),
+                            (x, True))
+    eps_1_pos, eps_2_pos = pos(eps_1), pos(eps_2)
+    eps_eq = sp.simplify(sp.sqrt( eps_1_pos**2 + eps_2_pos**2))
 
-    eps_0, eps_f, kappa = sp.symbols(
-        '\\varepsilon_0, \\varepsilon_\\mathrm{f}, \\kappa')
-    f = 1 - (eps_0 / kappa) * sp.exp(- (kappa - eps_0) / (eps_f - eps_0))
-    print(f)
-    print(sp.diff(f, kappa))
+    d_eps_eq_11 = eps_eq.diff(eps_11)
+    d_eps_eq_12 = eps_eq.diff(eps_12)
+    d_eps_eq_22 = eps_eq.diff(eps_22)
 
-    s_11, s_22, s_12 = sp.symbols(
-        '\\varepsilon_{11},\\varepsilon_{22},\\varepsilon_{12}')
-    sig = sp.Matrix([[s_11, s_12],
-                     [s_12, s_22]])
-    sig_12 = sig.eigenvals()
-    for sig_principal, item in list(sig_12.items()):
-        print(sig_principal)
-        sig_diff_11 = sp.diff(sig_principal, s_11)
-        sig_diff_12 = sp.diff(sig_principal, s_12)
-        sig_diff_22 = sp.diff(sig_principal, s_22)
-        print('11', sig_diff_11)
-        print('12', sig_diff_12)
-        print('22', sig_diff_22)
+    symb_model_params = []
+
+    # List of expressions for which the methods `get_`
+    symb_expressions = [
+        ('eps_eq', ('eps_11', 'eps_22', 'eps_12')),
+        ('d_eps_eq_11', ('eps_11', 'eps_22', 'eps_12')),
+        ('d_eps_eq_12', ('eps_11', 'eps_22', 'eps_12')),
+        ('d_eps_eq_22', ('eps_11', 'eps_22', 'eps_12')),
+    ]
+
+class SN2DMasars(StrainNorm2D,bu.InjectSymbExpr):
+    '''
+    Computes principal strains and makes a norm of their positive part
+    '''
+    symb_class = SN2MasarsExpr
+    name = 'Masars strain norm'
+
+    def get_eps_eq(self, eps_Emef, kappa_Em):
+        eps_11 = eps_Emef[..., 0, 0]
+        eps_22 = eps_Emef[..., 1, 1]
+        eps_12 = eps_Emef[..., 0, 1]
+        eps_eq_Em = self.symb.get_eps_eq(eps_11, eps_22, eps_12)
+        e_Em = np.concatenate(
+            (eps_eq_Em[..., None], kappa_Em[..., None]), axis=-1
+        )
+        eps_eq = np.max(e_Em, axis=-1)
+        return eps_eq
+
+    def get_deps_eq(self, eps_Emef):
+        eps_11 = eps_Emef[..., 0, 0]
+        eps_22 = eps_Emef[..., 1, 1]
+        eps_12 = eps_Emef[..., 0, 1]
+        d_eps_eq_11 = self.symb.get_d_eps_eq_11(eps_11, eps_22, eps_12)
+        d_eps_eq_22 = self.symb.get_d_eps_eq_22(eps_11, eps_22, eps_12)
+        d_eps_eq_12 = self.symb.get_d_eps_eq_12(eps_11, eps_22, eps_12)
+        d_eps_eq_efEm = np.array([[d_eps_eq_11, d_eps_eq_12],
+                                  [d_eps_eq_12, d_eps_eq_22]])
+        return np.einsum('ef...->...ef', d_eps_eq_efEm)
+
+class SN2EnergyExpr(bu.SymbExpr):
+
+    eps_11, eps_12, eps_22 = sp.symbols(
+        r'\varepsilon_{11}, \varepsilon_{22}, \varepsilon_{12}')
+    eps_tns = sp.Matrix([[eps_11, eps_12],[eps_12, eps_22]])
+    eps_1, eps_2 = eps_tns.eigenvals()
+    def pos(x):
+        return sp.Piecewise((0, x<0),
+                            (x, True))
+    eps_1_pos, eps_2_pos = pos(eps_1), pos(eps_2)
+    eps_eq = sp.simplify(sp.sqrt( eps_1_pos**2 + eps_2_pos**2))
+
+    d_eps_eq_11 = eps_eq.diff(eps_11)
+    d_eps_eq_12 = eps_eq.diff(eps_12)
+    d_eps_eq_22 = eps_eq.diff(eps_22)
+
+    symb_model_params = []
+
+    # List of expressions for which the methods `get_`
+    symb_expressions = [
+        ('eps_eq', ('eps_11', 'eps_22', 'eps_12')),
+        ('d_eps_eq_11', ('eps_11', 'eps_22', 'eps_12')),
+        ('d_eps_eq_12', ('eps_11', 'eps_22', 'eps_12')),
+        ('d_eps_eq_22', ('eps_11', 'eps_22', 'eps_12')),
+    ]
+
+class SN2DEnergy(StrainNorm2D,bu.InjectSymbExpr):
+    '''
+    Computes the energy norm
+
+    \kappa = \sqrt{ \varepsilon_{ab} D_{abcd} \varepsilon_{cd}}
+
+    the derivative ...
+    \dfrac{\partial \kappa}{\partial \varepsilon_{cd}}
+    =
+    \dfrac{1}{\kappa} D_{abcd} \varepsilon_{cd}
+    '''
+    symb_class = SN2EnergyExpr
+    name = 'Energy norm'
+
+    def get_eps_eq(self, eps_Emef, kappa_Em):
+        D_abcd = self.mats.D_abcd
+        eps_eq_Em = np.sqrt( np.einsum('...ab,abcd,...cd->...', eps_Emef, D_abcd, eps_Emef))
+        e_Em = np.concatenate(
+            (eps_eq_Em[..., None], kappa_Em[..., None]), axis=-1
+        )
+        eps_eq = np.max(e_Em, axis=-1)
+        return eps_eq
+
+    def get_deps_eq(self, eps_Emef):
+        D_abcd = self.mats.D_abcd
+        eps_eq_Em = np.sqrt( np.einsum('...ab,abcd,...cd->...', eps_Emef, D_abcd, eps_Emef))
+        deps_eq = np.einsum('...,...abcd,...cd->...ab', 1 / eps_eq_Em, D_abcd, eps_Emef)
+        return deps_eq

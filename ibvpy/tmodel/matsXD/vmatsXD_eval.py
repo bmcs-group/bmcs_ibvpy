@@ -4,9 +4,10 @@ import copy
 from ibvpy.tmodel.mats_eval import \
     MATSEval
 from traits.api import \
-    Constant, Float, Property, cached_property, Array,\
+    Constant, Property, cached_property, Array,\
     Dict, Str, Callable
 
+from bmcs_utils.api import Float
 import numpy as np
 import traitsui.api as ui
 
@@ -24,13 +25,13 @@ class MATSXDEval(MATSEval):
               label="E",
               desc="Young's Modulus",
               auto_set=False,
-              input=True)
+              MAT=True)
 
     nu = Float(0.2,
                label='nu',
                desc="Poison's ratio",
                auto_set=False,
-               input=True)
+               MAT=True)
 
     def _get_lame_params(self):
         # First Lame parameter (bulk modulus)

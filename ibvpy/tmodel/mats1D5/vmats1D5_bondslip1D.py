@@ -94,15 +94,15 @@ class MATS1D5BondSlipMultiLinear(MATSEval1D5):
 
     node_name = 'multiply linear bond'
 
-    def get_corr_pred(self, s, t_n1):
+    def get_corr_pred(self, eps_n1, t_n1):
+        D_shape = eps_n1.shape[:-1] + (3, 3)
+        D = np.zeros(D_shape, dtype=np.float_)
 
-        n_e, n_ip, _ = s.shape
-        D = np.zeros((n_e, n_ip, 3, 3))
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
 
-        tau = np.einsum('...st,...t->...s', D, s)
-        s = s[..., 1]
+        tau = np.einsum('...st,...t->...s', D, eps_n1)
+        s = eps_n1[..., 1]
         shape = s.shape
         signs = np.sign(s.flatten())
         s_pos = np.fabs(s.flatten())
@@ -130,13 +130,13 @@ class MATS1D5BondSlipMultiLinear(MATSEval1D5):
         bu.Item('tau_data'),
     )
 
-    def plot(self, ax, **kw):
-        s_data, tau_data = self.s_tau_table
-        ax.plot(s_data, tau_data, **kw)
-        ax.fill_between(s_data, tau_data, alpha=0.1, **kw)
-
-    def update_plot(self, axes):
-        self.plot(axes)
+    # def plot(self, ax, **kw):
+    #     s_data, tau_data = self.s_tau_table
+    #     ax.plot(s_data, tau_data, **kw)
+    #     ax.fill_between(s_data, tau_data, alpha=0.1, **kw)
+    #
+    # def update_plot(self, axes):
+    #     self.plot(axes)
 
 
 class MATS1D5BondSlipD(MATSEval1D5):
@@ -158,7 +158,6 @@ class MATS1D5BondSlipD(MATSEval1D5):
                  ('exp-slope', ExpSlopeDamageFn),
                  ('fracture-energy', GfDamageFn),
                  ('weibull-CDF', WeibullDamageFn),
-                 ('frp-analytical', FRPDamageFn),
                  ],
         MAT=True,
         on_option_change='link_omega_to_mats'

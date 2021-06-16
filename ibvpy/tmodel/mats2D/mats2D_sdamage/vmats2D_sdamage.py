@@ -1,69 +1,57 @@
 
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
-from ibvpy.tmodel.mats_damage_fn import \
-    GfDamageFn
-from traits.api import on_trait_change, Bool
-from traitsui.api import UItem, \
-    Item, View, Group, Spring
-
+from bmcs_utils.api import Float, Item, View, Enum, EitherType, FloatRangeEditor
 import numpy as np
 import traits.api as tr
+from ibvpy.tmodel.mats_damage_fn import \
+    IDamageFn, GfDamageFn, ExpSlopeDamageFn, AbaqusDamageFn, \
+    LinearDamageFn, FRPDamageFn, WeibullDamageFn
 
-from .vstrain_norm2d import StrainNorm2D, SN2DRankine
-
+from .vstrain_norm2d import StrainNorm2D, SN2DRankine, SN2DMasars, SN2DEnergy
 
 class MATS2DScalarDamage(MATS2DEval):
     r'''Isotropic damage model.
     '''
 
+    name = 'isotropic damage model'
     node_name = 'isotropic damage model'
 
-    tree_node_list = tr.List
+    tree = ['omega_fn','strain_norm']
 
-    def _tree_node_list_default(self):
-        return [self.strain_norm, self.omega_fn, ]
+    omega_fn = EitherType(
+        options=[('exp-slope', ExpSlopeDamageFn),
+                 ('linear', LinearDamageFn),
+                 ('abaqus', AbaqusDamageFn),
+                 ('fracture-energy', GfDamageFn),
+                 ('weibull-CDF', WeibullDamageFn),
+                 ],
+        MAT=True,
+        on_option_change='link_omega_to_mats'
+    )
 
-    def _update_node_list(self):
-        self.tree_node_list = [
-            self.strain_norm,
-            self.omega_fn,
-        ]
-
-    stiffness = tr.Enum("secant", "algorithmic",
-                        input=True)
+    D_alg = Float(0)
     r'''Selector of the stiffness calculation.
     '''
+
+    eps_max = Float(0.03, ALG=True)
+    # upon change of the type attribute set the link to the material model
+    def link_omega_to_mats(self):
+        self.omega_fn_.trait_set(mats=self,
+                                 E_name='E',
+                                 x_max_name='eps_max')
+
     #=========================================================================
     # Material model
     #=========================================================================
-    strain_norm_type = tr.Trait('Rankine',
-                                {'Rankine': SN2DRankine,
-                                 },
-                                MAT=True
-                                )
+    strain_norm = EitherType(
+        options=[('Rankine', SN2DRankine),
+                 ('Masars', SN2DMasars),
+                 ('Energy', SN2DEnergy)],
+        on_option_change='link_strain_norm_to_mats'
+    )
 
-    @on_trait_change('strain_norm_type')
-    def _set_strain_norm(self):
-        self.strain_norm = self.strain_norm_type_(mats=self)
-        self._update_node_list()
-
-    strain_norm = tr.Instance(StrainNorm2D,
-                              report=True)
-    '''Material model'''
-
-    def _strain_norm_default(self):
-        return self.strain_norm_type_(mats=self)
-
-    omega_fn = tr.Instance(GfDamageFn)
-
-    def _omega_fn_default(self):
-        return GfDamageFn(mats=self)
-
-    changed = tr.Event
-    r'''This event can be used by the clients to trigger 
-    an action upon the completed reconfiguration of 
-    the material model
-    '''
+    def link_strain_norm_to_mats(self):
+        self.strain_norm_.trait_set(mats=self)
 
     state_var_shapes = {'kappa': (),
                         'omega': ()}
@@ -73,25 +61,16 @@ class MATS2DScalarDamage(MATS2DEval):
     of the domain.
     '''
 
-    def init(self, kappa, omega):
-        r'''
-        Initialize the state variables.
-        '''
-        kappa[...] = 0
-        omega[...] = 0
-
-    algorithmic = Bool(True)
-
-    def get_corr_pred(self, eps_ab, tn1, kappa, omega):
+    def get_corr_pred(self, eps_ab_n1, tn1, kappa, omega):
         r'''
         Corrector predictor computation.
         @param eps_app_eng input variable - engineering strain
         '''
-        eps_eq = self.strain_norm.get_eps_eq(eps_ab, kappa)
-        I = self.omega_fn.get_f_trial(eps_eq)
+        eps_eq = self.strain_norm_.get_eps_eq(eps_ab_n1, kappa)
+        I = self.omega_fn_.get_f_trial(eps_eq, kappa)
         eps_eq_I = eps_eq[I]
         kappa[I] = eps_eq_I
-        omega[I] = self.omega_fn(eps_eq_I)
+        omega[I] = self.get_omega(eps_eq_I)
         phi = (1.0 - omega)
         D_abcd = np.einsum(
             '...,abcd->...abcd',
@@ -99,69 +78,91 @@ class MATS2DScalarDamage(MATS2DEval):
         )
         sig_ab = np.einsum(
             '...abcd,...cd->...ab',
-            D_abcd, eps_ab
+            D_abcd, eps_ab_n1
         )
-        if self.algorithmic:
-            domega_I = self.omega_fn.diff(eps_eq_I)
-            domega_I[np.where(np.fabs(domega_I) < .001)] = .001
-            deps_eq_cd_I = self.strain_norm.get_deps_eq(eps_ab[I])
-            D_abcd[I] -= np.einsum(
-                '...,...cd,abcd,...cd->...abcd',
-                domega_I, deps_eq_cd_I, self.D_abcd, eps_ab[I]
-            )
+        if self.D_alg > 0:
+            domega_ds_I = self.omega_derivative(eps_eq_I)
+            deps_eq_I = self.strain_norm_.get_deps_eq(eps_ab_n1[I])
+            D_red_I = np.einsum('...,...ef,cdef,...ef->...cdef', domega_ds_I,
+                                deps_eq_I, self.D_abcd, eps_ab_n1[I]) * self.D_alg
+            D_abcd[I] -= D_red_I
+
         return sig_ab, D_abcd
 
-    def _get_var_dict(self):
-        var_dict = super(MATS2DScalarDamage, self)._get_var_dict()
-        var_dict.update(
-            omega=self.get_omega
-        )
-        return var_dict
+    def get_omega(self, kappa):
+        return self.omega_fn_(kappa)
 
-    def get_omega(self, eps_ab, tn1, kappa, omega):
-        return omega
+    def omega_derivative(self, kappa):
+        return self.omega_fn_.diff(kappa)
 
-    traits_view = View(
-        Group(
-            Group(
-                Item('E', resizable=True),
-                Item('nu', resizable=True),
-                Item('strain_norm_type', resizable=True),
-                Group(
-                    UItem('omega_fn@', full_size=True),
-                    label='Damage function'
-                )
-            ),
-            Group(
-                Item('stress_state', style='custom'),
-                Item('stiffness', style='custom'),
-                Spring(resizable=True),
-                label='Configuration parameters',
-                show_border=True,
-            ),
-        ),
-        resizable=True
+    ipw_view = View(
+        Item('E'),
+        Item('nu'),
+        Item('strain_norm'),
+        Item('omega_fn'),
+        Item('stress_state'),
+        Item('D_alg', latex=r'\theta_\mathrm{alg. stiff.}',
+                editor=FloatRangeEditor(low=0,high=1)),
+        Item('eps_max'),
+        Item('G_f', latex=r'G_\mathrm{f}^{\mathrm{estimate}}', readonly=True),
     )
 
-    tree_view = traits_view
+    G_f = tr.Property(Float, depends_on='state_changed')
+    @tr.cached_property
+    def _get_G_f(self):
+        eps_max = self.eps_max
+        n_eps = 1000
+        eps11_range = np.linspace(1e-9,eps_max,n_eps)
+        eps_range = np.zeros((len(eps11_range), 2, 2))
+        eps_range[:,1,1] = eps11_range
+        state_vars = { var : np.zeros( (len(eps11_range),) + shape )
+            for var, shape in self.state_var_shapes.items()
+        }
+        sig_range, D = self.get_corr_pred(eps_range, 1, **state_vars)
+        sig11_range = sig_range[:,1,1]
+        return np.trapz(sig11_range, eps11_range)
 
+    def subplots(self, fig):
+        ax_sig = fig.subplots(1,1)
+        ax_d_sig = ax_sig.twinx()
+        return ax_sig, ax_d_sig
 
-if __name__ == '__main__':
+    def update_plot(self, axes):
+        ax_sig, ax_d_sig = axes
+        eps_max = self.eps_max
+        n_eps = 100
+        eps11_range = np.linspace(1e-9,eps_max,n_eps)
+        eps_range = np.zeros((n_eps, 2, 2))
+        eps_range[:,0,0] = eps11_range
+        state_vars = { var : np.zeros( (n_eps,) + shape )
+            for var, shape in self.state_var_shapes.items()
+        }
+        sig_range, D_range = self.get_corr_pred(eps_range, 1, **state_vars)
+        sig11_range = sig_range[:,0,0]
+        ax_sig.plot(eps11_range, sig11_range,color='blue')
+        d_sig1111_range = D_range[...,0,0,0,0]
+        ax_d_sig.plot(eps11_range, d_sig1111_range,
+                      linestyle='dashed', color='gray')
+        ax_sig.set_xlabel(r'$\varepsilon_{11}$ [-]')
+        ax_sig.set_ylabel(r'$\sigma_{11}$ [MPa]')
+        ax_d_sig.set_ylabel(r'$\mathrm{d} \sigma_{11} / \mathrm{d} \varepsilon_{11}$ [MPa]')
 
-    #-------------------------------------------------------------------------
-    # Example
-    #-------------------------------------------------------------------------
+        ax_d_sig.plot(eps11_range[:-1],
+                    (sig11_range[:-1]-sig11_range[1:])/(eps11_range[:-1]-eps11_range[1:]),
+                    color='orange', linestyle='dashed')
 
-    f_t = 2.4
-    G_f = 0.090
-    E = 20000.0
-    omega_fn_gf = GfDamageFn(G_f=G_f, f_t=f_t, L_s=22.5)
-    print(omega_fn_gf.eps_0)
-    print(omega_fn_gf(0.000148148))
-
-    mats = MATS2DScalarDamage(E=30000,
-                              stiffness='algorithmic',
-                              nu=0.0,
-                              )
-    print(mats.strain_norm)
-    mats.configure_traits()
+        if False:
+            # This is used for visual control of the derived stiffness values
+            # the above version comparing the numberical and analytical derivative
+            # of the displayed stress-strain curve is better.
+            n_d = 4
+            eps0_d_range = eps_range[:-n_d:n_d]
+            eps1_d_range = eps_range[1:-n_d:n_d]
+            D_d_range = D_range[:-n_d:n_d]
+            sig0_d_range = sig11_range[:-n_d:n_d]
+            delta_eps = eps1_d_range - eps0_d_range
+            delta_sig = np.einsum('...abcd,...cd->...ab', D_d_range, delta_eps)
+            sig1_d_range = sig0_d_range + delta_sig[...,0,0]
+            sig_lines = np.array([sig0_d_range, sig1_d_range])
+            eps_lines = np.array([eps0_d_range[...,0,0], eps1_d_range[...,0,0]])
+            ax_sig.plot(eps_lines, sig_lines, color='gray', linestyle='solid')

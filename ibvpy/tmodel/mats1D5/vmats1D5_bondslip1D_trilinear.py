@@ -15,10 +15,9 @@ from traits.api import  \
 import bmcs_utils.api as bu
 import numpy as np
 import traitsui.api as ui
+from .vmats1D5_bondslip1D import MATSEval1D5
 
-import ipyregulartable as rt
-
-class MATS1D5BondSlipTriLinear(MATSEval):
+class MATS1D5BondSlipTriLinear(MATSEval1D5):
     """Multilinear bond-slip law
     """
     name = "tri-linear bond law"
@@ -72,15 +71,15 @@ class MATS1D5BondSlipTriLinear(MATSEval):
 
     node_name = 'tri-linear linear bond'
 
-    def get_corr_pred(self, s, t_n1):
+    def get_corr_pred(self, eps_n1, t_n1):
+        D_shape = eps_n1.shape[:-1] + (3, 3)
+        D = np.zeros(D_shape, dtype=np.float_)
 
-        n_e, n_ip, _ = s.shape
-        D = np.zeros((n_e, n_ip, 3, 3))
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
 
-        tau = np.einsum('...st,...t->...s', D, s)
-        s = s[..., 1]
+        tau = np.einsum('...st,...t->...s', D, eps_n1)
+        s = eps_n1[..., 1]
         shape = s.shape
         signs = np.sign(s.flatten())
         s_pos = np.fabs(s.flatten())
@@ -101,13 +100,6 @@ class MATS1D5BondSlipTriLinear(MATSEval):
             plot_diff=False
         )
 
-    def plot(self, ax, **kw):
-        s_data, tau_data = self.s_tau_table
-        ax.plot(s_data, tau_data, **kw)
-        ax.fill_between(s_data, tau_data, alpha=0.1, **kw)
-        ax.set_xlabel(r'$\tau$ [MPa]')
-        ax.set_xlabel(r'$s$ [mm]')
-
     ipw_view = bu.View(
         bu.Item('E_m'),
         bu.Item('E_f'),
@@ -115,8 +107,5 @@ class MATS1D5BondSlipTriLinear(MATSEval):
         bu.Item('s_1'),
         bu.Item('tau_2'),
         bu.Item('s_2'),
+        bu.Item('s_max'),
     )
-
-    def update_plot(self, axes):
-        self.plot(axes)
-

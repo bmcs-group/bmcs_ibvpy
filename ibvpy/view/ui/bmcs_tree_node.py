@@ -30,10 +30,6 @@ class BMCSNodeBase(bu.Model):
 
     node_name = Str('<unnamed>')
 
-    name = Property()
-    def _get_name(self):
-        return self.node_name
-
     ipw_view = bu.View()
 
     def update_plot(self, axes):

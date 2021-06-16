@@ -9,7 +9,8 @@ from ibvpy.tmodel.mats2D.mats2D_tensor import \
     map2d_tns4_to_tns2, compliance_mapping2d
 from ibvpy.tmodel.mats2D.mats2D_tensor import map2d_eps_eng_to_mtx
 from traits.api import \
-    Enum, Array, Property, cached_property, Callable, Constant
+    Array, Property, cached_property, Callable, Constant
+from bmcs_utils.api import Enum
 from traitsui.api import View
 
 from ibvpy.tmodel.matsXD.vmatsXD_eval import MATSXDEval
@@ -20,7 +21,9 @@ class MATS2DEval(MATSXDEval):
 
     n_dims = Constant(2)
 
-    stress_state = Enum("plane_stress", "plane_strain", MAT=True)
+    stress_state = Enum(
+        options=['plane_stress', 'plane_strain'], MAT=True
+    )
 
     D_ab = Property(Array, depends_on='MAT')
     '''Elasticity matrix (shape: (3,3))

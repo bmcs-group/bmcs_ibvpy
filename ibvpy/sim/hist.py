@@ -117,7 +117,7 @@ class Hist(Vis2D):
         t = self.t
         if len(t) == 0:
             return 0
-        idx = np.array(np.arange(len(t)), dtype=np.float_)
+        idx = np.array(np.arange(len(t)), dtype=np.float_) + 0.5
         t_idx = np.interp(vot, t, idx)
         return np.array(t_idx, np.int_)
 
