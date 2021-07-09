@@ -27,7 +27,6 @@ class Vis3DStateField(Vis3DField):
         # loop over the subdomains
         U_vector_fields = []
         state_fields = []
-        print('JJJJJJJJJJJJJJJJJJJ', ts.fe_domain)
         for domain in ts.fe_domain:
             xdomain = domain.xmodel
             fets = xdomain.fets

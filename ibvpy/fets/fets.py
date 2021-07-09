@@ -14,7 +14,6 @@ from traits.api import \
 from traitsui.api import \
     View, Item, Group
 import numpy as np
-#from tvtk.tvtk_classes import tvtk_helper
 
 from .i_fets import IFETSEval
 from bmcs_utils.api import InteractiveModel
@@ -83,7 +82,8 @@ class FETSEval(InteractiveModel):
     vtk_cell_class = Property
 
     def _get_vtk_cell_class(self):
-        return None # tvtk_helper.get_class(self.vtk_cell_type)
+        from tvtk.tvtk_classes import tvtk_helper
+        return tvtk_helper.get_class(self.vtk_cell_type)
 
     # Distinguish the type of base geometric entity to be used for
     # the visualization of the results.
@@ -102,6 +102,8 @@ class FETSEval(InteractiveModel):
             cell_classes = [self.vtk_cell_types for i in range(n_cells)]
         else:
             cell_classes = self.vtk_cell_types
+
+        from tvtk.tvtk_classes import tvtk_helper
 
         cell_types = []
         for cell_str in cell_classes:
@@ -135,6 +137,7 @@ class FETSEval(InteractiveModel):
 
     @cached_property
     def _get_vtk_ip_cell_data(self):
+        from tvtk.tvtk_classes import tvtk_helper
 
         n_ip_pnts = self.ip_coords.shape[0]
 

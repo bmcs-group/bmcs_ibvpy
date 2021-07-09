@@ -164,7 +164,7 @@ class GfDamageFn(DamageFnInjectSymbExpr):
 class ExpSlopeDamageFnSymbExpr(bu.SymbExpr):
 
     kappa, kappa_0 = sp.symbols(r'\kappa, \kappa_0')
-    kappa_f = sp.symbols(r'kappa_\mathrm{f}')
+    kappa_f = sp.symbols(r'\kappa_\mathrm{f}')
     omega_kappa_ =  1 - (kappa_0 / kappa * sp.exp(-(kappa-kappa_0)/(kappa_f-kappa_0) ) )
     omega_ = sp.Piecewise( (0, kappa <= kappa_0), (omega_kappa_, True) )
 

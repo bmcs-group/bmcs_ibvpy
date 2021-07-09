@@ -150,19 +150,3 @@ class MATS2DScalarDamage(MATS2DEval):
         ax_d_sig.plot(eps11_range[:-1],
                     (sig11_range[:-1]-sig11_range[1:])/(eps11_range[:-1]-eps11_range[1:]),
                     color='orange', linestyle='dashed')
-
-        if False:
-            # This is used for visual control of the derived stiffness values
-            # the above version comparing the numberical and analytical derivative
-            # of the displayed stress-strain curve is better.
-            n_d = 4
-            eps0_d_range = eps_range[:-n_d:n_d]
-            eps1_d_range = eps_range[1:-n_d:n_d]
-            D_d_range = D_range[:-n_d:n_d]
-            sig0_d_range = sig11_range[:-n_d:n_d]
-            delta_eps = eps1_d_range - eps0_d_range
-            delta_sig = np.einsum('...abcd,...cd->...ab', D_d_range, delta_eps)
-            sig1_d_range = sig0_d_range + delta_sig[...,0,0]
-            sig_lines = np.array([sig0_d_range, sig1_d_range])
-            eps_lines = np.array([eps0_d_range[...,0,0], eps1_d_range[...,0,0]])
-            ax_sig.plot(eps_lines, sig_lines, color='gray', linestyle='solid')
