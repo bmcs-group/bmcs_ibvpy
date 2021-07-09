@@ -5,7 +5,7 @@ dependencies:
 - appmode
 - jupyter_contrib_nbextensions
 - traits>=6.1.1
-- traitsui
+- traitsui==7.1.0
 - matplotlib-base
 - numpy
 - scipy
