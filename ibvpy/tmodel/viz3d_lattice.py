@@ -23,7 +23,8 @@ class Vis3DLattice(Vis3D):
 
     def setup(self):
         self.new_dir()
-        fe_domain = self.sim.tstep.fe_domain
+        ts = self.tstep
+        fe_domain = ts.fe_domain
         X_Ia_list = []
         I_Li_list = []
         Xm_Lia_list = []
@@ -62,7 +63,7 @@ class Vis3DLattice(Vis3D):
         self.lattice_file = target_file
 
     def update(self):
-        ts = self.sim.tstep
+        ts = self.tstep
         U = ts.U_k
         t = ts.t_n1
         U_Ia_list = []
@@ -161,11 +162,11 @@ class Viz3DLattice(Viz3D):
         return True  # self.d.visible
 
     def plot(self, vot):
-        fe_domain = self.vis3d.sim.tstep.fe_domain
+        fe_domain = self.vis3d.tstep.fe_domain
         xdomain = fe_domain[0].xmodel
         dXm_Lia = xdomain.dXm_Lia
 
-        idx = self.vis3d.sim.hist.get_time_idx(vot)
+        idx = self.vis3d.tstep.hist.get_time_idx(vot)
         fname = self.vis3d.file_list[idx]
         npzfile = np.load(fname)
         U_Ia = npzfile['U_Ia']

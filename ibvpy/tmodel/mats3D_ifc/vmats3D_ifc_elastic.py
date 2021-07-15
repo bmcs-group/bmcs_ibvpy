@@ -1,15 +1,12 @@
 
 from ibvpy.tmodel.mats_eval import \
     IMATSEval, MATSEval
-from simulator.api import Model
 from traits.api import  \
-    provides, \
-    Float, Property, cached_property
-from view.ui import BMCSTreeNode
+    provides, Property, cached_property
+from bmcs_utils.api import \
+    Float, View, Item
 
 import numpy as np
-import traitsui.api as ui
-
 
 @provides(IMATSEval)
 class MATS3DIfcElastic(MATSEval):
@@ -44,9 +41,7 @@ class MATS3DIfcElastic(MATSEval):
         D = self.D_rs.reshape(grid_shape + self.D_rs.shape)
         return tau, D
 
-    traits_view = ui.View(
-        ui.Item('E_s'),
-        ui.Item('E_n')
+    ipw_view = View(
+        Item('E_s'),
+        Item('E_n')
     )
-
-    tree_view = traits_view

@@ -106,7 +106,7 @@ class TStepBC(TStep):
     matrix) and field representation of the primary variables.
     '''
 
-    fe_domain = tr.Property(depends_on='model_structure_changed')
+    fe_domain = tr.Property(depends_on='state_changed')
 
     @tr.cached_property
     def _get_fe_domain(self):
