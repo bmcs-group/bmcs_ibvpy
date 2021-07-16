@@ -31,12 +31,17 @@ class TimeFunction(Model):
 class TFMonotonic(TimeFunction):
 
     ipw_view = View(
-        Item('t_max')
+        Item('t_max'),
+        Item('range_factor')
     )
 
+    range_factor = Float(10000)
+
     def _generate_time_function(self):
-        d_history = np.array([0, 1])
-        t_arr = np.array([0, self.t_max])
+        # Define the monotonic range beyond the unit range
+        # allow for interactive extensions. The fact
+        d_history = np.array([0, 1*self.range_factor])
+        t_arr = np.array([0, self.t_max*self.range_factor])
         return interp1d(t_arr, d_history)
 
 
@@ -54,7 +59,7 @@ class TFCyclicSymmetricIncreasing(TimeFunction):
         d_levels.reshape(-1, 2)[:, 0] *= -1
         d_history = d_levels.flatten()
         t_arr = np.linspace(0, self.t_max, len(d_history))
-        return interp1d(t_arr, d_history)
+        return interp1d(t_arr, d_history, bounds_error=False, fill_value=self.t_max)
 
 
 class TFCyclicNonsymmetricIncreasing(TimeFunction):
@@ -70,7 +75,7 @@ class TFCyclicNonsymmetricIncreasing(TimeFunction):
         d_levels.reshape(-1, 2)[:, 0] *= 0
         d_history = d_levels.flatten()
         t_arr = np.linspace(0, self.t_max, len(d_history))
-        return interp1d(t_arr, d_history)
+        return interp1d(t_arr, d_history, bounds_error=False, fill_value=self.t_max)
 
 
 class TFCyclicSymmetricConstant(TimeFunction):
@@ -109,7 +114,7 @@ class TFCyclicNonsymmetricConstant(TimeFunction):
         d_history = d_2.flatten()
         d_arr = np.hstack((d_1, d_history))
         t_arr = np.linspace(0, self.t_max, len(d_arr))
-        return interp1d(t_arr, d_arr)
+        return interp1d(t_arr, d_arr, bounds_error=False, fill_value=self.t_max)
 
 
 class TFCyclicSin(TimeFunction):

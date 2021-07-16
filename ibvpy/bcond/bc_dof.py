@@ -7,6 +7,7 @@ from traits.api import Float, \
 from traitsui.api import \
     View, Item, UItem, VGroup, VSplit
 from ibvpy.view.ui import BMCSTreeNode
+from ibvpy.tfunction import TimeFunction, TFMonotonic
 
 import numpy as np
 
@@ -48,10 +49,6 @@ class BCDof(BMCSTreeNode):
 
     '''
     node_name = 'boundary condition'
-    tree_node_list = List()
-
-    def _tree_node_list_default(self):
-        return [self.time_function]
 
     var = Enum('u', 'f', 'eps', 'sig',
                label='Variable',
@@ -84,17 +81,13 @@ class BCDof(BMCSTreeNode):
     Coefficients of the linear combination of DOFs specified in the
     above list.
     '''
-    time_function = Instance(MFnLineArray,
-                             BC=True)
+
+    time_function = Instance(TimeFunction, ())
     '''
     Time function prescribing the evolution of the boundary condition.
     '''
-
     def _time_function_default(self):
-        return MFnLineArray(xdata=[0, 1], ydata=[0, 1], extrapolate='diff')
-
-    def get_viz2d_data(self):
-        return self.time_function.xdata, self.time_function.ydata
+        return TFMonotonic()
 
     def is_essential(self):
         return self.var == 'u'

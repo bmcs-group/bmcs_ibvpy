@@ -17,6 +17,7 @@ from .i_bcond import \
 from ibvpy.mesh.fe_grid_idx_slice import FEGridIdxSlice
 # from ibvpy.view.plot3d.mayavi_util.pipelines import \
 #     MVPointLabels
+from ibvpy.tfunction import TimeFunction, TFMonotonic
 from ibvpy.mathkit.mfn import MFnLineArray
 from numpy import \
     ix_, dot, repeat, zeros
@@ -55,17 +56,7 @@ class BCSlice(BMCSTreeNode, Vis2D):
     '''
     Implements the IBC functionality for a constrained dof.
     '''
-    tree_node_list = List
-
-    tree_node_list = Property(depends_on='bcdof_list,bcdof_list_items')
-
-    @cached_property
-    def _get_tree_node_list(self):
-        return [self.time_function,
-                self.space_function] + self.bcdof_list
-
     name = Str('<unnamed>')
-
     node_name = Property
 
     def _get_node_name(self):
@@ -114,16 +105,15 @@ class BCSlice(BMCSTreeNode, Vis2D):
 
     integ_domain = Enum(['global', 'local'])
 
-    # TODO - adapt the definition
-    time_function = Instance(MFnLineArray, ())
+    time_function = Instance(TimeFunction, ())
+
+    def _time_function_default(self):
+        return TFMonotonic()
 
     space_function = Instance(MFnLineArray, ())
 
     def _space_function_default(self):
         return MFnLineArray(xdata=[0, 1], ydata=[1, 1], extrapolate='diff')
-
-    def _time_function_default(self):
-        return MFnLineArray(xdata=[0, 1], ydata=[0, 1], extrapolate='diff')
 
     def is_essential(self):
         return self.var == 'u'

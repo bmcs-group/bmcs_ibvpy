@@ -29,3 +29,8 @@ from .mesh.fe_grid import FEGrid
 from .mesh.fe_grid_idx_slice import FEGridIdxSlice
 from .mesh.fe_grid_ls_slice import FEGridLevelSetSlice
 from .mesh.fe_refinement_grid import FERefinementGrid, FERefinementGrid as FEPatchedGrid
+
+from .tfunction import TFCyclicNonsymmetricIncreasing, TimeFunction, TFSelector, \
+    TFMonotonic, TFCyclicSymmetricIncreasing, TFCyclicSymmetricConstant, \
+    TFCyclicNonsymmetricIncreasing, TFCyclicNonsymmetricConstant, \
+    TFCyclicSin
