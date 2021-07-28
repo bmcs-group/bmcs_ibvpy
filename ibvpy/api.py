@@ -33,4 +33,4 @@ from .mesh.fe_refinement_grid import FERefinementGrid, FERefinementGrid as FEPat
 from .tfunction import TFCyclicNonsymmetricIncreasing, TimeFunction, TFSelector, \
     TFMonotonic, TFCyclicSymmetricIncreasing, TFCyclicSymmetricConstant, \
     TFCyclicNonsymmetricIncreasing, TFCyclicNonsymmetricConstant, \
-    TFCyclicSin
+    TFCyclicSin, TFBilinear

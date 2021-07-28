@@ -44,6 +44,26 @@ class TFMonotonic(TimeFunction):
         t_arr = np.array([0, self.t_max*self.range_factor])
         return interp1d(t_arr, d_history)
 
+class TFBilinear(TimeFunction):
+    loading_ratio = Float(0.5, TIME=True)
+    time_ratio = Float(0.5, TIME=True)
+
+    ipw_view = View(
+        Item('t_max'),
+        Item('loading_ratio', editor=FloatRangeEditor(low=0, high=1)),
+        Item('time_ratio', editor=FloatRangeEditor(low=0, high=1)),
+        Item('range_factor')
+    )
+
+    range_factor = Float(1)
+
+    def _generate_time_function(self):
+        # Define the monotonic range beyond the unit range
+        # allow for interactive extensions. The fact
+        d_history = np.array([0, 1 *  self.loading_ratio *self.range_factor , 1 *self.range_factor ])
+        t_arr = np.array([0, self.t_max  * self.time_ratio * self.range_factor , self.t_max *self.range_factor])
+        return interp1d(t_arr, d_history, bounds_error=False, fill_value=self.t_max)
+
 
 class TFCyclicSymmetricIncreasing(TimeFunction):
     number_of_cycles = Int(10, TIME=True)
@@ -145,6 +165,7 @@ class TFSelector(TimeFunction):
     profile = EitherType(
         options=[
             ('monotonic', TFMonotonic),
+            ('bilinear', TFBilinear),
             ('cyclic-sym-incr', TFCyclicSymmetricConstant),
             ('cyclic-sym-const', TFCyclicSymmetricIncreasing),
             ('cyclic-nonsym-incr', TFCyclicNonsymmetricConstant),

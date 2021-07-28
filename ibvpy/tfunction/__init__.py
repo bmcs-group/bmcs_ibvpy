@@ -6,4 +6,4 @@ from .loading_scenario import \
 from .time_function import TimeFunction, TFSelector, \
     TFMonotonic, TFCyclicSymmetricIncreasing, TFCyclicSymmetricConstant, \
     TFCyclicNonsymmetricIncreasing, TFCyclicNonsymmetricConstant, \
-    TFCyclicSin
+    TFCyclicSin, TFBilinear
