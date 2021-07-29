@@ -119,18 +119,20 @@ import sympy as sp
 class TFCyclicNonsymmetricConstant(TimeFunction):
     number_of_cycles = Int(10, TIME=True)
     unloading_ratio = Float(0.5, TIME=True)
+    shift_cycles = Int(0, TIME=True)
 
     ipw_view = View(
         Item('number_of_cycles'),
+        Item('shift_cycles'),
         Item('unloading_ratio', editor=FloatRangeEditor(low=0, high=1)),
         Item('t_max')
     )
 
     def _generate_time_function(self):
         d_1 = np.zeros(1)
-        d_2 = np.zeros((self.number_of_cycles * 2, ))
-        d_2.reshape(-1, 2)[:, 0] = 1
-        d_2.reshape(-1, 2)[:, 1] = self.unloading_ratio
+        d_2 = np.zeros(((self.number_of_cycles + self.shift_cycles) * 2, ))
+        d_2.reshape(-1, 2)[self.shift_cycles:, 0] = 1
+        d_2.reshape(-1, 2)[self.shift_cycles:, 1] = self.unloading_ratio
         d_history = d_2.flatten()
         d_arr = np.hstack((d_1, d_history))
         t_arr = np.linspace(0, self.t_max, len(d_arr))
