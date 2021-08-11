@@ -33,7 +33,7 @@ class BCDof(BMCSTreeNode):
 
     and is regarded as a natural boundary condition.
 
-    On the ther hand, the specification
+    On the the other hand, the specification
 
     cos(alpha) * U[2] + sin(slpha) * U[3] = 0.4
 

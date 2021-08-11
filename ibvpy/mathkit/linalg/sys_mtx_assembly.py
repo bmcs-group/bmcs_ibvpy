@@ -1,9 +1,10 @@
 
 from math import fabs
 
-from numpy import allclose, arange, eye, linalg, ones, ix_, array, zeros, \
-    hstack, meshgrid, vstack, dot, newaxis, c_, r_, copy, where, \
-    ones, append, unique, compress, array_equal, allclose
+import numpy as np
+from numpy import arange, array, zeros, \
+    hstack, dot, where, \
+    append, compress, array_equal, allclose
 from traits.api import \
     HasTraits, Int, Array, Property, cached_property, List, Trait, Dict, \
     Any, Bool, Float
@@ -129,7 +130,7 @@ class SysMtxAssembly(HasTraits):
     def add_mtx(self, mtx, dof_map=None):
         '''Add a single matrix with the dof map
         '''
-        if dof_map == None:
+        if not type(dof_map) is np.ndarray:
             dof_map = arange(mtx.shape[0])
 
         sys_mtx_array = SysMtxArray(dof_map_arr=dof_map[None, ...],
@@ -141,7 +142,7 @@ class SysMtxAssembly(HasTraits):
     def add_link_mtx(self, mtx, dof_map=None):
         '''Add a single matrix with the dof map
         '''
-        if dof_map == None:
+        if not type(dof_map) is np.ndarray:
             dof_map = arange(mtx.shape[0])
 
         link_mtx = SysMtxArray(dof_map_arr=dof_map[None, ...],
