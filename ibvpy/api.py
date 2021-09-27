@@ -34,3 +34,4 @@ from .tfunction import TFCyclicNonsymmetricIncreasing, TimeFunction, TFSelector,
     TFMonotonic, TFCyclicSymmetricIncreasing, TFCyclicSymmetricConstant, \
     TFCyclicNonsymmetricIncreasing, TFCyclicNonsymmetricConstant, \
     TFCyclicSin, TFBilinear
+from .fets import FETS2D4Q, FETS3D8H
