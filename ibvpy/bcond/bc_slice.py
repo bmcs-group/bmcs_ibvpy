@@ -150,7 +150,7 @@ class BCSlice(BMCSTreeNode, Vis2D):
         else:
             # apply the linked slice
             n_link_nodes = len(self.link_slice.dof_nodes.flatten())
-            link_dofs = self.link_dofs[0, 0, self.link_dims]
+            link_dofs = self.link_dofs
             if n_link_nodes == 1:
                 #
                 link_dof = self.link_slice.dofs.flatten()[0]
@@ -171,14 +171,19 @@ class BCSlice(BMCSTreeNode, Vis2D):
                     zip(self.slice.elems, self.slice.dofs, self.slice.dof_X,
                         self.link_slice.elems, self.link_slice.dofs, self.link_slice.dof_X):
                     # the link slice is compatible with the bc slice
+                    #print('el', el, el_dofs, el_link, el_link_dofs)
 
                     for node_dofs, dof_X, node_link_dofs, link_dof_X in \
                             zip(el_dofs, el_dofs_X, el_link_dofs, el_link_dofs_X):
 
+                        #print('node', node_dofs, node_link_dofs)
+                        #print('node[dims]', node_dofs[self.dims],
+                              # node_link_dofs[self.link_dims])
                         for dof, link_dof, link_coeff in zip(node_dofs[self.dims],
                                                              node_link_dofs[
                                                                  self.link_dims],
                                                              self.link_coeffs):
+                            #print('dof, link, coeff', dof, link_dof, link_coeff)
                             self.bcdof_list.append(BCDof(var=self.var,
                                                          dof=dof,
                                                          link_dofs=[link_dof],
@@ -265,7 +270,7 @@ class BCSlice(BMCSTreeNode, Vis2D):
     dofs = Property
 
     def _get_dofs(self):
-        return np.unique(self.slice.dofs[:, :, self.dims].flatten())
+        return np.unique(self.slice.dofs[..., self.dims].flatten())
 
     dof_X = Property
 
@@ -314,7 +319,7 @@ class BCSlice(BMCSTreeNode, Vis2D):
 
     def _get_link_dofs(self):
         if self.link_slice != None:
-            return self.link_slice.dofs
+            return np.unique(self.link_slice.dofs[..., self.link_dims].flatten())
         else:
             return []
 
