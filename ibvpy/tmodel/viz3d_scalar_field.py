@@ -30,10 +30,6 @@ class Vis3DStateField(Vis3DField):
         for domain in ts.fe_domain:
             xdomain = domain.xmodel
             fets = xdomain.fets
-            print('XXXXX', xdomain)
-            print(self.var)
-            print('YYYYY')
-            print(domain.state_n.keys())
             state_field = domain.state_n.get(self.var, None)
             if (xdomain.hidden) or (state_field is None):
                 # If the state variable not present in the domain, skip
@@ -54,7 +50,7 @@ class Vis3DStateField(Vis3DField):
         fname = '%s_step_%008.4f' % (self.var, t)
         target_file = os.path.join(
             self.dir, fname.replace('.', '_')
-        ) + '.vtu'
+        ) + '.' + self.extension
         write_data(self.ug, target_file)
         self.add_file(target_file)
 

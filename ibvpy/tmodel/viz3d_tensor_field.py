@@ -58,7 +58,7 @@ class Vis3DTensorField(Vis3DField):
         fname = '%s_step_%08.4f' % (self.var, t_n1)
         target_file = os.path.join(
             self.dir, fname.replace('.', '_')
-        ) + '.vtu'
+        ) + '.' + self.extension
         write_data(self.ug, target_file)
         self.add_file(target_file)
 

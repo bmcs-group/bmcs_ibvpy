@@ -21,6 +21,8 @@ class Vis3DLattice(Vis3D):
     '''
     var = tr.Str('<unnamed>')
 
+    extension = '.npz'
+
     def setup(self):
         self.new_dir()
         ts = self.tstep
@@ -57,7 +59,7 @@ class Vis3DLattice(Vis3D):
         fname = 'lattice_tessellation'
         target_file = os.path.join(
             self.dir, fname.replace('.', '_')
-        ) + '.npz'
+        ) + '.' + self.extension
         np.savez(target_file,
                  X_Ia=X_Ia, I_Li=I_Li, Xm_Lia=Xm_Lia)
         self.lattice_file = target_file
@@ -95,7 +97,7 @@ class Vis3DLattice(Vis3D):
         fname = 'U_step_%008.4f' % t
         target_file = os.path.join(
             self.dir, fname.replace('.', '_')
-        ) + '.npz'
+        ) + '.' + self.extension
         # , state_vec=state_vec)
         np.savez(target_file, U_Ia=U_Ia, U_Lipa=U_Lipa)
         self.add_file(target_file)

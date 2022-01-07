@@ -109,50 +109,104 @@ class MATS2DMplDamageEEQ(MATS2DEval):
                            einsum('ni,nj,nr -> nijr', self._MPN, self._MPN, self._MPN))
         return MPTT_nijr
 
-    def _get_e_Emna(self, eps_Emab):
-        # Projection of apparent strain onto the individual microplanes
-        print(eps_Emab)
-        print(self._MPN)
-        e_ni = einsum('nb,...ab->...na', self._MPN, eps_Emab)
+    # def _get_e_Emna(self, eps_Emab):
+    #     # Projection of apparent strain onto the individual microplanes
+    #     e_ni = einsum('nb,...ab->...na', self._MPN, eps_Emab)
+    #     return e_ni
+    #
+    # def _get_e_N_Emn(self, e_Emna):
+    #     # get the normal strain array for each microplane
+    #     return np.einsum('nij,...ij->...n', self._MPNN, e_Emna)
+    #
+    # def _get_e_T_Emna(self, e_Emna):
+    #     # get the tangential strain vector array for each microplane
+    #     MPTT_ijr = self._get__MPTT()
+    #     return np.einsum('nija,...ij->...na', MPTT_ijr, e_Emna)
+    #
+    # def _get_e_equiv_Emn(self, eps_Emab):
+    #     '''
+    #     Returns a list of the microplane equivalent strains
+    #     based on the list of microplane strain vectors
+    #     '''
+    #     # magnitude of the normal strain vector for each microplane
+    #     e_N_Emn = self._get_e_N_Emn(eps_Emab)
+    #     # positive part of the normal strain magnitude for each microplane
+    #     e_N_pos_Emn = (np.abs(e_N_Emn) + e_N_Emn) / 2
+    #     # tangent strain ratio
+    #     c_T = self.c_T
+    #     # tangential strain vector for each microplane
+    #     e_T_Emna = self._get_e_T_Emna(eps_Emab)
+    #     # squared tangential strain vector for each microplane
+    #     e_TT_Emn = einsum('...ni,...ni -> ...n', e_T_Emna, e_T_Emna)
+    #     # equivalent strain for each microplane
+    #     e_equiv_Emn = sqrt(e_N_pos_Emn * e_N_pos_Emn + c_T * e_TT_Emn)
+    #     return e_equiv_Emn
+    #
+    # def update_state_variables(self, eps_Emab, kappa):
+    #
+    #     eps_eq_Emn = self._get_e_equiv_Emn(eps_Emab)
+    #     f_trial_Emn = eps_eq_Emn - self.epsilon_0
+    #     I = np.where(f_trial_Emn > 0)
+    #     II = np.where((eps_eq_Emn - kappa) > 0)
+    #     III = np.intersect1d(I, II)
+    #     kappa[III] = eps_eq_Emn[III]
+    #     return kappa
+
+######################################################################
+
+    def _get_e_na(self, eps_ab):
+        r'''
+        Projection of apparent strain onto the individual microplanes
+        '''
+        e_ni = einsum(
+            'nb,...ba->...na',
+            self._MPN, eps_ab
+        )
         return e_ni
 
-    def _get_e_N_Emn(self, e_Emna):
-        # get the normal strain array for each microplane
-        return np.einsum('nij,...ij->...n', self._MPNN, e_Emna)
-
-    def _get_e_T_Emna(self, e_Emna):
-        # get the tangential strain vector array for each microplane
-        MPTT_ijr = self._get__MPTT()
-        return np.einsum('nija,...ij->...na', MPTT_ijr, e_Emna)
-
-    def _get_e_equiv_Emn(self, eps_Emab):
+    def _get_e_N_n(self, e_na):
+        r'''
+        Get the normal strain array for each microplane
         '''
+        e_N_n = einsum(
+            '...na, na->...n',
+            e_na, self._MPN
+        )
+        return e_N_n
+
+    def _get_e_equiv_n(self, e_na):
+        r'''
         Returns a list of the microplane equivalent strains
         based on the list of microplane strain vectors
         '''
         # magnitude of the normal strain vector for each microplane
-        e_N_Emn = self._get_e_N_Emn(eps_Emab)
+        e_N_n = self._get_e_N_n(e_na)
         # positive part of the normal strain magnitude for each microplane
-        e_N_pos_Emn = (np.abs(e_N_Emn) + e_N_Emn) / 2
+        e_N_pos_n = (np.abs(e_N_n) + e_N_n) / 2.0
+        # normal strain vector for each microplane
+        e_N_na = einsum('...n,ni -> ...ni', e_N_n, self._MPN)
         # tangent strain ratio
         c_T = self.c_T
         # tangential strain vector for each microplane
-        e_T_Emna = self._get_e_T_Emna(eps_Emab)
+        e_T_na = e_na - e_N_na
         # squared tangential strain vector for each microplane
-        e_TT_Emn = einsum('...ni,...ni -> ...n', e_T_Emna, e_T_Emna)
+        e_TT_n = einsum('...ni,...ni -> ...n', e_T_na, e_T_na)
         # equivalent strain for each microplane
-        e_equiv_Emn = sqrt(e_N_pos_Emn * e_N_pos_Emn + c_T * e_TT_Emn)
-        return e_equiv_Emn
+        e_equiv_n = sqrt(e_N_pos_n * e_N_pos_n + c_T * e_TT_n)
+        return e_equiv_n
 
-    def update_state_variables(self, eps_Emab, kappa):
+    def update_state_variables(self, eps_ab, kappa_n, omega_n):
+        e_na = self._get_e_na(eps_ab)
+        eps_eq_n = self._get_e_equiv_n(e_na)
+        f_trial_n = eps_eq_n - self.epsilon_0
+        I = np.where(f_trial_n > 0)
+        k_n = np.max(np.array([kappa_n[I], eps_eq_n[I]]), axis=0)
+        kappa_n[I] = k_n
+        omega_n[I] = self._get_omega(k_n)
 
-        eps_eq_Emn = self._get_e_equiv_Emn(eps_Emab)
-        f_trial_Emn = eps_eq_Emn - self.epsilon_0
-        I = np.where(f_trial_Emn > 0)
-        II = np.where((eps_eq_Emn - kappa) > 0)
-        III = np.intersect1d(I, II)
-        kappa[III] = eps_eq_Emn[III]
-        return kappa
+
+######################################################################
+
 
     def _get_omega(self, kappa_Emn):
         '''
@@ -195,9 +249,9 @@ class MATS2DMplDamageEEQ(MATS2DEval):
     # Evaluation - get the corrector and predictor
     #-------------------------------------------------------------------------
 
-    def get_corr_pred(self, eps_Emab, tn1, kappa):
+    def get_corr_pred(self, eps_ab, tn1, kappa, omega):
 
-        kappa = self.update_state_variables(eps_Emab, kappa)
+        self.update_state_variables(eps_ab, kappa, omega)
 
         #----------------------------------------------------------------------
         # if the regularization using the crack-band concept is on calculate the
@@ -210,30 +264,27 @@ class MATS2DMplDamageEEQ(MATS2DEval):
         #------------------------------------------------------------------
         # Damage tensor (2th order):
         #------------------------------------------------------------------
-        phi_Emab = self._get_phi_Emab(kappa)
-
+        phi_ab = self._get_phi_Emab(kappa)
         #------------------------------------------------------------------
         # Damage tensor (4th order) using product- or sum-type symmetrization:
         #------------------------------------------------------------------
-        beta_Emabcd = self._get_beta_Emabcd(phi_Emab)
-
+        beta_abcd = self._get_beta_Emabcd(phi_ab)
         #------------------------------------------------------------------
         # Damaged stiffness tensor calculated based on the damage tensor beta4:
         #------------------------------------------------------------------
-        D_Emijab = einsum(
+        D_ijab = einsum(
             '...ijab, abef, ...cdef -> ...ijcd',
-            beta_Emabcd, self.D_abef, beta_Emabcd
+            beta_abcd, self.D_abef, beta_abcd
         )
 
-        sig_Emab = einsum('...abef,...ef -> ...ab', D_Emijab, eps_Emab)
+        sig_ab = einsum('...abef,...ef -> ...ab', D_ijab, eps_ab)
 
-        return D_Emijab, sig_Emab
+        return sig_ab, D_ijab
 
 
-# class MATS2DMplDamageEEQ(MATSXDMicroplaneDamageEEQ, MATS2DEval):
     '''Number of microplanes - currently fixed for 3D
     '''
-    n_mp = Constant(360)
+    n_mp = Constant(22)
 
     _alpha_list = Property(depends_on='n_mp')
 

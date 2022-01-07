@@ -15,7 +15,7 @@ from .i_xmodel import IXModel
 class DomainState(HasStrictTraits):
     '''
     Container of spatial domains represented according to XModel.
-    and corresponding state derived using the TModel instance
+    and corresponding state derived usi ng the TModel instance
     '''
 
     tstep = WeakRef

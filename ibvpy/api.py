@@ -32,6 +32,8 @@ from .tmodel import MATS1D5BondSlipMultiLinear, MATS1D5D, \
     MATS1D5BondSlipD, MATS1D5BondSlipEP, MATS1D5BondSlipTriLinear
 from .tmodel.mats3D.mats3D_sdamage.vmats3D_sdamage import MATS3DScalarDamage
 from .tmodel.mats3D.mats3D_elastic.vmats3D_elastic import MATS3DElastic
+from .tmodel.mats2D.mats2D_sdamage.vmats2D_sdamage import MATS2DScalarDamage
+from .tmodel.mats2D import MATS2DMplDamageEEQ
 # FEGrid classes
 from .mesh.fe_domain import FEDomain
 from .mesh.fe_grid import FEGrid

@@ -70,7 +70,7 @@ class MATS2DScalarDamage(MATS2DEval):
         I = self.omega_fn_.get_f_trial(eps_eq, kappa)
         eps_eq_I = eps_eq[I]
         kappa[I] = eps_eq_I
-        omega[I] = self.get_omega(eps_eq_I)
+        omega[I] = self._omega(eps_eq_I)
         phi = (1.0 - omega)
         D_abcd = np.einsum(
             '...,abcd->...abcd',
@@ -81,7 +81,7 @@ class MATS2DScalarDamage(MATS2DEval):
             D_abcd, eps_ab_n1
         )
         if self.D_alg > 0:
-            domega_ds_I = self.omega_derivative(eps_eq_I)
+            domega_ds_I = self._omega_derivative(eps_eq_I)
             deps_eq_I = self.strain_norm_.get_deps_eq(eps_ab_n1[I])
             D_red_I = np.einsum('...,...ef,cdef,...ef->...cdef', domega_ds_I,
                                 deps_eq_I, self.D_abcd, eps_ab_n1[I]) * self.D_alg
@@ -89,10 +89,10 @@ class MATS2DScalarDamage(MATS2DEval):
 
         return sig_ab, D_abcd
 
-    def get_omega(self, kappa):
+    def _omega(self, kappa):
         return self.omega_fn_(kappa)
 
-    def omega_derivative(self, kappa):
+    def _omega_derivative(self, kappa):
         return self.omega_fn_.diff(kappa)
 
     ipw_view = View(
@@ -150,3 +150,15 @@ class MATS2DScalarDamage(MATS2DEval):
         ax_d_sig.plot(eps11_range[:-1],
                     (sig11_range[:-1]-sig11_range[1:])/(eps11_range[:-1]-eps11_range[1:]),
                     color='orange', linestyle='dashed')
+
+    def get_omega(self, eps_ab, tn1, **Eps):
+        return Eps['omega']
+
+    var_dict = tr.Property(tr.Dict(tr.Str, tr.Callable))
+    '''Dictionary of response variables
+    '''
+    @tr.cached_property
+    def _get_var_dict(self):
+        var_dict = dict(omega=self.get_omega)
+        var_dict.update(super()._get_var_dict())
+        return var_dict

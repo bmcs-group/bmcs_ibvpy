@@ -19,6 +19,9 @@ class Vis3D(tr.HasTraits):
     file_list = tr.List(tr.Str,
                         desc='a list of files belonging to a time series')
 
+    extension = tr.Str('vtu')
+    # vtk format file extension
+
     def setup(self):
         pass
 

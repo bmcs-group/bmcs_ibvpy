@@ -10,10 +10,10 @@ from .hist import Hist
 from .i_hist import IHist
 from .i_tloop import ITLoop
 from .i_tstep import ITStep
-
+import bmcs_utils.api as bu
 
 @tr.provides(ITStep)
-class TStep(tr.HasStrictTraits):
+class TStep(bu.Model):
     '''Manage the data and metadata of a time step within an interation loop.
     '''
     title = tr.Str('<unnamed>')
