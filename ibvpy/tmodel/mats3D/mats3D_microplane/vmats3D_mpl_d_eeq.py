@@ -292,18 +292,24 @@ class MATS3DMplDamageEEQ(MATS3DEval):
 
         return D_abef
 
-    def _get_var_dict(self):
-        var_dict = super(MATS3DMplDamageEEQ, self)._get_var_dict()
-        var_dict.update(
-            phi_ab=self.get_phi_ab
-        )
-        return var_dict
+    #-----------------------------------------------------------
+    # Response variables
+    #-----------------------------------------------------------
 
     def get_phi_ab(self, eps_ab, tn1, kappa_n, omega_n):
         return self._get_phi_ab(kappa_n)
 
+    def get_omega_ab(self, eps_ab, tn1, kappa_n, omega_n):
+        return np.identity(3) - self._get_phi_ab(kappa_n)
 
-if __name__ == '__main__':
+    def get_max_omega(self, eps_Emab, t_n1, kappa_n, omega_n):
+        return np.max(omega_n, axis=-1)
 
-    mm = MATS3DMplDamageEEQ()
-    print(mm.var_dict)
+    def _get_var_dict(self):
+        var_dict = super(MATS3DMplDamageEEQ, self)._get_var_dict()
+        var_dict.update(
+            max_omega=self.get_max_omega,
+            phi_ab=self.get_phi_ab,
+            omega_ab=self.get_omega_ab
+        )
+        return var_dict

@@ -22,7 +22,7 @@ class Vis3DStateField(Vis3DField):
     def update(self):
         ts = self.tstep
         U = ts.U_k
-        t = ts.t_n1
+        t_n1 = ts.t_n1
         # this needs to be adopted to tstep[domain_state]
         # loop over the subdomains
         U_vector_fields = []
@@ -30,10 +30,16 @@ class Vis3DStateField(Vis3DField):
         for domain in ts.fe_domain:
             xdomain = domain.xmodel
             fets = xdomain.fets
-            state_field = domain.state_n.get(self.var, None)
-            if (xdomain.hidden) or (state_field is None):
-                # If the state variable not present in the domain, skip
+            var_function = domain.tmodel.var_dict.get(self.var, None)
+            if var_function == None or xdomain.hidden:
                 continue
+            eps_Enab = xdomain.map_U_to_field(U)
+            state_field = var_function(eps_Enab, t_n1, **domain.state_k)
+            #
+            # state_field = domain.state_n.get(self.var, None)
+            # if (xdomain.hidden) or (state_field is None):
+            #     # If the state variable not present in the domain, skip
+            #     continue
             state_fields.append(state_field.flatten())
             DELTA_x_ab = fets.vtk_expand_operator
             U_Eia = U[xdomain.o_Eia]
@@ -47,7 +53,7 @@ class Vis3DStateField(Vis3DField):
         self.ug.point_data.vectors.name = 'displacement'
         self.ug.point_data.scalars = np.hstack(state_fields)
         self.ug.point_data.scalars.name = self.var
-        fname = '%s_step_%008.4f' % (self.var, t)
+        fname = '%s_step_%008.4f' % (self.var, t_n1)
         target_file = os.path.join(
             self.dir, fname.replace('.', '_')
         ) + '.' + self.extension

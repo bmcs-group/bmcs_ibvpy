@@ -53,7 +53,7 @@ class MATSXDEval(MATSEval):
             np.einsum(',il,jk->ijkl', mu, delta, delta)
         )
 
-    def get_corr_pred(self, eps_Emab, tn1, **kw):
+    def get_corr_pred(self, eps_Emab, tn1, **Eps):
         '''
         Corrector predictor computation.
         @param eps_Emab input variable - strain tensor
@@ -73,27 +73,43 @@ class MATSXDEval(MATSEval):
         return eps_ab
 
     def get_sig_ab(self, eps_ab, tn1, **Eps):
+        '''
+        Get the stress tensor
+        :param eps_ab: strain tensor with ab indexes
+        :param tn1: time - can be used for time dependent properties
+        :param Eps: dictionary of state variables corresponding to the
+         specification in state_var_shapes
+        :return: stress vector with with the shape of input and state variables + ab
+         spatial indexes.
+        '''
         return self.get_sig(eps_ab, tn1, **Eps)
 
+    def get_state_var(self, var_name, eps_ab, tn1, **Eps):
+        '''
+        Acess to state variables used for visualization
+        :param var_name: string with the name of the state variable
+        :param eps_ab: strain tensor (not used)
+        :param tn1: time variable (not used)
+        :param Eps: dictionary of state variables corresponding to the
+         specification in state_var_shapes
+        :return: Array with the state variable with the shape corresponding
+         to the level of the problem
+        '''
+        return Eps[var_name]
+
     var_dict = Property(Dict(Str, Callable))
-    '''Dictionary of response variables
+    '''Dictionary of functions that deliver the response/state variables 
+    of a material model
     '''
     @cached_property
     def _get_var_dict(self):
-        return dict(eps_ab=self.get_eps_ab,
-                    sig_ab=self.get_sig_ab)
-
-    def x_var_dict_default(self):
-        return {'sig_app': self.get_sig_ab,
-                'eps_app': self.get_eps_ab,
-                'max_principle_sig': self.get_max_principle_sig,
-                'strain_energy': self.get_strain_energy}
-
-    view_traits = ui.View(
-        ui.VSplit(
-            ui.Group(
-                ui.Item('E'),
-                ui.Item('nu'),),
-        ),
-        resizable=True
-    )
+        var_dict = super(MATSXDEval, self)._get_var_dict()
+        var_dict.update(eps_ab=self.get_eps_ab,
+                        sig_ab=self.get_sig_ab)
+        var_dict.update({
+            var_name : lambda eps_ab, tn1, **Eps : self.get_state_var(
+                var_name, eps_ab, tn1, **Eps
+            )
+            for var_name in self.state_var_shapes.keys()
+        })
+        return var_dict
