@@ -5,30 +5,13 @@ from traits.api import Array, Bool, Enum, Float, HasTraits, \
     Callable, List, \
     Button, \
     provides
-from traitsui.api import \
-    HSplit, Group
 
 from .i_bcond import \
     IBCond
 # from ibvpy.view.plot3d.mayavi_util.pipelines import \
 #     MVPointLabels
-from traitsui.api \
-    import View, Item, VSplit, TableEditor, ListEditor
-from traitsui.table_column \
-    import ObjectColumn
 
 from .bc_dof import BCDof
-
-
-# The definition of the demo TableEditor:
-bcond_list_editor = TableEditor(
-    columns=[ObjectColumn(label='Type', name='var'),
-             ObjectColumn(label='Value', name='value'),
-             ObjectColumn(label='DOF', name='dof')
-             ],
-    editable=False,
-)
-
 
 @provides(IBCond)
 class BCDofGroup(HasTraits):
@@ -164,14 +147,3 @@ class BCDofGroup(HasTraits):
 
     def _redraw_button_fired(self):
         self.mvp_dofs.redraw(label_mode='label_vectors')
-
-    traits_view = View(HSplit(Group('var',
-                                    'dims',
-                                    'value',
-                                    'redraw_button'),
-                              Item('bcdof_list',
-                                   style='custom',
-                                   editor=bcond_list_editor,
-                                   show_label=False)),
-                       resizable=True,
-                       )

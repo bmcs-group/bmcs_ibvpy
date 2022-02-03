@@ -16,27 +16,12 @@ from traits.api import  \
     Str, Enum, \
     List, cached_property, \
     provides, Property
-from traitsui.api import \
-    VSplit, \
-    View, UItem, Item, TableEditor, VGroup
-
 from .i_bcond import \
     IBCond
-from traitsui.table_column \
-    import ObjectColumn
 from ibvpy.view.plot2d import Vis2D
 from ibvpy.view.ui import BMCSTreeNode
 
 from .bc_dof import BCDof
-
-
-bcond_list_editor = TableEditor(
-    columns=[ObjectColumn(label='Type', name='var'),
-             ObjectColumn(label='Value', name='value'),
-             ObjectColumn(label='DOF', name='dof')
-             ],
-    editable=False,
-)
 
 
 @provides(IBCond)
@@ -106,16 +91,3 @@ class BCDofList(BMCSTreeNode, Vis2D):
     def apply_natural(self, step_flag, sctx, K, R, t_n, t_n1):
 
         raise NotImplementedError
-
-    traits_view = View(
-        VGroup(
-            VSplit(
-                Item('bcdof_list',
-                     style='custom',
-                     editor=bcond_list_editor,
-                     show_label=False),
-            ),
-        )
-    )
-
-    tree_view = traits_view

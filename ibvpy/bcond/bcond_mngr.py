@@ -3,20 +3,7 @@ from .i_bcond import IBCond
 from traits.api import \
     Instance,  \
     List
-from traitsui.api import \
-    TableEditor, ObjectColumn
 from ibvpy.view.ui import BMCSTreeNode
-
-
-# The definition of the demo TableEditor:
-bcond_list_editor = TableEditor(
-    columns=[ObjectColumn(label='Type', name='var'),
-             ObjectColumn(label='Value', name='value'),
-             ObjectColumn(label='DOF', name='dof')
-             ],
-    editable=False,
-    selected='object.selected_bcond',
-)
 
 
 class BCondMngr(BMCSTreeNode):

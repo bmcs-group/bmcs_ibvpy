@@ -4,7 +4,7 @@ from traits.api import \
     Property, cached_property, \
     provides, \
     Array
-
+import bmcs_utils.api as bu
 import numpy as np
 
 from .xdomain_fe_grid import XDomainFEGrid
@@ -17,6 +17,8 @@ class XDomainFEGridAxiSym(XDomainFEGrid):
 
     def _vtk_expand_operator_default(self):
         return np.identity(3)
+
+    Diff0_factor = bu.Float(1, BC=True)
 
     Diff0_abc = Array(np.float_)
 
@@ -31,7 +33,8 @@ class XDomainFEGridAxiSym(XDomainFEGrid):
     Diff1_abcd = Array(np.float)
 
     def _Diff1_abcd_default(self):
-        delta = np.vstack([np.identity(2), np.zeros((1, 2), dtype=np.float_)])
+        delta = np.vstack([np.identity(2),
+                           np.zeros((1, 2), dtype=np.float_)])
         return 0.5 * (
             np.einsum('ac,bd->abcd', delta, delta) +
             np.einsum('ad,bc->abcd', delta, delta)

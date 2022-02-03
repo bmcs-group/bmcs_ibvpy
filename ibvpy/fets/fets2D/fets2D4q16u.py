@@ -3,25 +3,14 @@ from math  import \
     pow, fabs
 import time
 
-from ibvpy.fets.fets_eval import FETSEval
+from ibvpy.fets.fets import FETSEval
 from ibvpy.tmodel.mats_eval import MATSEval
 from numpy import \
-    array, zeros, int_, float_, ix_, dot, linspace, hstack, vstack, arange, \
-    identity
+    array, zeros, dot
 from scipy.linalg import \
-    inv, det
+    inv
 from traits.api import \
-    Array, Bool, Callable, Enum, Float, HasTraits, Interface, \
-    Instance, Int, Trait, Str, Enum, Callable, List, TraitDict, Any, \
-    on_trait_change, Tuple, WeakRef, Delegate, Property, cached_property
-from traitsui.api import \
-    Item, View, HGroup, ListEditor, VGroup, Group
-from traitsui.menu import \
-    NoButtons, OKButton, CancelButton, Action, CloseAction, Menu, \
-    MenuBar, Separator
-from tvtk.api import tvtk
-
-
+    Array, Float, Instance, Int
 #-----------------------------------------------------------------------------
 # FEQ16sub - 16 nodes subparametric quadrilateral (2D, cubic, Lagrange family)
 #-----------------------------------------------------------------------------
@@ -317,67 +306,3 @@ class FETS2D4Q16U(FETSEval):
             Bx_mtx[2, i * 2] = dNx_mtx[1, i]
             Bx_mtx[2, i * 2 + 1] = dNx_mtx[0, i]
         return Bx_mtx
-
-
-#----------------------- example --------------------
-if __name__ == '__main__':
-    from ibvpy.api import \
-        TStepper as TS, RTDofGraph, RTraceDomainListField, TLoop, \
-        TLine, BCDofGroup, IBVPSolve as IS
-
-    # from lib.tmodel.mats2D.mats_cmdm2D.mats_mdm2d import MACMDM
-    # from lib.tmodel.mats2D.mats2D_sdamage.mats2D_sdamage import MATS2DScalarDamage
-    # from lib.tmodel.mats2D.mats2D_sdamage.strain_norm2d import *
-    from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
-
-    # fets_eval = FETS2D4Q16U(mats_eval = MATS2DScalarDamage(strain_norm = Euclidean()))
-    # fets_eval = FEQ16U(mats_eval = MACMDM())
-    fets_eval = FETS2D4Q16U(mats_eval=MATS2DElastic())
-
-    from ibvpy.mesh.fe_grid import FEGrid
-
-    # Discretization
-    domain = FEGrid(coord_max=(3., 3., 0.),
-                    shape=(2, 2),
-                    fets_eval=fets_eval)
-
-    right_dof = 2
-    ts = TS(
-        sdomain=domain,
-        # conversion to list (square brackets) is only necessary for slicing of
-        # single dofs, e.g "get_left_dofs()[0,1]"
-        bcond_list=[BCDofGroup(var='u', value=0., dims=[0],
-                               get_dof_method=domain.get_left_dofs),
-                    BCDofGroup(var='u', value=0., dims=[1],
-                               get_dof_method=domain.get_bottom_left_dofs),
-                    BCDofGroup(var='u', value=0.002, dims=[0],
-                               get_dof_method=domain.get_right_dofs)],
-
-        rtrace_list=[RTDofGraph(name='Fi,right over u_right (iteration)',
-                                 var_y='F_int', idx_y=right_dof,
-                                 var_x='U_k', idx_x=right_dof),
-                     #                         RTraceDomainField(name = 'Stress' ,
-                     #                         var = 'sig_app', idx = 0,
-                     #                         record_on = 'update'),
-                     RTraceDomainListField(name='Displacement',
-                                           var='u', idx=0),
-                     #                             RTraceDomainField(name = 'N0' ,
-                     #                                          var = 'N_mtx', idx = 0,
-                     # record_on = 'update')
-
-                     ]
-    )
-
-    # Add the time-loop control
-    #
-    tl = TLoop(tstepper=ts,
-               DT=0.5,
-               tline=TLine(min=0.0, max=1.0))
-
-    tl.eval()
-    # Put the whole stuff into the simulation-framework to map the
-    # individual pieces of definition into the user interface.
-    #
-    from ibvpy.plugins.ibvpy_app import IBVPyApp
-    app = IBVPyApp(ibv_resource=tl)
-    app.main()

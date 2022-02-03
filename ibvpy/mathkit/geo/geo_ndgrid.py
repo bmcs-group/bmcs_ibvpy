@@ -1,22 +1,13 @@
 
 from math import floor
 from mayavi.core.source import Source
-from numpy import zeros, mgrid, c_, indices, transpose, array, arange, \
-    asarray, ix_, ones, random
+from numpy import zeros, mgrid, c_, array, arange, \
+    ones, random
 from traits.api import \
     HasTraits, Float, Int, Array, Property, cached_property, \
     Tuple, List, Str, on_trait_change, Button, Delegate, \
-    Instance, Trait
-from traitsui.api import View, Item, HSplit, VSplit, InstanceEditor
-from traitsui.api import \
-    View, Item, Group, HGroup, VGroup, VSplit, HSplit, CheckListEditor, TextEditor
-from tvtk.api import tvtk
-from tvtk.pyface.scene_editor import SceneEditor
+    Instance
 from functools import reduce
-
-# from ibvpy.plugins.mayavi_util.pipelines import \
-#     MVPolyData, MVPointLabels
-
 
 # tvtk related imports
 #
@@ -65,11 +56,6 @@ class GridPoint(HasTraits):
     def __iter__(self):
         '''Delegate iteration to _coords'''
         return iter(self._coords)
-
-    traits_view = View(Item('x'),
-                       Item('y'),
-                       Item('z'),
-                       resizable=True)
 
 #---------------------------------------------------------------------
 # C L A S S  GeoNDGrid
@@ -316,33 +302,3 @@ class GeoNDGrid(Source):
     def _get_random_scalars(self):
         return random.weibull(1, size=self.n_nodes)
 
-    traits_view = View(HSplit(Group(Item('changed', show_label=False),
-                                    Item('active_dims@',
-                                         editor=CheckListEditor(values=['x', 'y', 'z'],
-                                                                cols=3)),
-                                    Item('x_mins@', resizable=False),
-                                    Item('x_maxs@'),
-                                    Item('shape@'),
-                                    ),
-                              ),
-                       resizable=True)
-
-
-if __name__ == '__main__':
-    pass
-#     from mayavi.scripts import mayavi2
-#     from ibvpy.plugins.mayavi_engine import set_engine
-#
-#     @mayavi2.standalone
-#     def view():
-#         from etsproxy.mayavi.modules.api import Outline, Surface
-#         # 'mayavi' is always defined on the interpreter.
-#         set_engine(mayavi)
-#         mayavi.new_scene()
-#         # Make the data and add it to the pipeline.
-#         mfn = GeoNDGrid(active_dims=['x', 'y'], shape=(2, 1, 5),
-#                         x_maxs=GridPoint(x=5, y=5, z=15))
-#
-#         mfn.redraw()
-#
-#     view()

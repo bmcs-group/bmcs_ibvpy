@@ -11,8 +11,6 @@ from traits.api import \
     Int, Trait, List, Any, \
     Delegate, Property, cached_property, Dict, \
     Type, Array, HasTraits
-from traitsui.api import \
-    View, Item, Group
 import numpy as np
 
 from .i_fets import IFETSEval
@@ -544,25 +542,3 @@ class FETSEval(InteractiveModel):
     def get_u(self, sctx, u):
         N_mtx = self.get_N_mtx(sctx.loc)
         return np.dot(N_mtx, u)
-
-    traits_view = View(
-        Group(
-            Item('n_e_dofs'),
-            Item('n_nodal_dofs'),
-            label='Numerical parameters'
-        ),
-        Group(
-            #                              Item( 'dof_r' ),
-            #                              Item( 'geo_r' ),
-            Item('vtk_r'),
-            Item('vtk_cells'),
-            Item('vtk_cell_types'),
-            label='Visualization parameters'
-        ),
-        #                         Item('rte_dict'),
-        resizable=True,
-        scrollable=True,
-        width=0.2,
-        height=0.4
-    )
-

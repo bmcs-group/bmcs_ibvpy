@@ -9,7 +9,6 @@ from traits.api import \
 
 from bmcs_utils.api import Float
 import numpy as np
-import traitsui.api as ui
 
 
 class MATSXDEval(MATSEval):

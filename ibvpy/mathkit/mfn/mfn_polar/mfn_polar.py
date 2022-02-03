@@ -13,9 +13,7 @@ from traitsui.api import \
 from traitsui.menu import \
     OKButton, CancelButton, Action, Menu, MenuBar
 
-
 # Enthought library imports
-#from mfn_polar_editor import MFnPolarPlotItem
 class MFnWTHandler(Handler):
 
     def open_data(self, info):

@@ -4,8 +4,6 @@ from ibvpy.mathkit.mfn import MFnLineArray
 from traits.api import Float, \
     Int,  Enum, Instance, \
     List,  Any, provides
-from traitsui.api import \
-    View, Item, UItem, VGroup, VSplit
 from ibvpy.view.ui import BMCSTreeNode
 from ibvpy.tfunction import TimeFunction, TFMonotonic
 
@@ -164,26 +162,6 @@ class BCDof(BMCSTreeNode):
                 #
                 alpha = np.array(self.link_coeffs, np.float_)
                 R[n_ix] += alpha.transpose() * R_a
-
-    tree_view = View(
-        VGroup(
-            VSplit(
-                VGroup(
-                    Item('var', full_size=True, resizable=True,
-                         tooltip='Type of variable: u - essential, f- natural'),
-                    Item('dof',
-                         tooltip='Number of the degree of freedom'),
-                    Item('value',
-                         tooltip='Value of the boundary condition to\n'
-                         'be multiplied with the time function'),
-                ),
-                UItem('time_function@', full_size=True, springy=True,
-                      resizable=True)
-            ),
-        )
-    )
-
-    traits_view = tree_view
 
 
 if __name__ == '__main__':

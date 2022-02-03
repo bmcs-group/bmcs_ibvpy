@@ -28,27 +28,12 @@ from traits.api import Float, \
     List, cached_property, \
     Button, \
     provides, Property
-from traitsui.api import \
-    VSplit, \
-    View, UItem, Item, TableEditor, VGroup
 from ibvpy.view.plot2d import Vis2D, Viz2DTimeFunction
 from ibvpy.view.ui import BMCSTreeNode
 
 import numpy as np
-from traitsui.table_column \
-    import ObjectColumn
 
 from .bc_dof import BCDof
-
-
-# The definition of the demo TableEditor:
-bcond_list_editor = TableEditor(
-    columns=[ObjectColumn(label='Type', name='var'),
-             ObjectColumn(label='Value', name='value'),
-             ObjectColumn(label='DOF', name='dof')
-             ],
-    editable=False,
-)
 
 
 @provides(IBCond)
@@ -375,36 +360,3 @@ class BCSlice(BMCSTreeNode, Vis2D):
         self.mvp_link_dofs.redraw(label_mode='label_vectors')
 
     viz2d_classes = {'time function': Viz2DTimeFunction}
-
-    traits_view = View(
-        VGroup(
-            VSplit(
-                VGroup(
-                    Item('var', full_size=True, resizable=True),
-                    Item('dims',),
-                    Item('value'),
-                    Item('redraw_button')
-                ),
-                Item('bcdof_list',
-                     style='custom',
-                     editor=bcond_list_editor,
-                     show_label=False),
-                UItem('time_function@', full_size=True, springy=True,
-                      resizable=True),
-            ),
-        )
-    )
-
-    tree_view = View(
-        VGroup(
-            VSplit(
-                VGroup(
-                    Item('var', full_size=True, resizable=True),
-                    Item('dims', full_size=True, resizable=False),
-                    Item('value'),
-                ),
-                UItem('time_function@', full_size=True, springy=True,
-                      resizable=True),
-            ),
-        )
-    )

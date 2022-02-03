@@ -4,9 +4,6 @@ from scipy import interpolate as ip
 from traits.api import Array, Float, Event, \
     ToolbarButton, on_trait_change, \
     Property, cached_property, Enum, Instance, Bool
-from traitsui.api import View, VGroup, UItem
-# from util.traits.editors import \
-#     MPLFigureEditor
 from ibvpy.view.ui import BMCSLeafNode
 
 import matplotlib.pyplot as plt
@@ -150,64 +147,3 @@ class MFnLineArray(BMCSLeafNode):
         self.mpl_plot_diff(ax, color='orange')
         fig.savefig(fname)
 
-    tree_view = View(
-        VGroup(
-            VGroup(
-                #                 UItem('figure', editor=MPLFigureEditor(),
-                #                       resizable=True,
-                #                       springy=True),
-                #                 scrollable=True,
-            ),
-        )
-    )
-
-    traits_view = tree_view
-
-
-if __name__ == '__main__':
-    import pylab as plt
-
-#    from matplotlib import pyplot as plt
-    x = np.linspace(-2, 7, 20)
-    xx = np.linspace(-4, 8, 100)
-    y = np.sin(x)
-
-    mf = MFnLineArray(xdata=x, ydata=y)
-
-    # plots raw data
-    def data():
-        plt.plot(x, y, 'ro', label='data')
-
-    # plots values with extrapolation as constant value
-    def constant():
-        mf.extrapolate = 'constant'
-        plt.plot(xx, mf(xx), label='constant')
-        plt.plot(xx, mf.diff(xx), label='constant diff')
-
-    # plots values with extrapolation as zero
-    def zero():
-        mf.extrapolate = 'zero'
-        plt.plot(xx, mf(xx), label='zero')
-        plt.plot(xx, mf.diff(xx), label='zero diff')
-
-    # plots values with extrapolation with constant slope
-    def diff():
-        mf.extrapolate = 'diff'
-        plt.plot(xx, mf(xx), label='diff')
-        plt.plot(xx, mf.diff(xx,), label='diff diff')
-
-    # raises an exception if data are outside the interpolation range
-    def exception():
-        mf.extrapolate = 'exception'
-        plt.plot(xx, mf(xx), label='exception')
-
-    data()
-    # constant()
-    # zero()
-    diff()
-    # exception()
-    plt.legend(loc='best')
-    plt.show()
-
-    mf.replot()
-    mf.configure_traits()
