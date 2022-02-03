@@ -3,8 +3,6 @@ from traits.api import \
     Instance, Int, Str, \
     on_trait_change, Property, \
     self, TraitError
-from traitsui.api import View, Item, Group, Include
-
 from .fe_domain import FEDomain
 from .i_fe_subdomain import IFESubDomain
 
@@ -101,13 +99,3 @@ class FESubDomain(HasTraits):
         if self.next_domain == self:
             raise TraitError('cyclic reference for ' + self.name)
 
-    subdomain_group = Group(Item('n_dofs'),
-                            Item('dof_offset'),
-                            Item('previous_domain'),
-                            Item('next_domain'),
-                            )
-
-    traits_view = View(Include('subdomain_group'),
-                       resizable=True,
-                       scrollable=True
-                       )

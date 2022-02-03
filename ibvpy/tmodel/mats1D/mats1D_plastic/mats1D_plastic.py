@@ -15,15 +15,12 @@
 from math import copysign, sin
 
 from traits.api import \
-    Float,  \
     Trait,    \
     Dict
-from traitsui.api import \
-    Item, View, Group, Spring
 
 from ibvpy.tmodel.mats1D.mats1D_eval import MATS1DEval
 import numpy as np
-
+import bmcs_utils.api as bu
 
 # from dacwt import DAC
 def sign(val):
@@ -41,25 +38,25 @@ class MATS1DPlastic(MATS1DEval):
     Scalar Damage Model.
     '''
 
-    E = Float(1.,  # 34e+3,
+    E = bu.Float(1.,  # 34e+3,
               label="E",
               desc="Young's Modulus",
               enter_set=True,
               auto_set=False)
 
-    sigma_y = Float(1.,
+    sigma_y = bu.Float(1.,
                     label="sigma_y",
                     desc="Yield stress",
                     enter_set=True,
                     auto_set=False)
 
-    K_bar = Float(0.1,  # 191e-6,
+    K_bar = bu.Float(0.1,  # 191e-6,
                   label="K",
                   desc="Plasticity modulus",
                   enter_set=True,
                   auto_set=False)
 
-    H_bar = Float(0.1,  # 191e-6,
+    H_bar = bu.Float(0.1,  # 191e-6,
                   label="H",
                   desc="Hardening modulus",
                   enter_set=True,
@@ -69,21 +66,13 @@ class MATS1DPlastic(MATS1DEval):
     # View specification
     #--------------------------------------------------------------------------
 
-    traits_view = View(Group(Group(Item('E'),
-                                   Item('sigma_y'),
-                                   Item('K_bar'),
-                                   Item('H_bar'),
-                                   label='Material parameters',
-                                   show_border=True),
-                             Group(Item('stiffness', style='custom'),
-                                   Spring(resizable=True),
-                                   label='Configuration parameters',
-                                   show_border=True,
-                                   ),
-                             layout='tabbed'
-                             ),
-                       resizable=True
-                       )
+    traits_view = bu.View(
+        bu.Item('E'),
+        bu.Item('sigma_y'),
+        bu.Item('K_bar'),
+        bu.Item('H_bar'),
+        bu.Item('stiffness'),
+    )
 
     #-------------------------------------------------------------------------
     # Setup for computation within a supplied spatial context
@@ -200,45 +189,3 @@ class MATS1DPlastic(MATS1DEval):
                 'eps_p': self.get_eps_p,
                 'q': self.get_q,
                 'alpha': self.get_alpha}
-
-    def _get_explorer_config(self):
-        from ibvpy.api import TLine, BCDof, RTDofGraph
-        c = super(MATS1DPlastic, self)._get_explorer_config()
-        # overload the default configuration
-        c['bcond_list'] = [BCDof(var='u',
-                                 dof=0, value=2.0,
-                                 time_function=lambda t: sin(t))]
-        c['rtrace_list'] = [
-            RTDofGraph(name='strain - stress',
-                       var_x='eps_app', idx_x=0,
-                       var_y='sig_app', idx_y=0,
-                       record_on='update'),
-            RTDofGraph(name='time - plastic_strain',
-                       var_x='time', idx_x=0,
-                       var_y='eps_p', idx_y=0,
-                       record_on='update'),
-            RTDofGraph(name='time - back stress',
-                       var_x='time', idx_x=0,
-                       var_y='q', idx_y=0,
-                       record_on='update'),
-            RTDofGraph(name='time - hardening',
-                       var_x='time', idx_x=0,
-                       var_y='alpha', idx_y=0,
-                       record_on='update')
-        ]
-        c['tline'] = TLine(step=0.3, max=10)
-        return c
-
-
-if __name__ == '__main__':
-
-    #-------------------------------------------------------------------------
-    # Example
-    #-------------------------------------------------------------------------
-
-    mats_eval = MATS1DPlastic()
-    mats_eval.configure_traits()
-
-#    ex = MATSExplore( dim = MATS1DExplore( mats_eval  = MATS1DDamage( ) ) )
-#    app = IBVPyApp( tloop = ex )
-#    app.main()

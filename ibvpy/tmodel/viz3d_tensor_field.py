@@ -14,7 +14,6 @@ from tvtk.api import write_data
 
 import numpy as np
 import traits.api as tr
-import traitsui.api as ui
 
 from .viz3d_field import Vis3DField, Viz3DField
 
@@ -106,5 +105,3 @@ class Viz3DTensorField(Viz3DField):
         )
         self.etc.filter.scalar_mode = 'component'
 
-    traits_view = ui.View(
-    )

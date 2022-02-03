@@ -6,16 +6,13 @@ Created on 12.01.2016
 from traits.api import Int, HasStrictTraits, Instance, \
     Float, Event, \
     Array, List, Bool, Property, cached_property, Str, Dict
-from traitsui.api import View, Item
 
 from ibvpy.sim.tline import TLine
-from ibvpy.mathkit.matrix_la.sys_mtx_assembly import SysMtxAssembly
+from ibvpy.mathkit.linalg.sys_mtx_assembly import SysMtxAssembly
 import numpy as np
-f
 from .mats3D.mats3D_explore import MATS3DExplore
 
 
-#from matsXD.matsXD_explore import MATSXDExplore
 class TLoop(HasStrictTraits):
 
     ts = Instance(MATS3DExplore)

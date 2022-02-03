@@ -16,10 +16,8 @@ from numpy import array,\
     einsum, zeros_like, identity, sign,\
     sqrt
 from traits.api import Constant,\
-    Float, Property, cached_property, Dict, List
-from traitsui.api import \
-    View, VGroup, Item
-
+Property, cached_property, Dict, List
+import bmcs_utils.api as bu
 import numpy as np
 import traits.api as tr
 
@@ -37,43 +35,43 @@ class MATS3DMplCSDEEQ(MATS3DEval):
     #---------------------------------------
     # Tangential constitutive law parameters
     #---------------------------------------
-    gamma_T = Float(10.,
+    gamma_T = bu.Float(10.,
                     label="Gamma",
                     desc=" Tangential Kinematic hardening modulus",
                     enter_set=True,
                     auto_set=False)
 
-    K_T = Float(0.0,
+    K_T = bu.Float(0.0,
                 label="K",
                 desc="Tangential Isotropic harening",
                 enter_set=True,
                 auto_set=False)
 
-    S_T = Float(0.000001,
+    S_T = bu.Float(0.000001,
                 label="S",
                 desc="Damage strength",
                 enter_set=True,
                 auto_set=False)
 
-    r_T = Float(1.2,
+    r_T = bu.Float(1.2,
                 label="r",
                 desc="Damage cumulation parameter",
                 enter_set=True,
                 auto_set=False)
 
-    c_T = Float(1.0,
+    c_T = bu.Float(1.0,
                 label="c",
                 desc="Damage cumulation parameter",
                 enter_set=True,
                 auto_set=False)
 
-    tau_pi_bar = Float(3.0,
+    tau_pi_bar = bu.Float(3.0,
                        label="Tau_bar",
                        desc="Reversibility limit",
                        enter_set=True,
                        auto_set=False)
 
-    a = Float(0.0,
+    a = bu.Float(0.0,
               label="a",
               desc="Lateral pressure coefficient",
               enter_set=True,
@@ -82,13 +80,13 @@ class MATS3DMplCSDEEQ(MATS3DEval):
     #-------------------------------------------
     # Normal_Tension constitutive law parameters (without cumulative normal strain)
     #-------------------------------------------
-    Ad = Float(100.0,
+    Ad = bu.Float(100.0,
                label="Ad",
                desc="Brittleness coefficient",
                enter_set=True,
                auto_set=False)
 
-    eps_0 = Float(0.00002,
+    eps_0 = bu.Float(0.00002,
                   label="eps_0",
                   desc="Threshold strain",
                   enter_set=True,
@@ -97,19 +95,19 @@ class MATS3DMplCSDEEQ(MATS3DEval):
     #-----------------------------------------------
     # Normal_Compression constitutive law parameters
     #-----------------------------------------------
-    K_N = Float(20.,
+    K_N = bu.Float(20.,
                 label="K N compression",
                 desc=" Normal isotropic harening",
                 enter_set=True,
                 auto_set=False)
 
-    gamma_N = Float(100000.,
+    gamma_N = bu.Float(100000.,
                     label="gamma_compression",
                     desc="Normal kinematic hardening",
                     enter_set=True,
                     auto_set=False)
 
-    sigma_0 = Float(15.,
+    sigma_0 = bu.Float(15.,
                     label="sigma 0 compression",
                     desc="Yield stress in compression",
                     enter_set=True,
@@ -623,13 +621,13 @@ class MATS3DMplCSDEEQ(MATS3DEval):
     # Cached elasticity tensors
     #-------------------------------------------------------------------------
 
-    E = tr.Float(34e+3,
+    E = bu.Float(34e+3,
                  label="E",
                  desc="Young's Modulus",
                  auto_set=False,
                  input=True)
 
-    nu = tr.Float(0.2,
+    nu = bu.Float(0.2,
                   label='nu',
                   desc="Poison ratio",
                   auto_set=False,
@@ -654,35 +652,19 @@ class MATS3DMplCSDEEQ(MATS3DEval):
 
         return D_abef
 
-    traits_view = View(
-        VGroup(
-            VGroup(
-                Item('E', full_size=True, resizable=True),
-                Item('nu'),
-                label='Elastic parameters'
-            ),
-            VGroup(
-                Item('gamma_T', full_size=True, resizable=True),
-                Item('K_T'),
-                Item('S_T'),
-                Item('r_T'),
-                Item('c_T'),
-                Item('tau_pi_bar'),
-                Item('a'),
-                label='Tangential properties'
-            ),
-            VGroup(
-                Item('Ad'),
-                Item('eps_0', full_size=True, resizable=True),
-                label='Normal_Tension (no cumulative normal strain)'
-            ),
-
-            VGroup(
-                Item('K_N', full_size=True, resizable=True),
-                Item('gamma_N'),
-                Item('sigma_0'),
-                label='Normal_compression parameters'
-            )
-        )
+    traits_view = bu.View(
+                bu.Item('E'),
+                bu.Item('nu'),
+                bu.Item('gamma_T'),
+                bu.Item('K_T'),
+                bu.Item('S_T'),
+                bu.Item('r_T'),
+                bu.Item('c_T'),
+                bu.Item('tau_pi_bar'),
+                bu.Item('a'),
+                bu.Item('Ad'),
+                bu.Item('eps_0'),
+                bu.Item('K_N'),
+                bu.Item('gamma_N'),
+                bu.Item('sigma_0'),
     )
-    tree_view = traits_view

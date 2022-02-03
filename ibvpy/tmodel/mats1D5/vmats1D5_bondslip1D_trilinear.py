@@ -4,17 +4,11 @@ Created on 05.12.2016
 @author: abaktheer
 '''
 
-from os.path import join
-
-from ibvpy.tmodel import MATSEval
 from ibvpy.mathkit.mfn.mfn_line.mfn_line import MFnLineArray
-from traits.api import  \
-    Tuple, List, on_trait_change, \
-    Instance, Trait, Bool, Str, Button, Property, cached_property
+from traits.api import Property, cached_property
 
 import bmcs_utils.api as bu
 import numpy as np
-import traitsui.api as ui
 from .vmats1D5_bondslip1D import MATSEval1D5
 
 class MATS1D5BondSlipTriLinear(MATSEval1D5):

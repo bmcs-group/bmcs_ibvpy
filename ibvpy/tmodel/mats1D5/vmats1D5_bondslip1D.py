@@ -12,10 +12,8 @@ from ibvpy.mathkit.mfn.mfn_line.mfn_line import MFnLineArray
 from traits.api import  \
     observe, List, on_trait_change, \
     Instance, Trait, Bool, Property, cached_property
-
 import bmcs_utils.api as bu
 import numpy as np
-import traitsui.api as ui
 
 import ipyregulartable as rt
 class MATSEval1D5(MATSEval):
@@ -129,15 +127,6 @@ class MATS1D5BondSlipMultiLinear(MATSEval1D5):
         bu.Item('s_data'),
         bu.Item('tau_data'),
     )
-
-    # def plot(self, ax, **kw):
-    #     s_data, tau_data = self.s_tau_table
-    #     ax.plot(s_data, tau_data, **kw)
-    #     ax.fill_between(s_data, tau_data, alpha=0.1, **kw)
-    #
-    # def update_plot(self, axes):
-    #     self.plot(axes)
-
 
 class MATS1D5BondSlipD(MATSEval1D5):
     name = 'damage model'
@@ -381,23 +370,15 @@ class MATSBondSlipDP(MATSEval1D5):
 
         return tau, D
 
-    tree_view = ui.View(
-        ui.VGroup(
-            ui.VGroup(
-                ui.Item('E_m', full_size=True, resizable=True),
-                ui.Item('E_f'),
-                ui.Item('E_b'),
-                ui.Item('gamma'),
-                ui.Item('K'),
-                ui.Item('tau_bar'),
-            ),
-            ui.VGroup(
-                ui.Item('uncoupled_dp'),
-                ui.Item('s_0'),  # , enabled_when='uncoupled_dp'),
-                ui.Item('omega_fn_type'),
-            ),
-            ui.UItem('omega_fn@')
-        )
+    tree_view = bu.View(
+        bu.Item('E_m'),
+        bu.Item('E_f'),
+        bu.Item('E_b'),
+        bu.Item('gamma'),
+        bu.Item('K'),
+        bu.Item('tau_bar'),
+        bu.Item('uncoupled_dp'),
+        bu.Item('s_0'),  # , enabled_when='uncoupled_dp'),
     )
 
 
@@ -654,19 +635,16 @@ class MATSBondSlipFatigue(MATSEval1D5):
 
         return sig, D
 
-    tree_view = ui.View(
-        ui.VGroup(ui.Group(ui.Item('E_m'),
-                           ui.Item('E_f'),
-                           ui.Item('E_b'),
-                           ui.Item('tau_pi_bar'),
-                           show_border=True, label='Stiffnesses and reversibility limit'),
-                  ui.Group(ui.Item('gamma'),
-                           ui.Item('K'),
-                           show_border=True, label='Hardening parameters'),
-                  ui.Group(ui.Item('S'),
-                           ui.Item('r'),
-                           ui.Item('c'),
-                           show_border=True, label='Damage cumulation parameters'),
-                  ui.Group(ui.Item('pressure'),
-                           ui.Item('a'), show_border=True, label='Lateral Pressure')))
-
+    ipw_view = bu.View(
+        bu.Item('E_m'),
+        bu.Item('E_f'),
+        bu.Item('E_b'),
+        bu.Item('tau_pi_bar'),
+        bu.Item('gamma'),
+        bu.Item('K'),
+        bu.Item('S'),
+        bu.Item('r'),
+        bu.Item('c'),
+        bu.Item('pressure'),
+        bu.Item('a'),
+    )

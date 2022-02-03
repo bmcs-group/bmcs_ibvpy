@@ -1,34 +1,25 @@
 
 from math import sqrt as scalar_sqrt
 
-from ibvpy.api import RTrace, RTDofGraph, RTraceArraySnapshot
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from ibvpy.tmodel.mats_eval import IMATSEval
 from numpy import \
-    array, zeros, transpose, dot, frompyfunc, \
-    fabs, sqrt, linspace, vdot, identity, tensordot, \
-    sin as nsin, meshgrid, float_, ix_, \
-    vstack, hstack, sqrt as arr_sqrt, eye
-from scipy.linalg import eig, inv
+    array, zeros, dot, \
+    float_, \
+    eye
 from traits.api import \
-    Array, Bool, Callable, Enum, Float, HasTraits, \
-    Int, Trait, Range, HasTraits, on_trait_change, Event, \
-    Dict, Property, cached_property, Delegate
-from traitsui.api import \
-    Item, View, HSplit, VSplit, VGroup, Group, Spring
+    Array, Enum, Float, \
+    Trait, Event, provides, \
+    Dict, Property, cached_property
+from bmcs_utils.api import \
+    Item, View
 
 
-# Chaco imports
-# from dacwt import DAC
-#---------------------------------------------------------------------------
-# Material time-step-evaluator for Scalar-Damage-Model
-#---------------------------------------------------------------------------
+@provides(IMATSEval)
 class MATS2DConduction(MATS2DEval):
     '''
     Elastic Model.
     '''
-
-    # implements(IMATSEval)
 
     #-------------------------------------------------------------------------
     # Parameters of the numerical algorithm (integration)
@@ -60,10 +51,8 @@ class MATS2DConduction(MATS2DEval):
     # View specification
     #-------------------------------------------------------------------------
 
-    view_traits = View(VSplit(Item('k'),
+    view_traits = View(Item('k'),
                               ),
-                       resizable=True
-                       )
 
     #-------------------------------------------------------------------------
     # Private initialization methods
@@ -83,7 +72,7 @@ class MATS2DConduction(MATS2DEval):
     # Evaluation - get the corrector and predictor
     #-------------------------------------------------------------------------
 
-    def get_corr_pred(self, sctx, eps_app_eng, d_eps, tn, tn1):
+    def get_corr_pred(self, eps_app_eng, tn1):
         '''
         Corrector predictor computation.
         @param eps_app_eng input variable - engineering strain
@@ -117,16 +106,3 @@ class MATS2DConduction(MATS2DEval):
                 'sig_norm': self.get_sig_norm,
                 'strain_energy': self.get_strain_energy}
 
-
-if __name__ == '__main__':
-    #-------------------------------------------------------------------------
-    # Example using the mats2d_explore
-    #-------------------------------------------------------------------------
-    from ibvpy.tmodel.mats_explore import MATSExplore, MATS2DExplore
-    mats_eval = MATS2DConduction()
-    mats_explore = MATSExplore(dim=MATS2DExplore(mats_eval=mats_eval))
-    mats_explore.tloop.eval()
-    # mme.configure_traits( view = 'traits_view_begehung' )
-    from ibvpy.plugins.ibvpy_app import IBVPyApp
-    ibvpy_app = IBVPyApp(ibv_resource=mats_explore)
-    ibvpy_app.main()

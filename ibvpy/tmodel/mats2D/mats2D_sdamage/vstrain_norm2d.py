@@ -1,6 +1,5 @@
 
 from traits.api import HasTraits, WeakRef
-from traitsui.api import View
 from ibvpy.view.ui.bmcs_tree_node import BMCSTreeNode
 import bmcs_utils.api as bu
 import numpy as np
@@ -34,9 +33,6 @@ class StrainNorm2D(BMCSTreeNode):
         ax.set_xlabel(r'$\varepsilon_{1}$')
         ax.set_ylabel(r'$\varepsilon_{2}$')
         ax.axis('equal')
-        # ax.set_xlim(-3,3)
-        # ax.set_ylim(-3,3)
-#        ax.legend()
 
 class SN2DRankine(StrainNorm2D):
     '''
@@ -73,8 +69,6 @@ class SN2DRankine(StrainNorm2D):
                                        [4.0 * eps12, eps22 - eps11]])
         return (np.einsum('ab...->...ab', df_trial1) +
                 0.5 * np.identity(2)[None, :, :])
-
-    traits_view = View()
 
 class SN2MasarsExpr(bu.SymbExpr):
 

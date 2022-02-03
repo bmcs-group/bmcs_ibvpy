@@ -13,11 +13,7 @@
 # Created on Aug 19, 2009 by: rch
 
 from traits.api import \
-    Property, cached_property, Instance, \
-    DelegatesTo, Float
-
-from traitsui.api import \
-    View, Include
+    Property, cached_property, Instance
 
 from ibvpy.tmodel.mats3D.mats3D_cmdm.mats3D_cmdm import \
     MATS3DMicroplaneDamage
@@ -26,7 +22,7 @@ from ibvpy.tmodel import \
     MATS2DMicroplaneDamage, PhiFnStrainSoftening, PhiFnGeneral, \
     PhiFnStrainHardening, PhiFnStrainHardeningLinear
 
-from mathkit.mfn.mfn_polar.mfn_polar import MFnPolar
+# from mathkit.mfn.mfn_polar.mfn_polar import MFnPolar
 
 import numpy as np
 
@@ -41,7 +37,7 @@ class MATS2D5MicroplaneDamage(MATS3DMicroplaneDamage):
     '''
 
     # Specify the class to use for directional dependence
-    mfn_class = MFnPolar
+    # mfn_class = MFnPolar
 
     mats2D_cmdm = Instance(MATS2DMicroplaneDamage)
     def _mats2D_cmdm_default(self):
@@ -105,11 +101,4 @@ class MATS2D5MicroplaneDamage(MATS3DMicroplaneDamage):
         phi_arr[:-1] = phi_fn_vectorized(e_max_arr[:-1], *carr_list)
         phi_arr[-1] = 1.0
         return phi_arr
-    #---------------------------------------------------------------------------------
-    # Dock-based view with its own id
-    #---------------------------------------------------------------------------------
-
-if __name__ == '__main__':
-    m = MATS2D5MicroplaneDamage()
-    m.configure_traits(view = 'traits_view')
 

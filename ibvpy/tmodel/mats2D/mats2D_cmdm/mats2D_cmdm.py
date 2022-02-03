@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 #
 # Copyright (c) 2009, IMB, RWTH Aachen.
 # All rights reserved.
@@ -31,17 +31,13 @@ from numpy import \
     identity
 from traits.api import \
     Enum, Property, cached_property, Constant, Type, \
-    Int
-from traitsui.api import \
-    View, Include
+    Int, provides
 
 import numpy as np
 
 
-# @todo parameterize - should be specialized in the dimensional subclasses
+@provides(IMATSEval)
 class MATS2DMicroplaneDamage(MATSXDMicroplaneDamage, MATS2DEval):
-
-    # implements(IMATSEval)
 
     # number of spatial dimensions
     #
@@ -120,7 +116,7 @@ class MATS2DMicroplaneDamage(MATSXDMicroplaneDamage, MATS2DEval):
         delta_iljk = delta_ikjl.swapaxes(2, 3)
         D4_e_3D = la * delta_ijkl + mu * (delta_ikjl + delta_iljk)
         C4_e_3D = -nu / E * delta_ijkl + \
-            (1 + nu) / (2 * E) * (delta_ikjl + delta_iljk)
+                  (1 + nu) / (2 * E) * (delta_ikjl + delta_iljk)
 
         # -----------------------------------------------------------------------------------------------------
         # Get the fourth order elasticity and compliance tensors for the 2D-case
@@ -182,22 +178,8 @@ class MATS2DMicroplaneDamage(MATSXDMicroplaneDamage, MATS2DEval):
 
         return c
 
-    #-------------------------------------------------------------------------
-    # Dock-based view with its own id
-    #-------------------------------------------------------------------------
-    traits_view = View(Include('polar_fn_group'),
-                       dock='tab',
-                       id='ibvpy.tmodel.mats3D.mats_2D_cmdm.MATS2D_cmdm',
-                       kind='modal',
-                       resizable=True,
-                       scrollable=True,
-                       width=0.6, height=0.8,
-                       buttons=['OK', 'Cancel']
-                       )
-
 
 class MATS1DMicroplaneDamage(MATS2DMicroplaneDamage):
-
     n_mp = Int(2)
     _MPN = Property
 
@@ -213,10 +195,3 @@ class MATS1DMicroplaneDamage(MATS2DMicroplaneDamage):
         # microplane normals:
         return np.array([1.0, 1.0], dtype='f')
 
-
-if __name__ == '__main__':
-    m = MATS2DMicroplaneDamage()
-    D4 = m._get_elasticity_tensors()
-    print('D4', D4[2])
-
-    # m.configure_traits(view='traits_view')

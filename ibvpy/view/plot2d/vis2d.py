@@ -9,7 +9,6 @@ from traits.api import \
     HasStrictTraits, Dict, Property, Float, \
     WeakRef, DelegatesTo, cached_property, \
     Str, List, Button, Bool
-import traitsui.api as ui
 from .viz2d import Viz2D
 
 
@@ -131,18 +130,6 @@ class Vis2D(HasStrictTraits):
 
     viz2d = List(Viz2D)
 
-    actions = ui.HGroup(
-        ui.UItem('add_selected_viz2d'),
-        ui.UItem('selected_viz2d_class', springy=True,
-              editor=ui.EnumEditor(name='object.viz2d_class_names',
-                                )
-              ),
-    )
-
     def plt(self, name, label=None):
         return Viz2DPlot(plot_fn=name, label=label, vis2d=self)
 
-    view = ui.View(
-        ui.Include('actions'),
-        resizable=True
-    )

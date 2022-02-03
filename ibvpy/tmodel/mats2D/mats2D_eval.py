@@ -11,7 +11,6 @@ from ibvpy.tmodel.mats2D.mats2D_tensor import map2d_eps_eng_to_mtx
 from traits.api import \
     Array, Property, cached_property, Callable, Constant
 from bmcs_utils.api import Enum
-from traitsui.api import View
 
 from ibvpy.tmodel.matsXD.vmatsXD_eval import MATSXDEval
 import numpy as np
@@ -113,4 +112,3 @@ class NotUsed:
         c['tline'] = TLine(step=0.05, max=1)
         return c
 
-    trait_view = View()

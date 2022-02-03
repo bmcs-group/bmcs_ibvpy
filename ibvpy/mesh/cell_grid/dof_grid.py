@@ -3,12 +3,6 @@ from traits.api import \
     HasTraits, List, Array, Property, cached_property, \
     Instance, Trait, Button, on_trait_change, \
     Int, Float, DelegatesTo, provides, WeakRef, Bool
-from traitsui.api import \
-    TabularEditor
-from traitsui.api import \
-    View, Item, Group
-from traitsui.tabular_adapter import \
-    TabularAdapter
 
 from ibvpy.mesh.sdomain import \
     SDomain
@@ -306,19 +300,6 @@ class DofCellGrid(SDomain):
                                     cell_view=DofCellView(cell_grid=self))
         self.show_array.current_row = 0
         self.show_array.configure_traits(kind='live')
-    #------------------------------------------------------------------
-    # UI - related methods
-    #------------------------------------------------------------------
-    traits_view = View(Item('n_nodal_dofs'),
-                       Item('dof_offset'),
-                       Item('cell_grid@', show_label=False),
-                       Item('refresh_button', show_label=False),
-                       Item('dof_cell_array', show_label=False),
-                       resizable=True,
-                       scrollable=True,
-                       height=0.5,
-                       width=0.5)
-
 
 class DofGridSlice(CellGridSlice):
 
@@ -348,47 +329,6 @@ class DofGridSlice(CellGridSlice):
 # View a single cell instance
 #-----------------------------------------------------------------------
 
-#-- Tabular Adapter Definition -------------------------------------------
-
-
-class DofTabularAdapter (TabularAdapter):
-
-    columns = Property
-
-    def _get_columns(self):
-        data = getattr(self.object, self.name)
-        if len(data.shape) > 2:
-            raise ValueError('point array must be 1-2-3-dimensional')
-
-        n_columns = 0
-        if len(data.shape) == 2:
-            n_columns = data.shape[1]
-
-        cols = [(str(i), i) for i in range(n_columns)]
-        return [('node', 'index')] + cols
-
-#    columns = Property
-#    def _get_columns(self):
-#        return [('node', 'index'),
-#                ('x', 0),
-#                ('y', 1),
-#                ('z', 2) ]
-#
-    font = 'Courier 10'
-    alignment = 'right'
-    format = '%d'
-    index_text = Property
-
-    def _get_index_text(self):
-        return str(self.row)
-
-#-- Tabular Editor Definition --------------------------------------------
-
-
-dof_tabular_editor = TabularEditor(
-    adapter=DofTabularAdapter(),
-)
-
 
 class DofCellView(CellView):
 
@@ -403,39 +343,6 @@ class DofCellView(CellView):
         '''
         self.elem_dofs = self.cell_grid.get_cell_dofs(self.cell_idx)
 
-    #---------------------------------------------------------------------
-    # Visualize
-    #---------------------------------------------------------------------
-    draw_cell = Bool(False)
-
-    view = View(
-        Item('cell_idx', style='readonly',
-             resizable=False, label='Cell index'),
-        Group(Item('elem_dofs',
-                   editor=dof_tabular_editor,
-                   show_label=False,
-                   resizable=True,
-                   style='readonly')),
-        Item('draw_cell', label='show DOFs')
-    )
-
-    # register the pipelines for plotting labels and geometry
-    #
-    # mvp_elem_labels = Trait(MVPointLabels)
-    #
-    # def _mvp_elem_labels_default(self):
-    #     return MVPointLabels(name='Geo node numbers',
-    #                          points=self._get_cell_mvpoints,
-    #                          vectors=self._get_cell_labels,
-    #                          color=(0.0, 0.411765, 0.882353))
-    #
-    # mvp_elem_geo = Trait(MVPolyData)
-    #
-    # def _mvp_elem_geo_default(self):
-    #     return MVPolyData(name='Geo node numbers',
-    #                       points=self._get_elem_points,
-    #                       lines=self._get_elem_lines,
-    #                       color=(0.254902, 0.411765, 0.882353))
 
     def _get_cell_mvpoints(self):
         return self.cell_grid.get_cell_mvpoints(self.cell_idx)
@@ -454,93 +361,3 @@ class DofCellView(CellView):
         if self.draw_cell:
             self.mvp_elem_labels.redraw(label_mode='label_vectors')
 
-
-if __name__ == '__main__':
-
-    from .cell_spec import CellSpec
-
-#    cell_grid = CellGrid( shape = (1,1),
-#                    grid_cell_spec = CellSpec( node_coords = [[-1,-1],[1,-1],[1,1],[-1,1]] ) )
-#    dof_grid = DofCellGrid( cell_grid = cell_grid )
-#
-#    print 'dofs'
-#    print dof_grid.dofs
-#    print 'idx_grid'
-#    print dof_grid.cell_grid.idx_grid
-
-    dof_grid = DofCellGrid(cell_grid=CellGrid(shape=(1, 1, 1)),
-                           dof_offset=1000)
-    print('idx_grid')
-    print(dof_grid.cell_grid.point_idx_grid)
-    print('base node array')
-    print(dof_grid.cell_grid.base_nodes)
-    print('left')
-    print(dof_grid.get_left_dofs())
-    print('right')
-    print(dof_grid.get_right_dofs())
-    print('bottom')
-    print(dof_grid.get_bottom_dofs())
-    print('top')
-    print(dof_grid.get_top_dofs())
-    print('back')
-    print(dof_grid.get_back_dofs())
-    print('front')
-    print(dof_grid.get_front_dofs())
-
-    print('boundary')
-    print(dof_grid.get_boundary_dofs())
-
-    cell_grid = CellGrid(grid_cell_spec=CellSpec(node_coords=[[-1, -1],
-                                                              [1, -1],
-                                                              [0, 0],
-                                                              [1, 1],
-                                                              [-1, 1]]),
-                         shape=(2, 3))
-
-    cell_grid = CellGrid(grid_cell_spec=CellSpec(node_coords=[[-1, -1], [1, -1], [0, 0], [1, 1], [-1, 1]]),
-                         coord_max=(2., 3.),
-                         shape=(2, 3))
-
-    dof_grid = DofCellGrid(cell_grid=cell_grid,
-                           n_nodal_dofs=2,
-                           dof_offset=2000)
-
-    print('node_grid_shape')
-    print(dof_grid.cell_grid.cell_idx_grid_shape)
-    print('node_grid')
-    print(dof_grid.cell_grid.cell_idx_grid)
-#    print 'cell_grid_right_elem_dof_map'
-    print(dof_grid.elem_dof_map[dof_grid.cell_grid.cell_idx_grid[-1, :]])
-    print('elem_dof_map')
-    print(dof_grid.elem_dof_map)
-    print('cell_dof_map')
-    print(dof_grid.cell_dof_map[0])
-    print('idx_grid')
-    print(dof_grid.cell_grid.point_idx_grid)
-    print('base node array')
-    print(dof_grid.cell_grid.base_nodes)
-
-    print('x_max dofs')
-    print(dof_grid[:, -1, :, -1].elems)
-
-    print(dof_grid[:, -1, :, -1].dofs)
-
-#    print 'all'
-#    print dof_grid[...]
-#    print 'left'
-#    print dof_grid.get_left_dofs()
-#    print 'right'
-#    print dof_grid.get_right_dofs()
-#    print 'bottom'
-#    print dof_grid.get_bottom_dofs()
-#    print 'top'
-#    print dof_grid.get_top_dofs()
-#
-#    print 'boundary'
-#    print dof_grid.get_boundary_dofs()
-
-#
-#    from ibvpy.plugins.ibvpy_app import IBVPyApp
-#    ibvpy_app = IBVPyApp( ibv_resource = dof_grid )
-#    ibvpy_app.main()
-#

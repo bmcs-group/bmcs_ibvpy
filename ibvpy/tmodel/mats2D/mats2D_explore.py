@@ -1,10 +1,10 @@
 
 
 from ibvpy.tmodel.mats2D.mats2D_cmdm.mats2D_cmdm import MATS2DMicroplaneDamage
-from ibvpy.tmodel.mats2D.mats2D_elastic.mats2D_elastic import MATS2DElastic
+from ibvpy.tmodel.mats2D.mats2D_elastic.vmats2D_elastic import MATS2DElastic
 from ibvpy.tmodel.mats2D.mats2D_sdamage.vmats2D_sdamage import MATS2DScalarDamage
 from ibvpy.tmodel.matsXD.matsXD_explore import MATSXDExplore
-from util.traits.either_type import \
+from ibvpy.util.traits.either_type import \
     EitherType
 
 

@@ -8,8 +8,6 @@ from ibvpy.view.reporter import RInputRecord
 from traits.api import \
     HasStrictTraits, Str, List, WeakRef, \
     Property, on_trait_change, Event, Any
-from traitsui.api import \
-    View
 import bmcs_utils.api as bu
 
 itags = dict(
@@ -34,8 +32,6 @@ class BMCSNodeBase(bu.Model):
 
     def update_plot(self, axes):
         pass
-
-    tree_view = View()
 
     ui = WeakRef
 

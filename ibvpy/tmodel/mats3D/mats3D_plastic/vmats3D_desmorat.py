@@ -6,9 +6,9 @@ Created on 30.10.2018
 from ibvpy.tmodel.mats3D.mats3D_eval import \
     MATS3DEval
 from traits.api import \
-    Float, List
-from traitsui.api import View, VGroup, Item
+    List
 
+import bmcs_utils.api as bu
 import numpy as np
 import traits.api as tr
 
@@ -21,24 +21,24 @@ class MATS3DDesmorat(MATS3DEval):
     # Material parameters
     #-------------------------------------------------------------------------
 
-    E_1 = tr.Float(16.0e+3,
+    E_1 = bu.Float(16.0e+3,
                    label="E_1",
                    desc="first Young's Modulus",
                    auto_set=False,
                    input=True)
-    E_2 = tr.Float(19.0e+3,
+    E_2 = bu.Float(19.0e+3,
                    label="E_2",
                    desc="second Young's Modulus",
                    auto_set=False,
                    input=True)
 
-    nu = tr.Float(0.2,
+    nu = bu.Float(0.2,
                   label='nu',
                   desc="Poisson ratio",
                   auto_set=False,
                   input=True)
 
-    gamma = Float(110.0,
+    gamma = bu.Float(110.0,
                   label="Gamma",
                   desc="kinematic hardening modulus",
                   MAT=True,
@@ -47,7 +47,7 @@ class MATS3DDesmorat(MATS3DEval):
                   enter_set=True,
                   auto_set=False)
 
-    K = Float(130.0,
+    K = bu.Float(130.0,
               label="K",
               desc="isotropic hardening modulus",
               MAT=True,
@@ -56,7 +56,7 @@ class MATS3DDesmorat(MATS3DEval):
               enter_set=True,
               auto_set=False)
 
-    S = Float(476.0e-6,
+    S = bu.Float(476.0e-6,
               label="S",
               desc="damage strength",
               MAT=True,
@@ -65,7 +65,7 @@ class MATS3DDesmorat(MATS3DEval):
               enter_set=True,
               auto_set=False)
 
-    tau_bar = Float(6.0,
+    tau_bar = bu.Float(6.0,
                     label="Tau_0 ",
                     desc="yield stress",
                     symbol=r'\bar{\tau}',
@@ -205,19 +205,12 @@ class MATS3DDesmorat(MATS3DEval):
         )
         return sigma_ab, D_abef
 
-    traits_view = View(
-        VGroup(
-            Item('E_1', full_size=True, resizable=True),
-            Item('E_2'),
-            Item('nu'),
-            label='Elastic parameters'
-        ),
-        VGroup(
-            Item('gamma', full_size=True, resizable=True),
-            Item('K'),
-            Item("S"),
-            Item("tau_bar"),
-            label='Inelastic parameters'
-        )
+    ipw_view = bu.View(
+            bu.Item('E_1'),
+            bu.Item('E_2'),
+            bu.Item('nu'),
+            bu.Item('gamma'),
+            bu.Item('K'),
+            bu.Item("S"),
+            bu.Item("tau_bar"),
     )
-    tree_view = traits_view

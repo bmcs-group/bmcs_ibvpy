@@ -1,37 +1,26 @@
 '''
-Created on Jun 14, 2009
-
-@author: jakub
 '''
-from math import pi as Pi, cos, sin, exp, sqrt as scalar_sqrt
+from math import sqrt as scalar_sqrt
 
-from ibvpy.api import RTrace, RTDofGraph, RTraceArraySnapshot
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from ibvpy.tmodel.mats_eval import IMATSEval
 from numpy import \
-     array, ones, zeros, outer, inner, transpose, dot, frompyfunc, \
-     fabs, sqrt, linspace, vdot, identity, tensordot, \
-     sin as nsin, meshgrid, float_, ix_, \
-     vstack, hstack, sqrt as arr_sqrt
-from scipy.linalg import eig, inv
+     array, zeros, dot, float_
 from traits.api import \
-     Array, Bool, Callable, Enum, Float, HasTraits, \
-     Instance, Int, Trait, Range, HasTraits, on_trait_change, Event, \
-     Dict, Property, cached_property, Delegate
-from traitsui.api import \
-     Item, View, HSplit, VSplit, VGroup, Group, Spring
+     Array, Enum, \
+     Trait, Event, provides, \
+     Dict, Property, cached_property
+import bmcs_utils.api as bu
 
-
-# from dacwt import DAC
 #---------------------------------------------------------------------------
 # Material time-step-evaluator for Scalar-Damage-Model
 #---------------------------------------------------------------------------
+@provides( IMATSEval )
 class MATS2D5Bond(MATS2DEval):
     '''
     Elastic Model.
     '''
 
-    # implements( IMATSEval )
 
     #---------------------------------------------------------------------------
     # Parameters of the numerical algorithm (integration)
@@ -43,25 +32,25 @@ class MATS2D5Bond(MATS2DEval):
     # Material parameters 
     #---------------------------------------------------------------------------
 
-    E_m = Float(1.,  # 34e+3,
+    E_m = bu.Float(1.,  # 34e+3,
                  label="E_m",
                  desc="Young's Modulus",
                  auto_set=False)
-    nu_m = Float(0.2,
+    nu_m = bu.Float(0.2,
                  label='nu_m',
                  desc="Poison's ratio",
                  auto_set=False)
 
-    E_f = Float(1.,  # 34e+3,
+    E_f = bu.Float(1.,  # 34e+3,
                  label="E_f",
                  desc="Young's Modulus",
                  auto_set=False)
-    nu_f = Float(0.2,
+    nu_f = bu.Float(0.2,
                  label='nu_f',
                  desc="Poison's ratio",
                  auto_set=False)
 
-    G = Float(1.,  # 34e+3,
+    G = bu.Float(1.,  # 34e+3,
                  label="G",
                  desc="Shear Modulus",
                  auto_set=False)
@@ -84,39 +73,15 @@ class MATS2D5Bond(MATS2DEval):
     # View specification
     #---------------------------------------------------------------------------------------------
 
-    view_traits = View(VSplit(Group(Item('E_m'),
-                                      Item('nu_m'),
-                                      Item('E_f'),
-                                      Item('nu_f'),
-                                      Item('G')
-                                      ),
-                                Group(Item('stress_state', style='custom'),
-                                       Spring(resizable=True),
-                                       label='Configuration parameters', show_border=True,
-                                       ),
-                                ),
-                        resizable=True
-                        )
+    view_traits = bu.View(
+        bu.Item('E_m'),
+        bu.Item('nu_m'),
+        bu.Item('E_f'),
+        bu.Item('nu_f'),
+        bu.Item('G')
+    )
 
-    #-----------------------------------------------------------------------------------------------
-    # Private initialization methods
-    #-----------------------------------------------------------------------------------------------
-
-    #-----------------------------------------------------------------------------------------------
-    # Setup for computation within a supplied spatial context
-    #-----------------------------------------------------------------------------------------------
-
-    def new_cntl_var(self):
-        return zeros(3, float_)
-
-    def new_resp_var(self):
-        return zeros(3, float_)
-
-    #-----------------------------------------------------------------------------------------------
-    # Evaluation - get the corrector and predictor
-    #-----------------------------------------------------------------------------------------------
-
-    def get_corr_pred(self, sctx, eps_app_eng, d_eps, tn, tn1):
+    def get_corr_pred(self, eps_app_eng, tn1):
         '''
         Corrector predictor computation.
         @param eps_app_eng input variable - engineering strain

@@ -9,7 +9,7 @@ from ibvpy.sim.i_tmodel import ITModel
 from traits.api import on_trait_change
 
 from ibvpy.tmodel.mats_damage_fn import \
-    IDamageFn, LiDamageFn, JirasekDamageFn, AbaqusDamageFn, \
+    IDamageFn, LiDamageFn, ExpSlopeDamageFn, AbaqusDamageFn, \
     MultilinearDamageFn, \
     FRPDamageFn
 import numpy as np
@@ -80,7 +80,7 @@ class MATS1D5DP(MATSEval):
 
     omega_fn_type = tr.Trait('FRP',
                              dict(li=LiDamageFn,
-                                  jirasek=JirasekDamageFn,
+                                  jirasek=ExpSlopeDamageFn,
                                   abaqus=AbaqusDamageFn,
                                   FRP=FRPDamageFn,
                                   multilinear=MultilinearDamageFn

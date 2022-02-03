@@ -3,9 +3,6 @@ from traits.api import \
     Float, \
     Instance, Trait, on_trait_change, Event, \
     Dict, Property
-from traitsui.api import \
-    Item, View
-
 from ibvpy.tmodel.mats1D.mats1D_eval import MATS1DEval
 from ibvpy.mathkit.mfn import MFnLineArray
 import numpy as np
@@ -52,13 +49,6 @@ class MATS1DElastic(MATS1DEval):
     changed = Event
 
     #-------------------------------------------------------------------------
-    # View specification
-    #-------------------------------------------------------------------------
-
-    view_traits = View(Item('E'),
-                       )
-
-    #-------------------------------------------------------------------------
     # Private initialization methods
     #-------------------------------------------------------------------------
     def __init__(self, **kwtraits):
@@ -97,10 +87,6 @@ class MATS1DElastic(MATS1DEval):
     # Subsidiary methods realizing configurable features
     #-------------------------------------------------------------------------
 
-    #-------------------------------------------------------------------------
-    # Response trace evaluators
-    #-------------------------------------------------------------------------
-
     # Declare and fill-in the rte_dict - it is used by the clients to
     # assemble all the available time-steppers.
     #
@@ -109,17 +95,4 @@ class MATS1DElastic(MATS1DEval):
     def _rte_dict_default(self):
         return {'sig_app': self.get_sig_app,
                 'eps_app': self.get_eps_app}
-
-    #-------------------------------------------------------------------------
-    # List of response tracers to be constructed within the mats_explorer
-    #-------------------------------------------------------------------------
-    def _get_explorer_rtrace_list(self):
-        '''Return the list of relevant tracers to be used in mats_explorer.
-        '''
-        return [
-            RTDofGraph(name='strain - stress',
-                       var_x='eps_app', idx_x=0,
-                       var_y='sig_app', idx_y=0,
-                       record_on='update')
-        ]
 

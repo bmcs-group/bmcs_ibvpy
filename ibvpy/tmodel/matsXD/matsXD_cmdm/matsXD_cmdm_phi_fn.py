@@ -9,9 +9,6 @@ from traits.api import \
     Instance, HasStrictTraits, on_trait_change,  \
     provides, Button, \
     Interface, WeakRef
-from traitsui.api import \
-    Item, View, VGroup, \
-    Group, HGroup
 from ibvpy.mathkit.mfn import MFnLineArray
 from ibvpy.mathkit.mfn.mfn_line.mfn_matplotlib_editor import MFnMatplotlibEditor
 from ibvpy.mathkit.mfn.mfn_line.mfn_plot_adapter import MFnPlotAdapter
@@ -172,18 +169,6 @@ class PhiFnGeneral(PhiFnBase):
     def print_button_fired(self):
         print('eps:\n', [self.mfn.xdata])
         print('1-omega:\n', [self.mfn.ydata])
-
-    # Default TraitsUI view
-    traits_view = View(Group(
-        Item('mfn', show_label=False, editor=mfn_editor),
-        Item('print_button', show_label=False),
-        label='Damage law',
-        show_border=True
-    ),
-        buttons=['OK', 'Cancel'],
-        resizable=True,
-        width=800, height=800)
-
 
 #-------------------------------------------------------------------------
 # Piecewise Linear damage function with drop to zero for MDM (used within 'MATSCalibDamageFn')
@@ -368,36 +353,6 @@ class PhiFnStrainSoftening(PhiFnBase):
         else:
             return sqrt(Epp / e_max * exp(-(e_max - Epp) / Efp))
 
-    # Default TraitsUI view
-    traits_view = View(HGroup(
-        VGroup(
-            Group(
-                Item('G_f'),
-                Item('f_t'),
-                Item('md'),
-                Item('h'),
-                show_border=True,
-                label='Macroscopic damage parameters',
-                springy=True,
-            ),
-            Group(Item('Epp', style='readonly'),
-                  Item('Efp', style='readonly'),
-                  show_border=True,
-                  label='Microplane damage parameters',
-                  springy=True,
-                  ),
-            springy=True,
-        ),
-        Group(
-            Item('mfn', show_label=False, editor=mfn_editor),
-            show_border=True,
-            label='Damage function',
-        ),
-    ),
-        buttons=['OK', 'Cancel'],
-        resizable=True,
-        width=800, height=500)
-
 
 #-------------------------------------------------------------------------
 # Damage function with residual damage level for MDM
@@ -485,30 +440,6 @@ class PhiFnStrainHardeningLinear(PhiFnBase):
                                      sigma_0 * rho - epsilon * E_m + 2.0 * epsilon * rho * E_m - epsilon * rho * rho * E_m) /
                         pow(rho * E_f + E_m - rho * E_m, 2.0) / epsilon)
 
-    # Default TraitsUI view
-    traits_view = View(HGroup(
-        Group(Item('E_f'),
-              Item('E_m'),
-              Item('rho'),
-              Item('sigma_0'),
-              Item('alpha'),
-              Item('beta'),
-              Item('Elimit'),
-              springy=True,
-              ),
-        Item('mfn', show_label=False, editor=mfn_editor),
-        label='Damage function',
-        show_border=True
-    ),
-        buttons=['OK', 'Cancel'],
-        resizable=True,
-        width=800, height=400)
-
-#-------------------------------------------------------------------------
-# Damage function with residual damage level for MDM
-#-------------------------------------------------------------------------
-
-
 class PhiFnStrainHardening(PhiFnBase):
 
     '''
@@ -594,22 +525,6 @@ class PhiFnStrainHardening(PhiFnBase):
         else:
             return (1 - Dfp) * sqrt(Epp / e_max * exp(-(e_max - Epp) / Efp)) + Dfp
 
-    # Default TraitsUI view
-    traits_view = View(HGroup(
-        Group(Item('Epp'),
-              Item('Efp'),
-              Item('Dfp'),
-              Item('Elimit'),
-              springy=True,
-              ),
-        Item('mfn', show_label=False, editor=mfn_editor),
-        label='Damage function',
-        show_border=True
-    ),
-        buttons=['OK', 'Cancel'],
-        resizable=True,
-        width=800, height=400)
-
 
 class PhiFnStrainHardeningBezier(PhiFnBase):
 
@@ -683,23 +598,3 @@ class PhiFnStrainHardeningBezier(PhiFnBase):
                 return 0.001
             else:
                 return omega
-
-    # Default TraitsUI view
-    traits_view = View(Group(
-        Item('mfn', show_label=False, editor=mfn_editor),
-        label='Damage law',
-        show_border=True
-    ),
-        buttons=['OK', 'Cancel'],
-        resizable=True,
-        width=800, height=800)
-
-
-if __name__ == '__main__':
-    # phi_fn = PhiFnStrainSoftening( Epp = 0.2, Efp = 0.6 )
-    phi_fn = PhiFnGeneral()
-    # phi_fn = PhiFnGeneralExtendedExp()
-#    phi_fn = PhiFnStrainHardening(Epp = 0.2, Efp = 0.6, Dfp = 0.2, Elimit = 4.0)
-#    phi_fn = PhiFnStrainHardeningBezier()
-    # phi_fn = PhiFnStrainHardeningLinear()
-    phi_fn.configure_traits()

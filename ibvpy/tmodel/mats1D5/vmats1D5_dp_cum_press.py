@@ -9,7 +9,7 @@ from ibvpy.sim.i_tmodel import ITModel
 
 import numpy as np
 import traits.api as tr
-import traitsui.api as ui
+import bmcs_utils.api as bu
 
 
 @tr.provides(ITModel)
@@ -17,46 +17,46 @@ class MATS1D5DPCumPress(MATSEval):
 
     node_name = 'Pressure sensitive cumulative damage plasticity'
 
-    E_N = tr.Float(30000, label='E_N',
+    E_N = bu.Float(30000, label='E_N',
                    desc='Normal stiffness of the interface',
                    MAT=True,
                    enter_set=True, auto_set=False)
 
-    E_T = tr.Float(12900, label='E_T',
+    E_T = bu.Float(12900, label='E_T',
                    desc='Shear modulus of the interface',
                    MAT=True,
                    enter_set=True, auto_set=False)
 
-    gamma = tr.Float(55.0, label='gamma',
+    gamma = bu.Float(55.0, label='gamma',
                      desc='Kinematic Hardening Modulus',
                      MAT=True,
                      enter_set=True, auto_set=False)
 
-    K = tr.Float(11, label='K',
+    K = bu.Float(11, label='K',
                  desc='Isotropic hardening modulus',
                  MAT=True,
                  enter_set=True, auto_set=False)
 
-    S = tr.Float(0.005, label='S',
+    S = bu.Float(0.005, label='S',
                  desc='Damage accumulation parameter',
                  MAT=True,
                  enter_set=True, auto_set=False)
 
-    r = tr.Float(1, label='r',
+    r = bu.Float(1, label='r',
                  desc='Damage accumulation parameter',
                  MAT=True,
                  enter_set=True, auto_set=False)
 
-    c = tr.Float(1, Label='c',
+    c = bu.Float(1, Label='c',
                  desc='Damage accumulation parameter',
                  MAT=True,
                  enter_set=True, auto_set=False)
-    m = tr.Float(0.3, label='m',
+    m = bu.Float(0.3, label='m',
                  desc='Lateral Pressure Coefficient',
                  MAT=True,
                  enter_set=True, auto_set=False)
 
-    tau_bar = tr.Float(4.2, label='tau_bar',
+    tau_bar = bu.Float(4.2, label='tau_bar',
                        desc='Reversibility limit',
                        MAT=True,
                        enter_set=True, auto_set=False)
@@ -207,25 +207,18 @@ class MATS1D5DPCumPress(MATSEval):
 #     def get_sig_N(self, u_r, tn1, **state):
 #         return self.get_sig(u_r, tn1, **state)[..., 1]
 
-    tree_view = ui.View(
-        ui.Item('E_N'),
-        ui.Item('E_T'),
-        ui.Item('gamma'),
-        ui.Item('K'),
-        ui.Item('S'),
-        ui.Item('r'),
-        ui.Item('c'),
-        ui.Item('m'),
-        ui.Item('tau_bar'),
-        ui.Item('D_rs', style='readonly')
+    tree_view = bu.View(
+        bu.Item('E_N'),
+        bu.Item('E_T'),
+        bu.Item('gamma'),
+        bu.Item('K'),
+        bu.Item('S'),
+        bu.Item('r'),
+        bu.Item('c'),
+        bu.Item('m'),
+        bu.Item('tau_bar'),
+        bu.Item('D_rs', style='readonly')
     )
 
     traits_view = tree_view
 
-
-if __name__ == '__main__':
-    m = MATS1D5DPCumPress()
-    print(m.D_rs)
-    m.E_T = 100
-    print(m.D_rs)
-    m.configure_traits()

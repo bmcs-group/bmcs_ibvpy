@@ -1,24 +1,25 @@
-from traits.api import HasTraits, Float, Bool
-from traitsui.api import View, Item
+from abc import ABC
 
-from numpy import where, zeros, dot, diag, linalg, sum
-#from numpy.dual import *
+from traits.api import HasTraits, Float
+
+from numpy import where, zeros, dot, diag, linalg
 from math import sqrt
 from ibvpy.tmodel.mats3D.mats3D_tensor import map3d_sig_eng_to_mtx
 
+
 class IStrainNorm3D(HasTraits):
-    
-    def get_f_trial(self, epsilon, D_el, E, nu, kappa): 
-        raise NotImplementedError
-    
-    def get_dede(self,epsilon, D_el, E, nu):
+
+    def get_f_trial(self, epsilon, D_el, E, nu, kappa):
         raise NotImplementedError
 
-#from the maple shit damage_model_2D_euclidean_local_Code
+    def get_dede(self, epsilon, D_el, E, nu):
+        raise NotImplementedError
+
+
 class Euclidean(IStrainNorm3D):
-    P_I = diag([1.,1.,1.,0.5,0.5,0.5])
-       
-    def get_f_trial(self, epsilon, D_el, E, nu, kappa): 
+    P_I = diag([1., 1., 1., 0.5, 0.5, 0.5])
+
+    def get_f_trial(self, epsilon, D_el, E, nu, kappa):
         '''
         Returns equivalent strain - kappa
         @param epsilon:
@@ -26,7 +27,8 @@ class Euclidean(IStrainNorm3D):
         @param E:
         @param kappa:
         '''
-        return sqrt(dot(dot(epsilon,self.P_I), epsilon.T))-kappa
+        return sqrt(dot(dot(epsilon, self.P_I), epsilon.T)) - kappa
+
 
 #    def get_dede(self, epsilon, D_el, E, nu):
 #        dede = zeros(6)
@@ -47,14 +49,14 @@ class Euclidean(IStrainNorm3D):
 #        return dede
 
 
+# from the maple shit damage_model_2D_euclidean_local_Code
+class Energy(IStrainNorm3D, ABC):
 
-#from the maple shit damage_model_2D_euclidean_local_Code
-class Energy(IStrainNorm3D):
-        
     def get_f_trial(self, epsilon, D_el, E, nu, kappa):
-        #print "time %8.2f sec"%diff
-        return sqrt(1./E* dot(dot(epsilon,D_el), epsilon.T))-kappa
-                     
+        # print "time %8.2f sec"%diff
+        return sqrt(1. / E * dot(dot(epsilon, D_el), epsilon.T)) - kappa
+
+
 #    def get_dede(self, epsilon, D_el, E, nu):
 #        dede = zeros(3)
 #        t1 = 1. / E
@@ -73,31 +75,32 @@ class Energy(IStrainNorm3D):
 #        return dede
 
 
-#from the maple shit damage_model_2D_von_Mises_local_Code
+# from the maple shit damage_model_2D_von_Mises_local_Code
 class Mises(IStrainNorm3D):
-    k = Float( 10.,
-               label = "k",
-               desc = "Shape Parameter")
-   
+    k = Float(10.,
+              label="k",
+              desc="Shape Parameter")
+
     def get_f_trial(self, epsilon, D_el, E, nu, kappa):
-        t1 = self.k - 1
+        t1 = self.k - 1.
         t2 = (epsilon[0] + epsilon[1] + epsilon[2])
-        t4 = 1 / self.k
+        t4 = 1.0 / self.k
         t6 = 1 - 2 * nu
-        t10 = t1 **2
-        t11 = t6 **2
-        t14 = t2 **2
-        t16 = epsilon[0]**2
-        t18 = epsilon[1]**2
-        t20 = epsilon[2]**2
-        t22 = epsilon[3]**2
-        t24 = epsilon[4]**2
-        t26 = epsilon[5]**2
-        t32 = (1 + nu)**2
-        t37 = sqrt((t10 / t11 * t14) + 12. *  self.k * (t16 / 2. + t18 / 2. + t20 / 2. + t22 / 4. + t24 / 4. + t26 / 4. - t14 / 6.) / t32)
+        t10 = t1 ** 2
+        t11 = t6 ** 2
+        t14 = t2 ** 2
+        t16 = epsilon[0] ** 2
+        t18 = epsilon[1] ** 2
+        t20 = epsilon[2] ** 2
+        t22 = epsilon[3] ** 2
+        t24 = epsilon[4] ** 2
+        t26 = epsilon[5] ** 2
+        t32 = (1 + nu) ** 2
+        t37 = sqrt((t10 / t11 * t14) + 12. * self.k * (
+                    t16 / 2. + t18 / 2. + t20 / 2. + t22 / 4. + t24 / 4. + t26 / 4. - t14 / 6.) / t32)
         t40 = (t1 * t2 * t4 / t6) / 2. + t4 * t37 / 2.
         return t40 - kappa
-    
+
     def get_dede(self, epsilon, D_el, E, nu):
         dede = zeros(6)
         t1 = self.k - 1
@@ -109,15 +112,16 @@ class Mises(IStrainNorm3D):
         t12 = t9 / t10
         t13 = epsilon[0] + epsilon[1] + epsilon[2]
         t14 = t13 * t13
-        t16 = epsilon[0]**2
-        t18 = epsilon[1]**2
-        t20 = epsilon[2]**2
-        t22 = epsilon[3]**2
-        t24 = epsilon[4]**2
-        t26 = epsilon[5]**2
-        t32 = (1 + nu)**2
+        t16 = epsilon[0] ** 2
+        t18 = epsilon[1] ** 2
+        t20 = epsilon[2] ** 2
+        t22 = epsilon[3] ** 2
+        t24 = epsilon[4] ** 2
+        t26 = epsilon[5] ** 2
+        t32 = (1 + nu) ** 2
         t33 = 1 / t32
-        t37 = sqrt((t12 * t14) + 0.12e2 *  self.k * (t16 / 2. + t18 / 2. + t20 / 2. + t22 / 4. + t24 / 4. + t26 / 4. - t14 / 6.) *  t33)
+        t37 = sqrt((t12 * t14) + 0.12e2 * self.k * (
+                    t16 / 2. + t18 / 2. + t20 / 2. + t22 / 4. + t24 / 4. + t26 / 4. - t14 / 6.) * t33)
         t38 = 1. / t37
         t39 = t2 * t38
         t41 = 2 * t12 * t13
@@ -132,18 +136,18 @@ class Mises(IStrainNorm3D):
         dede[5] = 3. / 2. * t38 * epsilon[5] * t33
         return dede
 
-        
-      
+
 class Rankine(IStrainNorm3D):
     '''
     computes main stresses and makes a norm of their positive part
     '''
-        
+
     def get_f_trial(self, epsilon, D_el, E, nu, kappa):
-        sigma_I = linalg.eigh(map3d_sig_eng_to_mtx(dot(D_el,epsilon)))[0]#main stresses
-        eps_eqv = linalg.norm(where(sigma_I >= 0., sigma_I, zeros(3)))/E#positive part and norm
-        return eps_eqv  - kappa
-    
+        sigma_I = linalg.eigh(map3d_sig_eng_to_mtx(dot(D_el, epsilon)))[0]  # main stresses
+        eps_eqv = linalg.norm(where(sigma_I >= 0., sigma_I, zeros(3))) / E  # positive part and norm
+        return eps_eqv - kappa
+
+
 #    def get_dede(self, epsilon, D_el, E, nu):
 #        dede = zeros(3)
 #        t1 = D_el[0][0] / 2.
@@ -176,11 +180,7 @@ class Rankine(IStrainNorm3D):
 
 
 class Mazars(IStrainNorm3D):
-           
-    def get_f_trial (self, epsilon, D_el, E, nu, kappa):
-        epsilon_pp = where(epsilon >= 0., epsilon, zeros(6))#positive part
-        return sqrt(1./E* dot(dot(epsilon_pp,D_el), epsilon_pp.T))-kappa
-    
 
-
-
+    def get_f_trial(self, epsilon, D_el, E, nu, kappa):
+        epsilon_pp = where(epsilon >= 0., epsilon, zeros(6))  # positive part
+        return sqrt(1. / E * dot(dot(epsilon_pp, D_el), epsilon_pp.T)) - kappa

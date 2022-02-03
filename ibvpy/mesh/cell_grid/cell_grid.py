@@ -9,11 +9,6 @@ from traits.api import \
     Array, Property, cached_property, \
     Instance, Trait, Button, on_trait_change, Tuple, \
     Int, Float, provides, Delegate, Callable, HasTraits
-from traitsui.api import \
-    View, Item
-
-# from ibvpy.view.plot3d.mayavi_util.pipelines import \
-#     MVStructuredGrid
 
 from .cell_array import CellView, CellArray, ICellArraySource
 from .cell_grid_slice import CellGridSlice
@@ -546,91 +541,3 @@ class CellGrid(HasTraits):
                                     cell_view=CellView(cell_grid=self))
         self.show_array.configure_traits(kind='live')
 
-    #------------------------------------------------------------------
-    # UI - related methods
-    #------------------------------------------------------------------
-    traits_view = View(Item('grid_cell_spec'),
-                       Item('shape@'),
-                       Item('coord_min'),
-                       Item('coord_max'),
-                       Item('refresh_button'),
-                       Item('cell_array'),
-                       resizable=True,
-                       scrollable=True,
-                       height=0.5,
-                       width=0.5)
-
-
-if __name__ == '__main__':
-
-    from numpy import sin
-
-    mgd = CellGrid(shape=(2, 1),
-                   geo_transform=lambda p: sin(p),
-                   grid_cell_spec=CellSpec(node_coords=[[-1, -1],
-                                                        [1, -1],
-                                                        [0, 0],
-                                                        [1, 1],
-                                                        [-1, 1]]))
-
-    print('--------- Point index grid specification -------')
-
-    print('point grid shape')
-    print(mgd._get_point_grid_shape())
-    print('point grid size')
-    print(mgd.point_grid_size)
-    print('point idx grid')
-    print(mgd.point_idx_grid)
-
-    print('--------- Point coordinates --------------')
-
-    print('point x grid')
-    print(mgd.point_x_grid)
-    print('point X grid')
-    print(mgd.point_X_grid)
-    print('point x arr')
-    print(mgd.point_x_arr)
-    print('point X arr')
-    print(mgd.point_X_arr)
-
-    print('--------- Vertex index grid specification --------------')
-
-    print('vertex nodes')
-    print(mgd.vertex_idx_arr)
-    print('vertex_idx_grid')
-    print(mgd.vertex_idx_grid)
-
-    print('--------- Vertex coordinates --------------')
-
-    print('vertex_x_grid')
-    print(mgd.vertex_x_grid)
-    print('vertex_X_grid')
-    print(mgd.vertex_X_grid)
-    print('vertex_x_arr')
-    print(mgd.vertex_x_arr)
-    print('vertex_X_arr')
-    print(mgd.vertex_X_arr)
-
-    print('--------- Cell node mapping   --------------')
-
-    print('cell node map')
-    print(mgd.cell_node_map)
-
-    print('--------- Index transformations ------------')
-
-    print('cell offset for ( 1, 0  )')
-    offset = mgd.get_cell_offset((1, 0))
-    print(offset)
-
-    print('cell idx - should be ( 1, 0 )')
-    idx = mgd.get_cell_idx(offset)
-    print(idx)
-
-    print('--------- Vertex idx array -----------------')
-
-    print('get the geometry for visualization')
-    print(mgd._get_mvpoints())
-    print(mgd._get_mvpoints_grid_shape())
-
-    print('base nodes')
-    print(mgd.base_nodes)

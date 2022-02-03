@@ -22,10 +22,6 @@ from traits.api import \
     Property, cached_property, \
     on_trait_change, Bool, Button, Directory, \
     HasStrictTraits, WeakRef
-from traitsui.api import \
-    View, Item, UItem, VGroup, VSplit, \
-    HSplit, HGroup, Tabbed, ListEditor
-from traitsui.tabular_adapter import TabularAdapter
 from ibvpy.util.traits.editors import \
     MPLFigureEditor
 from ibvpy.view.plot2d.viz2d import Viz2D
@@ -34,12 +30,6 @@ from ibvpy.view.plot3d.viz3d import Viz3D
 import matplotlib.pyplot as plt
 import numpy as np
 import traits.api as tr
-from traitsui.api \
-    import TableEditor
-from traitsui.extras.checkbox_column \
-    import CheckboxColumn
-from traitsui.table_column \
-    import ObjectColumn
 
 
 class RunThread(Thread):
@@ -145,28 +135,6 @@ class AnimationDialog(HasStrictTraits):
             )
         self.status_message = 'animation stored in %s' % path
 
-    traits_view = View(
-        VGroup(
-            VGroup(
-                HGroup(
-                    UItem('animate_from', full_size=True, springy=True),
-                    UItem('animate_to', springy=True),
-                    UItem('animate_steps', springy=True),
-                ),
-                label='Animation range'
-            ),
-            Item('export_path'),
-            HGroup(
-                UItem('status_message', style='readonly')
-            ),
-            UItem('animate_button',
-                  springy=False, resizable=True),
-        ),
-        buttons=['OK', 'Cancel'],
-        title='Animation dialog'
-    )
-
-
 class PlotPerspective(HasStrictTraits):
     name = Str('<unnamed>')
     viz2d_list = List(Viz2D, input=True)
@@ -258,13 +226,6 @@ class PlotPerspective(HasStrictTraits):
         t_new_b = extrema[1][1] - tot_span * (extrema[1][1] - extrema[1][0])
         axes[0].set_xlim(extrema[0][0], b_new_t)
         axes[1].set_xlim(t_new_b, extrema[1][1])
-
-    trait_view = View(
-        UItem('figure', editor=MPLFigureEditor(),
-              resizable=True,
-              springy=True,),
-    )
-
 
 class BMCSVizSheet(ROutputSection):
     '''Vieualization sheet
@@ -678,94 +639,3 @@ class BMCSVizSheet(ROutputSection):
     def _selected_viz3d_changed(self):
         print('selection done')
 
-    # Traits view definition:
-    traits_view = View(
-        VSplit(
-            HSplit(
-                Tabbed(
-                    UItem('pp_list',
-                          id='notebook',
-                          style='custom',
-                          resizable=True,
-                          editor=ListEditor(use_notebook=True,
-                                            deletable=False,
-                                            # selected='selected_pp',
-                                            export='DockWindowShell',
-                                            page_name='.name')
-                          ),
-                    UItem('scene', label='3d scene',
-                          editor=SceneEditor(scene_class=MayaviScene)
-                          ),
-                    scrollable=True,
-                    label='Plot panel'
-                ),
-                VGroup(
-                    Item('n_cols', width=250),
-                    Item('plot_mode@', width=250),
-                    VSplit(
-                        UItem('viz2d_list@',
-                              editor=viz2d_list_editor,
-                              width=100),
-                        UItem('selected_viz2d@',
-                              width=200),
-                        UItem('pp_list@',
-                              editor=pp_list_editor,
-                              width=100),
-                        #                         UItem('selected_pp@',
-                        #                               width=200),
-                        UItem('viz3d_list@',
-                              editor=viz3d_list_editor,
-                              width=100),
-                        UItem('selected_viz3d@',
-                              width=200),
-                        VGroup(
-                            #                             UItem('export_button',
-                            #                                   springy=False, resizable=True),
-                            #                             VGroup(
-                            #                                 HGroup(
-                            #                                     UItem('fig_width', springy=True,
-                            #                                           resizable=False),
-                            #                                     UItem('fig_height', springy=True),
-                            #                                 ),
-                            #                                 label='Figure size'
-                            #                             ),
-                            UItem('animate_button',
-                                  springy=False, resizable=True),
-                        ),
-                        VGroup(
-                            UItem('reference_viz2d_name', resizable=True),
-                            UItem('reference_figure', editor=MPLFigureEditor(),
-                                  width=200,
-                                  # springy=True
-                                  ),
-                            label='Reference graph',
-                        )
-                    ),
-                    label='Plot configure',
-                    scrollable=True
-                ),
-            ),
-            VGroup(
-                HGroup(
-                    Item('mode', resizable=False, springy=False),
-                    Item('monitor_chunk_size', resizable=False, springy=False),
-                ),
-                Item('vot_slider', height=40),
-            )
-        ),
-        resizable=True,
-        width=0.8, height=0.8,
-        buttons=['OK', 'Cancel']
-    )
-
-
-if __name__ == '__main__':
-    viz3d_1 = Viz3D(label='first')
-    viz3d_2 = Viz3D(label='second')
-    vs = BMCSVizSheet()
-    vs.add_viz3d(viz3d_1)
-    vs.add_viz3d(viz3d_2)
-    vs.run_started()
-    vs.replot()
-    vs.run_finished()
-    vs.configure_traits()

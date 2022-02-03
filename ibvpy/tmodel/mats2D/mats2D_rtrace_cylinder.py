@@ -6,16 +6,11 @@ from numpy import \
 
 from traits.api import \
     Str, Callable, Int, List, Bool, Trait
-from traitsui.api import \
-    View, HSplit, VGroup, Item
-from ibvpy.api import \
-    RTrace
-from ibvpy.plugins.mayavi_util.pipelines import \
-    MVPolyData, MVPointLabels
 from .mats2D_tensor import map2d_eps_eng_to_mtx
+import bmcs_utils.api as bu
 
 
-class MATS2DRTraceCylinder(RTrace):
+class MATS2DRTraceCylinder(bu.Model):
 
     '''Gather the data for the polar plot
 
@@ -168,27 +163,6 @@ class MATS2DRTraceCylinder(RTrace):
         s.module_manager.scalar_lut_manager.show_scalar_bar = True
         s.module_manager.scalar_lut_manager.reverse_lut = True
 
-    #-------------------------------------------------------------------------
-    # Visualization pipelines
-    #-------------------------------------------------------------------------
-    mvp_mgrid_geo = Trait(MVPolyData)
-
-    def _mvp_mgrid_geo_default(self):
-        return MVPolyData(name='Mesh geomeetry',
-                               points=self._get_points,
-                               polys=self._get_faces,
-                               scalars=self._get_scalars,
-                               vectors=self._get_vectors
-                          )
-
-    mvp_mgrid_labels = Trait(MVPointLabels)
-
-    def _mvp_mgrid_labels_default(self):
-        return MVPointLabels(name='Mesh numbers',
-                                  points=self._get_points,
-                                  scalars=self._get_scalars,
-                                  vectors=self._get_vectors)
-
     def redraw(self):
         '''
         '''
@@ -323,11 +297,3 @@ class MATS2DRTraceCylinder(RTrace):
         self._trace = []
         if self.var_warp_on:
             self._warp_field = []
-
-    view = View(HSplit(VGroup(Item('var_warp_on'),
-                              VGroup('var_axis', style='readonly'),
-                              VGroup('var_surface', style='readonly'),
-                              VGroup('record_on', 'clear_on'),
-                              VGroup(Item('refresh_button', show_label=False)),),
-                       ),
-                resizable=True)

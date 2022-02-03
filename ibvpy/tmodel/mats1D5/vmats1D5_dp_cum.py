@@ -5,7 +5,7 @@ Created on Feb 14, 2019
 '''
 
 from ibvpy.tmodel.mats_damage_fn import \
-    IDamageFn, LiDamageFn, JirasekDamageFn, AbaqusDamageFn, \
+    IDamageFn, LiDamageFn, ExpSlopeDamageFn, AbaqusDamageFn, \
     MultilinearDamageFn, \
     FRPDamageFn
 from ibvpy.tmodel import MATSEval
@@ -80,7 +80,7 @@ class MATS1D5DPCum(MATSEval):
 
     omega_fn_type = tr.Trait('FRP',
                              dict(li=LiDamageFn,
-                                  jirasek=JirasekDamageFn,
+                                  jirasek=ExpSlopeDamageFn,
                                   abaqus=AbaqusDamageFn,
                                   FRP=FRPDamageFn,
                                   multilinear=MultilinearDamageFn

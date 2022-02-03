@@ -11,9 +11,6 @@ from traits.api import \
     HasStrictTraits, Dict, Property, Float, \
     Bool, WeakRef, DelegatesTo, cached_property, \
     Str, List, Button
-from traitsui.api import \
-    View, Group, UItem, Include, EnumEditor, HGroup, \
-    HSplit, Item, VGroup
 
 import matplotlib.pyplot as plt
 
@@ -65,14 +62,3 @@ class Viz2D(ROutputItem):
         ax = fig.add_subplot(111)
         self.plot_tex(ax, 0.25)
         fig.savefig(fname)
-
-    trait_view = View(
-        HSplit(
-            VGroup(
-                UItem('label'),
-                Item('visible'),
-                label='Vizualization interface',
-                springy=True
-            )),
-        resizable=True
-    )

@@ -13,10 +13,6 @@
 # Created on Aug 7, 2009 by: rchx
 
 from traits.api import TraitType, HasTraits, TraitError
-from traitsui.api import View, Item, InstanceEditor
-from traitsui.instance_choice import \
-    InstanceFactoryChoice
-
 
 class EitherType(TraitType):
 
@@ -52,12 +48,4 @@ class EitherType(TraitType):
         return (0, value)
 
     def create_editor(self):
-
-        if self._names:
-            choice_list = [InstanceFactoryChoice(name=n, klass=k)
-                           for n, k in zip(self._names, self._klasses)]
-        else:
-            choice_list = [InstanceFactoryChoice(klass=k)
-                           for k in self._klasses]
-
-        return InstanceEditor(values=choice_list, kind='live')
+        pass

@@ -5,9 +5,6 @@ from traits.api import \
     Enum, Float,  \
     Trait,  Event, \
     Dict
-from traitsui.api import \
-    Item, View, Group, Spring
-
 from ibvpy.tmodel.mats1D.mats1D_eval import MATS1DEval
 import numpy as np
 
@@ -52,21 +49,6 @@ class MATS1DDamage(MATS1DEval):
     #--------------------------------------------------------------------------
     # View specification
     #--------------------------------------------------------------------------
-
-    traits_view = View(Group(Group(Item('E'),
-                                   Item('epsilon_0'),
-                                   Item('epsilon_f'),
-                                   label='Material parameters',
-                                   show_border=True),
-                             Group(Item('stiffness', style='custom'),
-                                   Spring(resizable=True),
-                                   label='Configuration parameters',
-                                   show_border=True,
-                                   ),
-                             layout='tabbed'
-                             ),
-                       resizable=True
-                       )
 
     #-------------------------------------------------------------------------
     # Setup for computation within a supplied spatial context
@@ -200,13 +182,3 @@ class MATS1DDamage(MATS1DEval):
                        record_on='update')
         ]
         return ec
-
-
-if __name__ == '__main__':
-
-    #-------------------------------------------------------------------------
-    # Example
-    #-------------------------------------------------------------------------
-
-    mats_eval = MATS1DDamage()
-    mats_eval.configure_traits()

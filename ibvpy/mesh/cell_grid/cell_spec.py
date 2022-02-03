@@ -4,9 +4,6 @@ from traits.api import \
     Instance, Trait, Button, on_trait_change, Tuple, \
     Int, Float
 
-from traitsui.api import \
-    View, Item
-
 from ibvpy.mesh.sdomain import \
     SDomain
 
@@ -39,11 +36,6 @@ class CellSpec( HasTraits ):
 #                         [ 1, 0, 0],
 #                         [ 1, 1, 1],
 #                         ] )
-
-    traits_view = View( Item( 'node_coords', style = 'readonly' ),
-                       resizable = True,
-                       height = 0.5,
-                       width = 0.5 )
 
     _node_array = Property( Array( 'float_' ), depends_on = 'node_coords' )
     @cached_property
@@ -177,61 +169,4 @@ class GridCell( SDomain ):
         # extract the used nodes using the node map
         node_selection = node_bool_map.flatten()[ self.node_map ]
         return node_selection
-
-    #------------------------------------------------------------------
-    # UI - related methods
-    #------------------------------------------------------------------
-    traits_view = View( Item( 'grid_cell_spec' ),
-                       Item( 'refresh_button' ),
-                       Item( 'node_map' ),
-                       resizable = True,
-                       height = 0.5,
-                       width = 0.5 )
-
-if __name__ == '__main__':
-
-    cc = CellSpec( node_coords = [[-1, -1],
-                                   [1, -1],
-                                   [0, 0],
-                                   [1, 1],
-                                   [-1, 1]] )
-
-
-
-    mgc = GridCell( grid_cell_spec = cc )
-
-    print('cell_shape')
-    print(cc.get_cell_shape())
-
-    print('grid_cell_coords')
-    print(mgc.grid_cell_coords)
-
-    print('node_map')
-    print(mgc.node_map)
-
-    print('node distribution')
-    print(mgc._get_node_distribution())
-
-    node_bool_map = repeat( False, mgc.n_nodes ).reshape( cc.get_cell_shape() )
-    print('*** construct the full boolean map of the grid cell')
-    print('node_bool_map')
-    print(node_bool_map)
-
-    node_bool_map[:, -1] = True
-    print('*** make the slice')
-    print('node_bool_map[:,-1]')
-    print(node_bool_map)
-
-    print('*** apply the node map to the full boolean sliced array')
-    print('node_map[ node_bool_map]')
-    node_selection = mgc[:, -1]
-    print(node_selection)
-
-    print('*** get the numbers of nodes within the slice')
-    print('node_map[ node_bool_map]')
-    print(mgc.node_map[ node_selection])
-
-    print('*** get the point coordinates within the selection')
-    print('points')
-    print(mgc._get_points()[ node_selection ])
 

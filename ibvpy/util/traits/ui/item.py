@@ -10,14 +10,14 @@ Created on Apr 23, 2010
 
 from traits.trait_base \
     import user_name_for
-from traitsui.api import \
+from bmcs_utils.api import \
     Item
 
 
 #-------------------------------------------------------------------------
 #  'Item' class:
 #-------------------------------------------------------------------------
-class Item (Item):
+class Item(Item):
     """An element in a Traits-based user interface. 
     The 'get_label' method is overloaded in order to add
     the unit string defined in the trait's metadata as 'unit'

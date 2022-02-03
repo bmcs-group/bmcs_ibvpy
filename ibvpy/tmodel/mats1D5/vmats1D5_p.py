@@ -9,6 +9,7 @@ from ibvpy.sim.i_tmodel import ITModel
 
 import numpy as np
 import traits.api as tr
+import bmcs_utils.api as bu
 
 
 @tr.provides(ITModel)
@@ -16,12 +17,12 @@ class MATS1D5P(MATSEval):
 
     node_name = "multilinear bond law"
 
-    E_s = tr.Float(100.0, tooltip='Shear stiffness of the interface [MPa]',
+    E_s = bu.Float(100.0, tooltip='Shear stiffness of the interface [MPa]',
                    MAT=True, unit='MPa', symbol='E_\mathrm{s}',
                    desc='Shear-modulus of the interface',
                    auto_set=True, enter_set=True)
 
-    E_n = tr.Float(100.0, tooltip='Normal stiffness of the interface [MPa]',
+    E_n = bu.Float(100.0, tooltip='Normal stiffness of the interface [MPa]',
                    MAT=True, unit='MPa', symbol='E_\mathrm{n}',
                    desc='Normal stiffness of the interface',
                    auto_set=False, enter_set=True)

@@ -24,8 +24,6 @@ from traits.api import \
     Bool, Callable, Enum, \
     Int, Trait, on_trait_change, \
     Dict, Property, cached_property
-from traitsui.api import \
-    Item, View, Group, Spring, Include
 
 from .matsXD_cmdm_polar_discr import \
     PolarDiscr
@@ -73,36 +71,6 @@ class MATSXDMicroplaneDamage(PolarDiscr):
     double_constraint = Bool(False,
                              desc='Use double constraint to evaluate microplane elastic and fracture energy (Option effects only the response tracers)',
                              auto_set=False)
-
-    #-------------------------------------------------------------------------
-    # View specification
-    #-------------------------------------------------------------------------
-
-    config_param_vgroup = Group(Item('model_version', style='custom'),
-                                #     Item('stress_state', style='custom'),
-                                Item('symmetrization', style='custom'),
-                                Item('elastic_debug@'),
-                                Item('double_constraint@'),
-                                Spring(resizable=True),
-                                label='Configuration parameters',
-                                show_border=True,
-                                dock='tab',
-                                id='ibvpy.tmodel.matsXD.MATSXD_cmdm.config',
-                                )
-
-    traits_view = View(Include('polar_fn_group'),
-                       dock='tab',
-                       id='ibvpy.tmodel.matsXD.MATSXD_cmdm',
-                       kind='modal',
-                       resizable=True,
-                       scrollable=True,
-                       width=0.6, height=0.8,
-                       buttons=['OK', 'Cancel']
-                       )
-
-    #-------------------------------------------------------------------------
-    # Setup for computation within a supplied spatial context
-    #-------------------------------------------------------------------------
 
     def get_state_array_size(self):
         # In the state array the largest equivalent microplane

@@ -1,19 +1,16 @@
 
 from mayavi.core.ui.api import \
-    MayaviScene, SceneEditor, MlabSceneModel
+    MlabSceneModel
 from traits.api import HasTraits, Instance, Button, \
     on_trait_change, Float, Property, cached_property, Bool, \
     Tuple
-
-from traitsui.api import \
-    View, UItem, Item, HSplit, Group, \
-    VGroup, Spring
+import bmcs_utils as bu
 import numpy as np
 from .yield_face3D import YieldConditionAbaqus, YieldConditionWillamWarnke, \
     YieldConditionDruckerPrager, YieldConditionVonMises, YieldConditionRankine
 
 
-class YieldFaceViewer(HasTraits):
+class YieldFaceViewer(bu.Model):
 
     min_sig = Float(-20.0, auto_set=False, enter_set=True, view_changed=True)
     max_sig = Float(5.0, auto_set=False, enter_set=True, view_changed=True)
@@ -120,69 +117,8 @@ class YieldFaceViewer(HasTraits):
 
         fig.scene.disable_render = False
 
-    # The layout of the dialog created
-    view = View(
-        HSplit(
-            Group(
-                VGroup(
-                    UItem('yc_VM_on', label='visible', full_size=True,
-                          resizable=True, width=300),
-                    UItem('yc_VM@', resizable=True),
-                    label='Von-Mises yield face',
-                ),
-                VGroup(
-                    UItem('yc_DP_on', label='visible', full_size=True,
-                          resizable=True, width=300),
-                    UItem('yc_DP@', resizable=True),
-                    label='Drucker-Prager yield face'
-                ),
-                VGroup(
-                    UItem('yc_R_on', label='visible', full_size=True,
-                          resizable=True, width=300),
-                    UItem('yc_R@', resizable=True),
-                    label='Rankine yield face',
-                ),
-                VGroup(
-                    UItem('yc_abaqus_on', label='visible', full_size=True,
-                          resizable=True, width=300),
-                    UItem('yc_abaqus@', full_size=True,
-                          resizable=True, width=300),
-                    label='Abaqus yield face'
-                ),
-                VGroup(
-                    UItem('yc_WW_on', label='visible', full_size=True,
-                          resizable=True, width=300),
-                    UItem('yc_WW@', resizable=True),
-                    label='Willam-Warnke yield face',
-                ),
-                Spring(),
-                VGroup(
-                    Item('max_sig', label='compression', full_size=True,
-                         resizable=True, width=300),
-                    Item('min_sig', label='tension', resizable=True),
-                    label='Display range',
-                ),
-                UItem('button1', resizable=True),
-                show_labels=True,
-            ),
-            Group(
-                Item('scene',
-                     editor=SceneEditor(scene_class=MayaviScene), height=250,
-                     width=300),
-                show_labels=False,
-            ),
-        ),
-        resizable=True,
-        height=0.7,
-        width=0.8
-    )
-
 
 def run_explorer(*args, **kw):
     m = YieldFaceViewer()
     m.redraw_scene()
     m.configure_traits(*args, **kw)
-
-
-if __name__ == '__main__':
-    run_explorer()

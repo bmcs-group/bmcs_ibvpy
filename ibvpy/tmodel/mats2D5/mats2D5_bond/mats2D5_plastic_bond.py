@@ -1,29 +1,20 @@
 '''
 Created on Feb 25, 2010
 
-@author: jakub
 '''
 from math import pi as Pi, cos, sin, exp, sqrt as scalar_sqrt
 
-from ibvpy.api import RTrace, RTDofGraph, RTraceArraySnapshot
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
-from ibvpy.tmodel.mats3D.mats3D_eval import MATS3DEval
-from ibvpy.tmodel.mats_eval import IMATSEval
 from numpy import \
-     array, ones, zeros, outer, inner, transpose, dot, frompyfunc, \
-     fabs, sqrt, linspace, vdot, identity, tensordot, \
-     sin as nsin, meshgrid, float_, ix_, \
-     vstack, hstack, sqrt as arr_sqrt, sign
-from scipy.linalg import eig, inv
+     array, zeros, dot, \
+     float_, \
+     sign
 from traits.api import \
-     Array, Bool, Callable, Enum, Float, HasTraits, \
-     Instance, Int, Trait, Range, HasTraits, on_trait_change, Event, \
-     Dict, Property, cached_property, Delegate
-from traitsui.api import \
-     Item, View, HSplit, VSplit, VGroup, Group, Spring
+     Array, Enum, \
+     Event, provides, \
+     Dict, Property, cached_property
+import bmcs_utils.api as bu
 
-
-# from dacwt import DAC
 #---------------------------------------------------------------------------
 # Material time-step-evaluator for Scalar-Damage-Model
 #---------------------------------------------------------------------------
@@ -31,8 +22,6 @@ class MATS2D5PlasticBond(MATS2DEval):
     '''
     Elastic Model.
     '''
-
-    # implements(IMATSEval)
 
     #---------------------------------------------------------------------------
     # Parameters of the numerical algorithm (integration)
@@ -44,40 +33,40 @@ class MATS2D5PlasticBond(MATS2DEval):
     # Material parameters 
     #---------------------------------------------------------------------------
 
-    E_m = Float(1.,  # 34e+3,
+    E_m = bu.Float(1.,  # 34e+3,
                  label="E_m",
                  desc="Young's Modulus",
                  auto_set=False)
-    nu_m = Float(0.2,
+    nu_m = bu.Float(0.2,
                  label='nu_m',
                  desc="Poison's ratio",
                  auto_set=False)
 
-    E_f = Float(1.,  # 34e+3,
+    E_f = bu.Float(1.,  # 34e+3,
                  label="E_f",
                  desc="Young's Modulus",
                  auto_set=False)
-    nu_f = Float(0.2,
+    nu_f = bu.Float(0.2,
                  label='nu_f',
                  desc="Poison's ratio",
                  auto_set=False)
 
-    G = Float(1.,  # 34e+3,
+    G = bu.Float(1.,  # 34e+3,
                  label="G",
                  desc="Shear Modulus",
                  auto_set=False)
 
-    sigma_y = Float(.5,  # 34e+3,
+    sigma_y = bu.Float(.5,  # 34e+3,
                 label="s_y",
                 desc="Yield stress",
                 auto_set=False)
 
-    K_bar = Float(0.,  # 34e+3,
+    K_bar = bu.Float(0.,  # 34e+3,
                 label="K",
                 desc="isotropic hardening",
                 auto_set=False)
 
-    H_bar = Float(0.,  # 34e+3,
+    H_bar = bu.Float(0.,  # 34e+3,
                    label="H",
                    desc="kinematic hardening",
                    auto_set=False)
@@ -100,42 +89,15 @@ class MATS2D5PlasticBond(MATS2DEval):
     # View specification
     #---------------------------------------------------------------------------------------------
 
-    view_traits = View(VSplit(Group(Item('E_m'),
-                                      Item('nu_m'),
-                                      Item('E_f'),
-                                      Item('nu_f'),
-                                      Item('G')
-                                      ),
-                                Group(Item('stress_state', style='custom'),
-                                       Spring(resizable=True),
-                                       label='Configuration parameters', show_border=True,
-                                       ),
-                                ),
-                        resizable=True
-                        )
+    view_traits = bu.View(
+        bu.Item('E_m'),
+        bu.Item('nu_m'),
+        bu.Item('E_f'),
+        bu.Item('nu_f'),
+        bu.Item('G')
+    )
 
-    #-----------------------------------------------------------------------------------------------
-    # Private initialization methods
-    #-----------------------------------------------------------------------------------------------
-
-    #-----------------------------------------------------------------------------------------------
-    # Setup for computation within a supplied spatial context
-    #-----------------------------------------------------------------------------------------------
-
-    def new_cntl_var(self):
-        return zeros(3, float_)
-
-    def new_resp_var(self):
-        return zeros(3, float_)
-
-    def get_state_array_size(self):
-        return 3
-
-    #-----------------------------------------------------------------------------------------------
-    # Evaluation - get the corrector and predictor
-    #-----------------------------------------------------------------------------------------------
-
-    def get_corr_pred(self, sctx, eps_app_eng, d_eps, tn, tn1):
+    def get_corr_pred(self, eps_app_eng, tn1, eps_p_n, q_n, alpha_n):
         '''
         Corrector predictor computation.
         @param eps_app_eng input variable - engineering strain
@@ -148,12 +110,7 @@ class MATS2D5PlasticBond(MATS2DEval):
 
         eps_avg = eps_n1
 
-        if sctx.update_state_on:
-            eps_n = eps_avg - float(d_eps[6])
-            sctx.mats_state_array[:] = self._get_state_variables(sctx, eps_n)
-
         # print 'state array ', sctx.mats_state_array
-        eps_p_n, q_n, alpha_n = sctx.mats_state_array
         sigma_trial = self.G * (eps_n1 - eps_p_n)
         xi_trial = sigma_trial - q_n
         f_trial = abs(xi_trial) - (self.sigma_y + self.K_bar * alpha_n)
@@ -174,40 +131,6 @@ class MATS2D5PlasticBond(MATS2DEval):
         sigma[6] = sig_n1[0]
         self.D_el[6, 6] = D_n1[0, 0]
         return  sigma, self.D_el
-
-    #---------------------------------------------------------------------------------------------
-    # Subsidiary methods realizing configurable features
-    #---------------------------------------------------------------------------------------------
-
-    def _get_state_variables(self, sctx, eps_n):
-
-        eps_p_n, q_n, alpha_n = sctx.mats_state_array
-
-        # Get the characteristics of the trial step
-        #
-        sig_trial = self.G * (eps_n - eps_p_n)
-        xi_trial = sig_trial - q_n
-        f_trial = abs(xi_trial) - (self.sigma_y + self.K_bar * alpha_n)
-
-        if f_trial > 1e-8 :
-
-            #
-            # Tha last equilibrated step was inelastic. Here the
-            # corresponding state variables must be calculated once
-            # again. This might be expensive for 2D and 3D models. Then,
-            # some kind of caching should be considered for the state
-            # variables determined during iteration. In particular, the
-            # computation of d_gamma should be outsourced into a separate
-            # method that can in general perform an iterative computation.
-            #
-            d_gamma = f_trial / (self.G + self.K_bar + self.H_bar)
-            eps_p_n += d_gamma * sign(xi_trial)
-            q_n += d_gamma * self.H_bar * sign(xi_trial)
-            alpha_n += d_gamma
-
-        newarr = array([eps_p_n, q_n, alpha_n], dtype='float_')
-
-        return newarr
 
     def _get_D_plane_stress(self):
         E_m = self.E_m

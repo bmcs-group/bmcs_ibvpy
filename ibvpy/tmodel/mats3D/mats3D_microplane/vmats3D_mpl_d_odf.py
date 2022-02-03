@@ -9,8 +9,8 @@ Microplane damage model 2D - ODFS (Wu [2009])
 from ibvpy.tmodel.mats3D.mats3D_eval import MATS3DEval
 from traits.api import \
     Constant,\
-    Float, Property, cached_property
-
+    Property, cached_property
+from bmcs_utils.api import Float
 import numpy as np
 import traits.api as tr
 
@@ -306,101 +306,6 @@ class MATS3DMplDamageODF(MATS3DEval):
 
         return S_1_Emabcd
 
-#     #------------------------------------------
-#     # scalar damage factor for each microplane
-#     #------------------------------------------
-#     def _get_d_Em(self, s_Emng, eps_Emab):
-#
-#         d_Emn = 1.0 - self.get_state_variables(s_Emng, eps_Emab)[0]
-#
-#         d_Em = (1.0 / 3.0) * np.einsum('Emn,n-> Em',  d_Emn, self._MPW)
-#
-#         return d_Em
-#
-#     #------------------------------------------
-#     # The 4th order volumetric damage tensor
-#     #------------------------------------------
-#     def _get_M_vol_abcd(self, sctx, eps_app_eng, sigma_kk):
-#
-#         d = self._get_Em( s_Emng, eps_Emab)
-#         delta = np.identity(2)
-#
-#         I_4th_abcd = 0.5 * (np.einsum('ac,bd -> ijkl', delta, delta) +
-#                             np.einsum('il,jk -> ijkl', delta, delta))
-#
-#         # print 'M_vol', (1 - d) * I_4th_ijkl
-#
-#         return (1 - d) * I_4th_ijkl
-#
-#     #------------------------------------------
-#     # The 4th order deviatoric damage tensor
-#     #------------------------------------------
-#     def _get_M_dev_tns(self, phi_mtx):
-#
-#         delta = np.identity(3)
-#         I_4th_ijkl = 0.5 * (np.einsum('ik,jl -> ijkl', delta, delta) +
-#                             np.einsum('il,jk -> ijkl', delta, delta))
-#         tr_phi_mtx = np.trace(phi_mtx)
-#
-#         M_dev_ijkl = self.zeta_G * (0.5 * (np.einsum('ik,jl->ijkl', delta, phi_mtx) +
-#                                            np.einsum('il,jk->ijkl', delta, phi_mtx)) +
-#                                     0.5 * (np.einsum('ik,jl->ijkl', phi_mtx, delta) +
-#                                            np.einsum('il,jk->ijkl', phi_mtx, delta))) \
-#             - (2. * self.zeta_G - 1.) * (tr_phi_mtx / 3.) * I_4th_ijkl
-#
-#         return M_dev_ijkl
-#
-#     #--------------------------------------------------------------------------
-#     # Returns the fourth order secant stiffness tensor (cf. [Wu.2009], Eq.(31))
-#     #--------------------------------------------------------------------------
-#     def _get_S_2_Emabcd(self, sctx, eps_app_eng, sigma_kk):
-#
-#         K0 = self.E / (1. - 2. * self.nu)
-#         G0 = self.E / (1. + self.nu)
-#
-#         I_vol_ijkl = self._get_I_vol_4()
-#         I_dev_ijkl = self._get_I_dev_4()
-#         phi_mtx = self._get_phi_mtx(sctx, eps_app_eng, sigma_kk)
-#         M_vol_ijkl = self._get_M_vol_tns(sctx, eps_app_eng, sigma_kk)
-#         M_dev_ijkl = self._get_M_dev_tns(phi_mtx)
-#
-#         S_2_ijkl = K0 * np.einsum('ijmn,mnrs,rskl -> ijkl', I_vol_ijkl, M_vol_ijkl, I_vol_ijkl ) \
-#             + G0 * np.einsum('ijmn,mnrs,rskl -> ijkl', I_dev_ijkl, M_dev_ijkl, I_dev_ijkl)\
-#
-#         return S_2_ijkl
-#
-#     #--------------------------------------------------------------------------
-#     # Returns the fourth order secant stiffness tensor (cf. [Wu.2009], Eq.(34))
-#     #--------------------------------------------------------------------------
-#     def _get_S_3_Emabcd(self, sctx, eps_app_eng, sigma_kk):
-#
-#         K0 = self.E / (1. - 2. * self.nu)
-#         G0 = self.E / (1. + self.nu)
-#
-#         I_vol_ijkl = self._get_I_vol_4()
-#         I_dev_ijkl = self._get_I_dev_4()
-#
-#         # The fourth order elastic stiffness tensor
-#         S_0_ijkl = K0 * I_vol_ijkl + G0 * I_dev_ijkl
-#
-#         d_n = self._get_state_variables(sctx, eps_app_eng, sigma_kk)[:, 5]
-#
-#         PP_vol_4 = self._get_PP_vol_4()
-#         PP_dev_4 = self._get_PP_dev_4()
-#
-#         delta = np.identity(3)
-#         I_4th_ijkl = np.einsum('ik,jl -> ijkl', delta, delta)
-#
-#         D_ijkl = np.einsum('n,n,ijkl->ijkl', d_n, self._MPW, PP_vol_4) + \
-#             2 * self.zeta_G * np.einsum('n,n,nijkl->ijkl', d_n, self._MPW, PP_dev_4) - (
-#                 1 / 3.) * (2 * self.zeta_G - 1) * np.einsum('n,n,ijkl->ijkl', d_n, self._MPW, I_dev_ijkl)
-#
-#         phi_ijkl = (I_4th_ijkl - D_ijkl)
-#
-#         S_ijkl = np.einsum('ijmn,mnkl', phi_ijkl, S_0_ijkl)
-#
-#         return S_ijkl
-#
     #-------------------------------------------------------------------------
     # Returns the fourth order secant stiffness tensor with the (double orthotropic) assumption
     #-------------------------------------------------------------------------

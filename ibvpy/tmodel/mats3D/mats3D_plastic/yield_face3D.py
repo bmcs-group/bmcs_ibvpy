@@ -1,12 +1,8 @@
 
-from traits.api import \
-    Float, HasStrictTraits, Instance, Int
-from traitsui.api import View, Item, HSplit, Group
-
 import mayavi.mlab as m
 import numpy as np
-
-
+import bmcs_utils.api as bu
+from bmcs_utils.api import Float, Int, Model
 ONE = np.ones((1,), dtype=np.float_)
 DELTA = np.identity(3)
 
@@ -16,7 +12,7 @@ EPS[(0, 1, 2), (1, 2, 0), (2, 0, 1)] = 1
 EPS[(2, 1, 0), (1, 0, 2), (0, 2, 1)] = -1
 
 
-class YieldConditionJ2(HasStrictTraits):
+class YieldConditionJ2(Model):
     '''J2-plasticity
     '''
     n_D = Int(3)
@@ -36,7 +32,7 @@ class YieldConditionJ2(HasStrictTraits):
         pass
 
 
-class YieldConditionDruckerPrager(HasStrictTraits):
+class YieldConditionDruckerPrager(Model):
     '''Drucker-Prager yield condition
     '''
     n_D = Int(3)
@@ -62,8 +58,9 @@ class YieldConditionDruckerPrager(HasStrictTraits):
     def get_df_dsig(self):
         pass
 
-    view = View(Item('alpha_F', full_size=True, resizable=True),
-                Item('tau2_y'))
+    ipw_view = bu.View(
+        bu.Item('alpha_F'),
+        bu.Item('tau2_y'))
 
 
 class YieldConditionVonMises(HasStrictTraits):
@@ -79,11 +76,12 @@ class YieldConditionVonMises(HasStrictTraits):
 
         return J2 - self.k ** 2
 
-    view = View(Item('k', full_size=True, resizable=True),
-                )
+    view = bu.View(
+        bu.Item('k'),
+    )
 
 
-class YieldConditionWillamWarnke(HasStrictTraits):
+class YieldConditionWillamWarnke(Model):
 
     '''the three parameter Willam-Warnke yield function,
     https://en.wikipedia.org/wiki/Willam-Warnke_yield_criterion
@@ -121,12 +119,13 @@ class YieldConditionWillamWarnke(HasStrictTraits):
         return (1. / (3. * z) * I1 / self.sig_c + np.sqrt(0.4) /
                 r * np.sqrt(J2) / self.sig_c - 1.)
 
-    view = View(Item('sig_c', full_size=True, resizable=True),
-                Item('sig_t'),
-                Item('sig_b'))
+    view = bu.View(
+        bu.Item('sig_c'),
+        bu.Item('sig_t'),
+        bu.Item('sig_b'))
 
 
-class YieldConditionRankine(HasStrictTraits):
+class YieldConditionRankine(Model):
 
     '''single-parameter Rankine failure surface
     '''
@@ -138,11 +137,12 @@ class YieldConditionRankine(HasStrictTraits):
         f = max_sig - self.sig_t
         return f
 
-    view = View(Item('sig_t', full_size=True, resizable=True),
-                )
+    view = bu.View(
+        bu.Item('sig_t'),
+    )
 
 
-class YieldConditionAbaqus(HasStrictTraits):
+class YieldConditionAbaqus(Model):
 
     '''Lee et al (1988) - PLASTIC-DAMAGE MODEL FOR CYCLIC
      LOADING OF CONCRETE STRUCTURES'''
@@ -168,15 +168,15 @@ class YieldConditionAbaqus(HasStrictTraits):
 
         return F - c
 
-    view = View(Item('sig_c', full_size=True, resizable=True),
-                Item('sig_t'),
-                Item('sig_b'))
+
+view = bu.View(bu.Item('sig_c'),
+               bu.Item('sig_t'),
+               bu.Item('sig_b'))
 
 
-class YieldConditionExtendedLeonModel(HasStrictTraits):
-
-    '''
-    '''
+class YieldConditionExtendedLeonModel(Model):
+    """
+    """
 
     sig_c = Float(-10.)  # the uniaxial compressive strength
     sig_t = Float(3.)  # the uniaxial tensile strength
@@ -196,9 +196,10 @@ class YieldConditionExtendedLeonModel(HasStrictTraits):
 
         return z, r, theta
 
-    view = View(Item('sig_c', full_size=True, resizable=True),
-                Item('sig_t'),
-                Item('sig_b'))
+    view = bu.View(
+        bu.Item('sig_c'),
+                bu.Item('sig_t'),
+                bu.Item('sig_b'))
 
 
 def get_lut():

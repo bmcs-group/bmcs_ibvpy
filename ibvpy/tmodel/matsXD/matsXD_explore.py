@@ -12,15 +12,13 @@
 #
 # Created on Sep 4, 2009 by: rch
 
-from ibvpy.core.bcond_mngr import BCondMngr
+from ibvpy.bcond.bcond_mngr import BCondMngr
 from ibvpy.sim.tstep_bc import TStepBC
 from ibvpy.tmodel.mats_eval import IMATSEval
 from traits.api import \
     Instance, \
     Dict, WeakRef, List, \
     DelegatesTo, Bool
-from traitsui.api import \
-    Item, View
 
 import numpy as np
 
@@ -78,11 +76,3 @@ class MATSXDExplore(TStepBC):
         print('K', K)
         print('F', F_int)
         return K, F_int
-
-    traits_view = View(Item('mats_eval', show_label=False),
-                       resizable=True,
-                       width=1.0,
-                       height=1.0
-                       )
-
-    tree_view = traits_view

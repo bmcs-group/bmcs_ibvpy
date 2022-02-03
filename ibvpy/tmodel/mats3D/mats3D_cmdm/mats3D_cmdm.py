@@ -18,8 +18,6 @@ from numpy import \
     identity
 from traits.api import \
     Constant,  Property, cached_property
-from traitsui.api import \
-    View, Include
 from ibvpy.tmodel.mats3D.mats3D_eval import MATS3DEval
 from ibvpy.tmodel.matsXD.matsXD_cmdm.matsXD_cmdm import \
     MATSXDMicroplaneDamage
@@ -123,25 +121,6 @@ class MATS3DMicroplaneDamage(MATSXDMicroplaneDamage, MATS3DEval):
         # Get the fourth order elasticity and compliance tensors for the 3D-case
         # -----------------------------------------------------------------------------------------------------
 
-        # The following line correspond to the tensorial expression:
-        # (using numpy functionality in order to avoid the loop):
-        #
-        # D4_e_3D = zeros((3,3,3,3),dtype=float)
-        # C4_e_3D = zeros((3,3,3,3),dtype=float)
-        # delta = identity(3)
-        # for i in range(0,3):
-        #     for j in range(0,3):
-        #         for k in range(0,3):
-        #             for l in range(0,3):
-        #                 # elasticity tensor (cf. Jir/Baz Inelastic analysis of structures Eq.D25):
-        #                 D4_e_3D[i,j,k,l] = la * delta[i,j] * delta[k,l] + \
-        #                                    mu * ( delta[i,k] * delta[j,l] + delta[i,l] * delta[j,k] )
-        #                 # elastic compliance tensor (cf. Simo, Computational Inelasticity, Eq.(2.7.16) AND (2.1.16)):
-        #                 C4_e_3D[i,j,k,l] = (1+nu)/(E) * \
-        #                                    ( delta[i,k] * delta[j,l] + delta[i,l]* delta[j,k] ) - \
-        #                                    nu / E * delta[i,j] * delta[k,l]
-        # NOTE: swapaxes returns a reference not a copy!
-        # (the index notation always refers to the initial indexing (i=0,j=1,k=2,l=3))
         delta = identity(3)
         delta_ijkl = outer(delta, delta).reshape(3, 3, 3, 3)
         delta_ikjl = delta_ijkl.swapaxes(1, 2)
@@ -156,21 +135,3 @@ class MATS3DMicroplaneDamage(MATSXDMicroplaneDamage, MATS3DEval):
         D2_e_3D = self.map_tns4_to_tns2(D4_e_3D)
 
         return D4_e_3D, C4_e_3D, D2_e_3D
-
-    #-------------------------------------------------------------------------
-    # Dock-based view with its own id
-    #-------------------------------------------------------------------------
-    traits_view = View(Include('polar_fn_group'),
-                       dock='tab',
-                       id='ibvpy.tmodel.mats3D.mats_3D_cmdm.MATS3D_cmdm',
-                       kind='modal',
-                       resizable=True,
-                       scrollable=True,
-                       width=0.6, height=0.8,
-                       buttons=['OK', 'Cancel']
-                       )
-
-
-if __name__ == '__main__':
-    m = MATS3DMicroplaneDamage()
-    m.configure_traits()

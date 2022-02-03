@@ -1,7 +1,5 @@
 
 from ibvpy.tmodel.mats3D.mats3D_eval import MATS3DEval
-from traitsui.api import \
-    Item, View, VSplit, Group, Spring
 from ibvpy.util.traits.either_type import \
     EitherType
 import bmcs_utils.api as bu
@@ -10,9 +8,6 @@ import traits.api as tr
 
 from .vstrain_norm2d import Rankine
 
-
-# from strain_norm3d import Energy, Euclidean, Mises, Rankine, Mazars, \
-#     IStrainNorm3D
 #---------------------------------------------------------------------------
 # Material time-step-evaluator for Scalar-Damage-Model
 #---------------------------------------------------------------------------
@@ -51,11 +46,6 @@ class MATS3DScalarDamage(MATS3DEval):
                          MAT=True)
     r'''Damage function parameter - slope of the damage function.
     '''
-
-    ipw_view = bu.View(
-        bu.Item('epsilon_0'),
-        bu.Item('epsilon_f')
-    )
 
     changed = tr.Event
     r'''This event can be used by the clients to trigger 
@@ -152,33 +142,13 @@ class MATS3DScalarDamage(MATS3DEval):
         return np.einsum('...,...cd,abcd,...cd->...abcd',
                          domega_Em, deps_eq_Emcd, self.D_abef, eps_Emab_n1)
 
-    traits_view = View(
-        VSplit(
-            Group(
-                Item('E'),
-                Item('nu'),
-                Item('epsilon_0'),
-                Item('epsilon_f'),
-                Item('strain_norm')
-            ),
-            Group(
-                Item('stiffness', style='custom'),
-                Spring(resizable=True),
-                label='Configuration parameters',
-                show_border=True,
-            ),
-        ),
-        resizable=True
-    )
-
-    tree_view = View(
-        Group(
-            Item('E', full_size=True, resizable=True),
-            Item('nu'),
-            Item('epsilon_0'),
-            Item('epsilon_f'),
-            Item('strain_norm')
-        ),
+    traits_view = bu.View(
+        bu.Item('E'),
+        bu.Item('nu'),
+        bu.Item('epsilon_0'),
+        bu.Item('epsilon_f'),
+        bu.Item('strain_norm'),
+        bu.Item('stiffness', style='custom'),
     )
 
     # Declare and fill-in the rte_dict - it is used by the clients to

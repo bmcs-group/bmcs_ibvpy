@@ -16,7 +16,9 @@ from numpy import array,\
     einsum, zeros_like, identity, sign,\
     sqrt
 from traits.api import Constant,\
-    Float, Property, cached_property
+    Property, cached_property
+
+from bmcs_utils.api import Float
 
 import numpy as np
 import traits.api as tr

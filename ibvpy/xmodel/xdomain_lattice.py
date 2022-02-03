@@ -10,8 +10,6 @@ from ibvpy.view.ui import BMCSLeafNode
 
 import matplotlib.pyplot as plt
 import numpy as np
-import traitsui.api as ui
-import bmcs_utils.api as bu
 
 class LatticeTessellation(BMCSLeafNode):
     '''Lattice tessellation
@@ -33,10 +31,6 @@ class LatticeTessellation(BMCSLeafNode):
                  symbol='$I_{Li}$',
                  auto_set=False, enter_set=True,
                  desc='connectivity')
-    view = ui.View(
-        ui.Item('X_Ia'),
-        ui.Item('I_La'),
-    )
 
     dof_offset = Int(0)
 
@@ -44,8 +38,6 @@ class LatticeTessellation(BMCSLeafNode):
 
     def _get_n_dofs(self):
         return len(self.X_Ia) * 6
-
-    tree_view = view
 
     vtk_expand_operator = Array(np.float_, value=np.identity(3))
 

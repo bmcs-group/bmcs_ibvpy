@@ -12,9 +12,6 @@ from traits.api import \
     Instance, Array, Int, on_trait_change, Property, cached_property, \
     List, Button, HasTraits, provides, WeakRef, Float,  \
     Callable, Str, Event
-from traitsui.api import View, Item, HSplit, Group, TabularEditor
-from traitsui.tabular_adapter import TabularAdapter
-
 from .fe_grid_activation_map import FEGridActivationMap
 from .fe_grid_idx_slice import FEGridIdxSlice
 from .fe_grid_ls_slice import FEGridLevelSetSlice
@@ -22,41 +19,6 @@ from .fe_grid_node_slice import ISliceProperty
 from .i_fe_uniform_domain import IFEUniformDomain
 
 
-#-----------------------------------------------------------------------------
-# Adaptor for tables showing the cell point distributions
-#-----------------------------------------------------------------------------
-class PointListTabularAdapter (TabularAdapter):
-
-    columns = Property
-
-    def _get_columns(self):
-        data = getattr(self.object, self.name)
-        if len(data.shape) > 2:
-            raise ValueError('point array must be 1-2-3-dimensional')
-        n_columns = getattr(self.object, self.name).shape[1]
-
-        cols = [(str(i), i) for i in range(n_columns)]
-        return [('node', 'index')] + cols
-
-    font = 'Courier 10'
-    alignment = 'right'
-    format = '%d'
-    index_text = Property
-
-    def _get_index_text(self):
-        return str(self.row)
-
-#-- Tabular Editor Definition --------------------------------------------
-
-
-point_list_tabular_editor = TabularEditor(
-    adapter=PointListTabularAdapter(),
-)
-
-
-#-------------------------------------------------------------------
-# MElem - spatial domain of the finite element
-#-------------------------------------------------------------------
 
 class MElem(HasTraits):
 
@@ -305,22 +267,6 @@ class FEGrid(FEGridActivationMap):
 
     def _get_geo_grid(self):
         return self._grids[1]
-
-    traits_view = View(  # Include( 'assemb_view' ),
-        #                        Group(
-        #                               Item( 'shape' ),
-        #                               Item( 'coord_min' ),
-        #                               Item( 'coord_max' ),
-        #                               Item( 'n_nodal_dofs' ),
-        #                               Item( 'fe_cell_array' ),
-        #                               label = 'Geometry data' ),
-        Group(
-            Item('n_dofs'),
-            Item('dof_offset'),
-            label='DOF data'),
-        resizable=True,
-        scrollable=True,
-    )
 
     I = Property
 
@@ -714,19 +660,6 @@ class FEGrid(FEGridActivationMap):
         _xgeo_grid = GeoCellGrid(cell_grid=cell_grid)
         return (_xdof_grid, _xgeo_grid)
 
-    traits_view = View(Item('name'),
-                       Item('n_dofs'),
-                       Item('geo_transform@'),
-                       Item('dof_offset'),
-                       Item('fe_cell_array'),
-                       Item('prev_grid'),
-                       Item('fets_eval@', resizable=True),
-                       resizable=True,
-                       scrollable=True,
-                       width=0.5,
-                       height=0.5,
-                       )
-
 
 class FECellView(CellView):
     geo_view = Instance(GeoCellView)
@@ -754,43 +687,3 @@ class FECellView(CellView):
         self.dof_view.redraw()
         self.geo_view.redraw()
 
-    traits_view = View(HSplit(Item('geo_view@', show_label=False),
-                              Item('dof_view@', show_label=False)),
-                       resizable=True,
-                       scrollable=True,
-                       width=0.6,
-                       height=0.2)
-
-
-if __name__ == '__main__':
-
-    from ibvpy.fets.fets2D.fets2D4q import FETS2D4Q
-    fets_sample = FETS2D4Q()
-
-    fe_domain = FEGrid(coord_max=(2., 3.,),
-                       shape=(2, 3),
-                       #                              inactive_elems = [3],
-                       fets_eval=fets_sample)
-
-    fe_domain.configure_traits()
-
-    import sys
-    print('refcount', sys.getrefcount(fe_domain))
-    dots = fe_domain.dots
-    print(dots.fets_eval)
-    print('refcount', sys.getrefcount(fe_domain))
-
-    print('dof_r')
-    print(fe_domain.dof_r)
-
-    print(fe_domain.geo_grid.cell_node_map)
-    print(fe_domain.dof_grid.cell_dof_map)
-# coord_max = (1.,1.,0.)
-# fe_domain.` (1,1)
-# fe_domain.n_nodal_dofs = 2
-#    print fe_domain.dof_grid.cell_dof_map
-    print(fe_domain.elem_dof_map)
-    print(fe_domain.elem_X_map[0])
-
-#    for e in fe_domain.elements:
-#        print e

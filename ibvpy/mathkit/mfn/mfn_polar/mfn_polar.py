@@ -8,33 +8,6 @@ from numpy import array, linspace, pi, arange, sin, cos, ones, frompyfunc, \
 from traits.api import \
     Array, Enum, Float, HasTraits, Int, \
     Property, cached_property, Range, Str, TraitError
-from traitsui.api import \
-    Item, View, Handler, Group, VGroup, HGroup, Spring
-from traitsui.menu import \
-    OKButton, CancelButton, Action, Menu, MenuBar
-
-# Enthought library imports
-class MFnWTHandler(Handler):
-
-    def open_data(self, info):
-        info.object.print_data()
-
-    def save_file(self, info):
-        sys.exit(0)
-
-    def exit_file(self, info):
-        sys.exit(0)
-
-    def init_file(self, window):
-        """ Creates a new action. """
-        self._window = window
-        self.name = "E&xit"
-
-    def perform(self):
-        """ Performs the action. """
-        self._window.close()
-
-
 class MFnPolar(HasTraits):
 
     numpoints = Int(80)
@@ -200,59 +173,3 @@ class MFnPolar(HasTraits):
     def _get_current_radius(self):
         return self.__call__(self.current_theta)
 
-    traits_view = View(
-        VGroup(
-            Group(
-                Item("alpha"),
-                Item("delta_alpha"),
-                Item("delta_trans"),
-                HGroup(
-                    Spring(),
-                    Item("phi_residual", resizable=False),
-                    Spring(),
-                    Item("phi_quasibrittle", resizable=False),
-                    Spring(),
-                ),
-                Item("strech_residual"),
-                Item("strech_quasibrittle"),
-                show_border=True,
-                label='Function parameters'
-            ),
-            HGroup(
-                Group(
-                    Item("plotrange_min"),
-                    Item("plotrange_max"),
-                    Item("frac_noplot"),
-                    Item('current_theta'),
-                    Item('current_radius', style='readonly'),
-                    Item('radius_min', style='readonly'),
-                    Item('radius_max', style='readonly'),
-                    #Item('info', style = 'readonly' ),
-                    springy=True,
-                    show_border=True,
-                    label='Plot parameters'
-                ),
-                #                radiusplot
-            ),
-        ),
-        buttons=[OKButton, CancelButton],
-        menubar=MenuBar(Menu(Action(name="O&pen..",
-                                    action="open_data"),
-                             Action(name="S&ave..",
-                                    action="save_file"),
-                             Action(name="E&xit",
-                                    action="exit_file"),
-                             name='File')),
-
-        handler=MFnWTHandler,
-        resizable=True,
-        scrollable=True,
-        width=700, height=800)
-
-
-if __name__ == '__main__':
-    #    mp = MFnPolar( alpha = 0.1, delta_alpha = 0.2, delta_trans = 0.3 )
-    #    mp(0.224)
-    #    print 'mp(0.224)',mp(0.224)
-    mp = MFnPolar()
-    mp.configure_traits()

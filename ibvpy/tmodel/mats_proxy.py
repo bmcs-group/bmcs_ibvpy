@@ -5,17 +5,9 @@ from traits.api import \
     Instance, Trait, HasTraits, on_trait_change, \
     Dict, Property, cached_property, WeakRef, String, \
     Constant, List
-from traitsui.api import \
-    Item, View, HSplit, Group, TabularEditor
 
 from ibvpy.tmodel.mats_eval import IMATSEval, MATSEval
 from ibvpy.mathkit.mfn.mfn_ndgrid.mfn_ndgrid import MFnNDGrid, GridPoint
-from traitsui.tabular_adapter \
-    import TabularAdapter
-
-
-# Traits UI imports
-# Numpy imports
 #-------------------------------------------------------------------------
 #                                     VariedParam
 #-------------------------------------------------------------------------
@@ -53,36 +45,9 @@ class VariedParam(HasTraits):
             coeff = self.spatial_fn(X_pnt)
             self.variable = self.reference_value * coeff
 
-    traits_view = View(Group(Item('varname', style='readonly', show_label=False),
-                             Item('reference_value', style='readonly'),
-                             Item('switch', style='custom', show_label=False),
-                             Item('spatial_fn', style='custom', show_label=False, resizable=True)),
-                       resizable=True,
-                       height=800)
-
 #-------------------------------------------------------------------------
 # Tabular Adapter Definition
 #-------------------------------------------------------------------------
-
-
-class VariedParamAdapter (TabularAdapter):
-
-    columns = [('Name', 'varname'),
-               ('Variable', 'variable')]
-
-    font = 'Courier 10'
-    variable_alignment = Constant('right')
-
-
-#-------------------------------------------------------------------------
-# Tabular Editor Construction
-#-------------------------------------------------------------------------
-varpar_editor = TabularEditor(
-    selected='current_varpar',
-    adapter=VariedParamAdapter(),
-    operations=['move'],
-    auto_update=True
-)
 
 #---------------------------------------------------------------------------
 # Material Proxy to include variable parameters
@@ -307,23 +272,3 @@ class MATSProxy(MATSEval):
 
     def _rte_dict_default(self):
         return self.mats_eval.rte_dict
-
-    #-------------------------------------------------------------------------
-    # View specification
-    #-------------------------------------------------------------------------
-    traits_view = View(Group(
-        Item('mats_eval_type', show_label=False, style='custom'),
-        Item('mats_eval', show_label=False, style='custom'),
-        label='Material_model'
-    ),
-        Group(
-        HSplit(
-            Item('varpar_list', show_label=False, editor=varpar_editor),
-            Item('current_varpar', show_label=False,
-                 style='custom', resizable=True),
-        ),
-        label='Spatially varied parameters'
-    ),
-        width=0.8,
-        height=0.8,
-        resizable=True)

@@ -21,9 +21,6 @@ from traits.api import \
     TraitType, HasStrictTraits, TraitError, \
     Property, Button
 
-from traitsui.api import \
-     View, Item, EnumEditor
-
 class KeyRef(TraitType):
 
     is_mapped = True
@@ -119,109 +116,5 @@ class KeyRef(TraitType):
         return self.create_editor()
 
     def create_editor(self):
-        return EnumEditor(name=self.keys_name)
+        pass
 
-if __name__ == '__main__':
-
-    from mxn.reinf_laws import \
-         ReinfLawBase, ReinfLawFBM
-
-    class UseKeyRef(HasStrictTraits):
-        '''Testclass containing attribute of type KeyRef
-        '''
-        new_law = Button
-        def _new_law_fired(self):
-            '''Adds a new fbm law to database and sets it as
-            value of the ref attribute
-            '''
-            law_name = 'new_fbm_law_1'
-            count = 1
-            while ReinfLawBase.db.get(law_name, None):
-                count += 1
-                law_name = 'new_fbm_law_' + str(count)
-            ReinfLawBase.db[law_name] = ReinfLawFBM()
-            self.ref = law_name
-
-            v = self.trait_view()
-            v.updated = True
-            '''View gets updated to acknowledge the change in database
-            '''
-
-        del_law = Button
-        def _del_law_fired(self):
-            '''Deletes currently selected law from database
-            '''
-            law_name = self.ref
-            self.ref = 'fbm-default'
-            ReinfLawBase.db.__delitem__(key=law_name)
-
-            v = self.trait_view()
-            v.updated = True
-            '''View gets updated to acknowledge the change in database
-            '''
-
-        reinf_law_keys = Property
-        def _get_reinf_law_keys(self):
-            return list(ReinfLawBase.db.keys())
-
-        ref = KeyRef(db=ReinfLawBase.db)
-
-        traits_view = View(Item('ref'),
-                           Item('new_law'),
-                           Item('del_law'),
-                          resizable=True)
-
-    ukr = UseKeyRef()
-
-    print('value of key')
-    print(ukr.ref)
-    print('value of ref')
-    print(ukr.ref_)
-
-#    print 'KE1', ukr.ref_keys
-
-    ukr.ref = 'steel-default'
-
-    ukr.add_trait('one', 1)
-    print(ukr.one)
-
-    print('KEYS', ukr.ref_keys)
-
-    print('value of key')
-    print(ukr.ref)
-    print('value of ref')
-    print(ukr.ref_)
-#
-    ukr.configure_traits()
-#     '''View the testclass - the default database keys
-#     are available in the dropdown list.
-#     '''
-
-    ReinfLawBase.db['FBM_keyref_test'] = ReinfLawFBM()
-    '''Adding a new item to database.
-    '''
-
-    ukr.ref = 'FBM_keyref_test'
-    '''Attribute of the testclass set to the new value.
-    '''
-
-    print('value of key')
-    print(ukr.ref)
-    print('value of ref')
-    print(ukr.ref_)
-
-#     ukr.configure_traits()
-#     '''View the testclass - dropdown list should include
-#     the new database item.
-#     '''
-#
-#     ukr.configure_traits()
-#     '''View the testclass - dropdown list should include
-#     the new database item.
-#     '''
-
-    del ReinfLawBase.db['FBM_keyref_test']
-#     ukr.ref = 'fbm_keyref_test'
-#     '''New item got deleted - further attempt at
-#     referencing it raises an error.
-#     '''

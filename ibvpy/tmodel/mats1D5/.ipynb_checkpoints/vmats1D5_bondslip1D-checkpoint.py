@@ -18,7 +18,6 @@ from traits.api import  \
 
 import bmcs_utils.api as bu
 import numpy as np
-import traitsui.api as ui
 
 
 class MATSBondSlipMultiLinear(MATSEval):
@@ -135,9 +134,6 @@ class MATSBondSlipMultiLinear(MATSEval):
     ipw_view = bu.View(
         bu.Item('E_m'),
         bu.Item('E_f'),
-        # ui.Item('s_data'),
-        # ui.Item('tau_data'),
-        # ui.UItem('update_bs_law')
     )
 
     def update_plot(self, axes):

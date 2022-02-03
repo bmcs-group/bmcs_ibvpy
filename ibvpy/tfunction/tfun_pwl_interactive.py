@@ -6,15 +6,11 @@ Created on Mar 4, 2017
 
 from ibvpy.mathkit.mfn import MFnLineArray
 from traits.api import \
-    List, Float, Int, Range, Property,\
+    List, Float, Int, Range, Property, \
     cached_property, Bool, Callable, on_trait_change
 from ibvpy.view.plot2d import Vis2D, Viz2D
 from ibvpy.view.ui.bmcs_tree_node import BMCSLeafNode
 import numpy as np
-from traitsui.api import \
-    View, UItem, Item, Include, \
-    VGroup, VSplit, spring, Tabbed
-from ibvpy.util.traits.editors import MPLFigureEditor
 
 
 class TFViz2D(Viz2D):
@@ -105,59 +101,3 @@ class TFunPWLInteractive(MFnLineArray, BMCSLeafNode, Vis2D):
     viz2d_classes = {
         'time_function': TFViz2D,
     }
-
-    tree_view = View(
-        VGroup(
-            VSplit(
-                VGroup(
-                    VGroup(
-                        Include('actions'),
-                    ),
-                    Tabbed(
-                        VGroup(
-                            VGroup(
-                                UItem('f_value',
-                                      full_size=True, resizable=True,
-                                      enabled_when='enable_slider'
-                                      ),
-                            ),
-                            VGroup(
-                                Item('f_max',
-                                     full_size=True, resizable=True),
-                                Item('f_min',
-                                     full_size=True),
-                                Item('n_f_values',
-                                     full_size=True),
-                                Item('t_snap', tooltip='Snap value to round off'
-                                     'the value to',
-                                     full_size=True),
-                            ),
-                            spring,
-                            label='Steering',
-                        ),
-                        VGroup(
-                            Item('run_eagerly',
-                                 full_size=True, resizable=True,
-                                 tooltip='True - run calculation immediately'
-                                 'after moving the value slider; \nFalse - user must'
-                                 'start calculation by clicking Run button'),
-                            spring,
-                            label='Mode',
-                        ),
-                    ),
-                ),
-                UItem('figure', editor=MPLFigureEditor(),
-                      height=300,
-                      resizable=True,
-                      springy=True),
-            ),
-        )
-    )
-
-    traits_view = tree_view
-
-if __name__ == '__main__':
-    bc = TFunPWLInteractive()
-    bc.set_traits_with_metadata(True, disable_on_run=True)
-    bc.replot()
-    bc.configure_traits()

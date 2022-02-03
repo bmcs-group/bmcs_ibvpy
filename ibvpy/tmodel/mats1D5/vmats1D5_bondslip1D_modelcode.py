@@ -18,7 +18,6 @@ from traits.api import  \
 
 import bmcs_utils.api as bu
 import numpy as np
-import traitsui.api as ui
 
 import ipyregulartable as rt
 

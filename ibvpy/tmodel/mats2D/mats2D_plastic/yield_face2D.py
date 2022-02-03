@@ -1,12 +1,11 @@
 from numpy import zeros, dot, diag, array
-from traits.api import HasTraits, Float, Array
-from traitsui.api import \
-    Item, View, HSplit, VSplit, VGroup, Group, Spring
-
+from traits.api import HasTraits
+from bmcs_utils.api import \
+    Item, View, Model, Float
 import numpy as np
 
 
-class IYieldFace2D(HasTraits):
+class IYieldFace2D(Model):
 
     def get_f_trial(self, xi_trial, q_1):
         raise NotImplementedError
@@ -1177,16 +1176,3 @@ class CamClay:
         f_diff2qq[6, 6] = 54.0
         return
 
-
-# class Rankine:
-
-# class Tresca:
-
-# class MohrCoulomb:
-
-if __name__ == '__main__':
-    xi_trial = array([2., 1., 0.])
-    q_1 = 0.
-    yf = J2()
-    yf.get_f_trial(xi_trial, q_1)
-    yf.configure_traits()

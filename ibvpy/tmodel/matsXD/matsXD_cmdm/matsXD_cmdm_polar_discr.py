@@ -7,11 +7,6 @@ from traits.api import \
     Instance,   Range,  on_trait_change,  \
     Dict, Property, cached_property,   \
     WeakRef, String, List, Constant, Str, Type, TraitError
-from traitsui.api import \
-    Item, View, VSplit, HGroup, Group,  TabularEditor, \
-    Include, Spring
-from traitsui.tabular_adapter \
-    import TabularAdapter
 
 from ibvpy.mathkit.mfn.mfn_polar.mfn_polar import MFnPolar
 from .matsXD_cmdm_phi_fn import \
@@ -62,47 +57,6 @@ class VariedParam(HasTraits):
             return frompyfunc(self.polar_fn, 1, 1)
         else:
             return frompyfunc(lambda angle: 1., 1, 1)
-
-    traits_view = View(Group(
-        HGroup(Item('varname', style='readonly', show_label=False),
-               Item('switched_on@'),
-               Item('reference_value', style='readonly'),
-               springy=True,
-               ),
-        Item('polar_fn', style='custom',
-             show_label=False, resizable=True)
-    ),
-        scrollable=True,
-        resizable=True,
-        height=800)
-
-#-------------------------------------------------------------------------
-# Tabular Adapter Definition
-#-------------------------------------------------------------------------
-
-
-class VariedParamAdapter (TabularAdapter):
-
-    columns = [('Name', 'varname'),
-               ('Switched on', 'switched_on'),
-               ('Variable', 'reference_value')]
-
-    font = 'Courier 10'
-    variable_alignment = Constant('right')
-
-#-------------------------------------------------------------------------
-# Tabular Editor Construction
-#-------------------------------------------------------------------------
-varpar_editor = TabularEditor(
-    selected='current_varpar',
-    adapter=VariedParamAdapter(),
-    operations=['move'],
-    auto_update=True
-)
-
-#-------------------------------------------------------------------------
-# Microplane Array implementation with fracture energy based damage function
-#-------------------------------------------------------------------------
 
 
 class PolarDiscr(HasTraits):
@@ -243,58 +197,3 @@ class PolarDiscr(HasTraits):
         integ_phi_fn_vectorized = frompyfunc(self.phi_fn.get_integ, n_arr, 1)
         return self.E * integ_phi_fn_vectorized(e_max_arr, *carr_list)
 
-    polar_fn_group = Group(
-        Group(
-            Item('n_mp@', width=200),
-            Item('E'),
-            Item('nu'),
-            Item('c_T'),
-            Spring(),
-            label='Elasticity parameters'),
-        Group(
-            Item('phi_fn@', show_label=False),
-            label='Damage parameters'),
-        Group(
-            VSplit(
-                Item('varpar_list',
-                     label='List of material variables',
-                     show_label=False, editor=varpar_editor),
-                Item('current_varpar',
-                     label='Selected variable',
-                     show_label=False,
-                     style='custom',
-                     resizable=True),
-                dock='tab',
-            ),
-            label='Angle-dependent variations'
-        ),
-        Include('config_param_vgroup'),
-        layout='tabbed',
-        springy=True,
-        dock='tab',
-        id='ibvpy.tmodel.matsXD_cmdm.MATSXDPolarDiscr',
-    )
-
-    traits_view = View(Include('polar_fn_group'),
-                       resizable=True,
-                       scrollable=True,
-                       width=0.6,
-                       height=0.9)
-
-
-if __name__ == '__main__':
-
-    #    phi_fn_brittle = PhiFnStrainSoftening( Epp = 0.2, Efp = 0.6 )
-    #    phi_fn_brittle_array = IsotropicPolarDiscr( phi_fn = phi_fn_brittle )
-    #    phi_fn_brittle_array.configure_traits()
-    #
-
-    phi_fn_ductile = PhiFnStrainHardening()
-    phi_fn_ductile_array = PolarDiscr(phi_fn=phi_fn_ductile)
-#    phi_fn_ductile_array.varied_params = ['Dfp']
-#    phi_fn_ductile_array.varpars['Dfp'].polar_fn.set( phi_residual = 1.0,
-#                                                      phi_quasibrittle = 0.0,
-#                                                      delta_trans = pi/4. ,
-#                                                      delta_alpha = pi/4. )
-#    print phi_fn_ductile_array.varpars
-    phi_fn_ductile_array.configure_traits(view='traits_view')
