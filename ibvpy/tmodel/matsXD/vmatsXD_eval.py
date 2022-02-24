@@ -23,14 +23,44 @@ class MATSXDEval(MATSEval):
     E = Float(34e+3,
               label="E",
               desc="Young's Modulus",
-              auto_set=False,
               MAT=True)
 
     nu = Float(0.2,
                label='nu',
                desc="Poison's ratio",
-               auto_set=False,
                MAT=True)
+
+    eps_max = Float(0.03, ALG=True)
+
+    def subplots(self, fig):
+        ax_sig = fig.subplots(1,1)
+        ax_d_sig = ax_sig.twinx()
+        return ax_sig, ax_d_sig
+
+    def update_plot(self, axes):
+        ax_sig, ax_d_sig = axes
+        eps_max = self.eps_max
+        n_eps = 100
+        eps11_range = np.linspace(1e-9,eps_max,n_eps)
+        eps_range = np.zeros((n_eps, self.n_dims, self.n_dims))
+        eps_range[:,0,0] = eps11_range
+        state_vars = { var : np.zeros( (n_eps,) + shape )
+            for var, shape in self.state_var_shapes.items()
+        }
+        sig_range, D_range = self.get_corr_pred(eps_range, 1, **state_vars)
+        sig11_range = sig_range[:,0,0]
+        ax_sig.plot(eps11_range, sig11_range,color='blue')
+        d_sig1111_range = D_range[...,0,0,0,0]
+        ax_d_sig.plot(eps11_range, d_sig1111_range,
+                      linestyle='dashed', color='gray')
+        ax_sig.set_xlabel(r'$\varepsilon_{11}$ [-]')
+        ax_sig.set_ylabel(r'$\sigma_{11}$ [MPa]')
+        ax_d_sig.set_ylabel(r'$\mathrm{d} \sigma_{11} / \mathrm{d} \varepsilon_{11}$ [MPa]')
+
+        ax_d_sig.plot(eps11_range[:-1],
+                    (sig11_range[:-1]-sig11_range[1:])/(eps11_range[:-1]-eps11_range[1:]),
+                    color='orange', linestyle='dashed')
+
 
     def _get_lame_params(self):
         # First Lame parameter (bulk modulus)
@@ -39,7 +69,7 @@ class MATSXDEval(MATSEval):
         mu = self.E / (2. + 2. * self.nu)
         return la, mu
 
-    D_abef = Property(Array, depends_on='+input')
+    D_abef = Property(Array, depends_on='E, nu')
     '''Material stiffness - rank 4 tensor
     '''
     @cached_property
@@ -52,18 +82,18 @@ class MATSXDEval(MATSEval):
             np.einsum(',il,jk->ijkl', mu, delta, delta)
         )
 
-    def get_corr_pred(self, eps_Emab, tn1, **Eps):
+    def get_corr_pred(self, eps_ab, tn1, **Eps):
         '''
         Corrector predictor computation.
         @param eps_Emab input variable - strain tensor
         '''
-        sigma_Emab = np.einsum(
-            'abcd,...cd->...ab', self.D_abef, eps_Emab
+        sigma_ab = np.einsum(
+            'abcd,...cd->...ab', self.D_abef, eps_ab
         )
-        Em_len = len(eps_Emab.shape) - 2
+        Em_len = len(eps_ab.shape) - 2
         new_shape = tuple([1 for _ in range(Em_len)]) + self.D_abef.shape
         D_abef = self.D_abef.reshape(*new_shape)
-        return sigma_Emab, D_abef
+        return sigma_ab, D_abef
 
     #=========================================================================
     # Response variables

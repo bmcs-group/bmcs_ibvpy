@@ -29,16 +29,15 @@ class MATS2DScalarDamage(MATS2DEval):
         on_option_change='link_omega_to_mats'
     )
 
-    D_alg = Float(0)
-    r'''Selector of the stiffness calculation.
-    '''
-
-    eps_max = Float(0.03, ALG=True)
     # upon change of the type attribute set the link to the material model
     def link_omega_to_mats(self):
         self.omega_fn_.trait_set(mats=self,
                                  E_name='E',
                                  x_max_name='eps_max')
+
+    D_alg = Float(0)
+    r'''Selector of the stiffness calculation.
+    '''
 
     #=========================================================================
     # Material model
@@ -96,60 +95,13 @@ class MATS2DScalarDamage(MATS2DEval):
         return self.omega_fn_.diff(kappa)
 
     ipw_view = View(
-        Item('E'),
-        Item('nu'),
+        *MATS2DEval.ipw_view.content,
         Item('strain_norm'),
         Item('omega_fn'),
         Item('stress_state'),
         Item('D_alg', latex=r'\theta_\mathrm{alg. stiff.}',
                 editor=FloatRangeEditor(low=0,high=1)),
-        Item('eps_max'),
-        Item('G_f', latex=r'G_\mathrm{f}^{\mathrm{estimate}}', readonly=True),
     )
-
-    G_f = tr.Property(Float, depends_on='state_changed')
-    @tr.cached_property
-    def _get_G_f(self):
-        eps_max = self.eps_max
-        n_eps = 1000
-        eps11_range = np.linspace(1e-9,eps_max,n_eps)
-        eps_range = np.zeros((len(eps11_range), 2, 2))
-        eps_range[:,1,1] = eps11_range
-        state_vars = { var : np.zeros( (len(eps11_range),) + shape )
-            for var, shape in self.state_var_shapes.items()
-        }
-        sig_range, D = self.get_corr_pred(eps_range, 1, **state_vars)
-        sig11_range = sig_range[:,1,1]
-        return np.trapz(sig11_range, eps11_range)
-
-    def subplots(self, fig):
-        ax_sig = fig.subplots(1,1)
-        ax_d_sig = ax_sig.twinx()
-        return ax_sig, ax_d_sig
-
-    def update_plot(self, axes):
-        ax_sig, ax_d_sig = axes
-        eps_max = self.eps_max
-        n_eps = 100
-        eps11_range = np.linspace(1e-9,eps_max,n_eps)
-        eps_range = np.zeros((n_eps, 2, 2))
-        eps_range[:,0,0] = eps11_range
-        state_vars = { var : np.zeros( (n_eps,) + shape )
-            for var, shape in self.state_var_shapes.items()
-        }
-        sig_range, D_range = self.get_corr_pred(eps_range, 1, **state_vars)
-        sig11_range = sig_range[:,0,0]
-        ax_sig.plot(eps11_range, sig11_range,color='blue')
-        d_sig1111_range = D_range[...,0,0,0,0]
-        ax_d_sig.plot(eps11_range, d_sig1111_range,
-                      linestyle='dashed', color='gray')
-        ax_sig.set_xlabel(r'$\varepsilon_{11}$ [-]')
-        ax_sig.set_ylabel(r'$\sigma_{11}$ [MPa]')
-        ax_d_sig.set_ylabel(r'$\mathrm{d} \sigma_{11} / \mathrm{d} \varepsilon_{11}$ [MPa]')
-
-        ax_d_sig.plot(eps11_range[:-1],
-                    (sig11_range[:-1]-sig11_range[1:])/(eps11_range[:-1]-eps11_range[1:]),
-                    color='orange', linestyle='dashed')
 
     def get_omega(self, eps_ab, tn1, **Eps):
         return Eps['omega']

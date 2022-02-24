@@ -10,50 +10,42 @@ from numpy import \
     array, einsum, identity, sqrt
 from traits.api import \
     Constant, provides, \
-    Float, Property, cached_property
+    Property, cached_property
+
+from bmcs_utils.api import Float, View, Item
 
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from ibvpy.tmodel.matsXD.vmatsXD_eval import MATSXDEval
 import numpy as np
 from ibvpy.sim.i_tmodel import ITModel
 import traits.api as tr
-
+from ibvpy.tmodel.mats2D.mats2D_microplane.vmats2D_calibration_mixin_Gf import \
+    MATS2DCalibrationMixinGf
 
 @provides(ITModel)
-class MATS2DMplDamageEEQ(MATS2DEval):
-
-    #-------------------------------------------------------------------------
-    # Material parameters
-    #-------------------------------------------------------------------------
-    E = tr.Float(34e+3,
-                 label="E",
-                 desc="Young's Modulus",
-                 auto_set=False,
-                 input=True)
-
-    nu = tr.Float(0.2,
-                  label='nu',
-                  desc="Poison ratio",
-                  auto_set=False,
-                  input=True)
+class MATS2DMplDamageEEQ(MATS2DEval, MATS2DCalibrationMixinGf):
 
     epsilon_0 = Float(59e-6,
                       label="a",
                       desc="Lateral pressure coefficient",
-                      enter_set=True,
-                      auto_set=False)
+                      MAT=True)
 
     epsilon_f = Float(250e-6,
                       label="a",
                       desc="Lateral pressure coefficient",
-                      enter_set=True,
-                      auto_set=False)
+                      MAT=True)
 
     c_T = Float(0.00,
                 label="a",
                 desc="Lateral pressure coefficient",
-                enter_set=True,
-                auto_set=False)
+                MAT=True)
+
+    ipw_view = View(
+        *MATS2DEval.ipw_view.content,
+        Item('epsilon_0'),
+        Item('epsilon_f'),
+        Item('c_T'),
+    )
 
     state_var_shapes = tr.Property(tr.Dict(), depends_on='n_mp')
     '''Dictionary of state variable entries with their array shapes.
@@ -63,25 +55,6 @@ class MATS2DMplDamageEEQ(MATS2DEval):
     def _get_state_var_shapes(self):
         return dict(kappa=(self.n_mp,),
                     omega=(self.n_mp,))
-
-    def _get_lame_params(self):
-        la = self.E * self.nu / ((1. + self.nu) * (1. - 2. * self.nu))
-        # second Lame parameter (shear modulus)
-        mu = self.E / (2. + 2. * self.nu)
-        return la, mu
-
-    D_abef = tr.Property(tr.Array, depends_on='+input')
-
-    @tr.cached_property
-    def _get_D_abef(self):
-        la = self._get_lame_params()[0]
-        mu = self._get_lame_params()[1]
-        delta = np.identity(2)
-        D_abef = (np.einsum(',ij,kl->ijkl', la, delta, delta) +
-                  np.einsum(',ik,jl->ijkl', mu, delta, delta) +
-                  np.einsum(',il,jk->ijkl', mu, delta, delta))
-
-        return D_abef
 
     #-------------------------------------------------------------------------
     # MICROPLANE-Kinematic constraints
@@ -167,7 +140,7 @@ class MATS2DMplDamageEEQ(MATS2DEval):
         omega_Emn = np.zeros_like(kappa_Emn)
         epsilon_0 = self.epsilon_0
         epsilon_f = self.epsilon_f
-        kappa_idx = np.where(kappa_Emn >= epsilon_0)
+        kappa_idx = np.where(kappa_Emn > epsilon_0)
         omega_Emn[kappa_idx] = (
             1.0 - (epsilon_0 / kappa_Emn[kappa_idx] *
                    np.exp(-1.0 * (kappa_Emn[kappa_idx] - epsilon_0) /

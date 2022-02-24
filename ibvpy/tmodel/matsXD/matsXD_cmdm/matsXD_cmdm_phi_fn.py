@@ -10,26 +10,6 @@ from traits.api import \
     provides, Button, \
     Interface, WeakRef
 from ibvpy.mathkit.mfn import MFnLineArray
-from ibvpy.mathkit.mfn.mfn_line.mfn_matplotlib_editor import MFnMatplotlibEditor
-from ibvpy.mathkit.mfn.mfn_line.mfn_plot_adapter import MFnPlotAdapter
-
-mfn_editor = MFnMatplotlibEditor(
-    adapter=MFnPlotAdapter(label_x='strain',
-                                   label_y='integrity',
-                                   title='Softening law for a microplane',
-                                   # Plot properties
-                                   line_color=["black"],
-                                   bgcolor="white",
-                                   max_size=(360, 260),
-                                   # Border, padding properties
-                                   border_visible=False,
-                           padding={'left': 0.15,
-                                    'right': 0.9,
-                                    'bottom': 0.15,
-                                    'top': 0.85},
-                           padding_bg_color="white"
-                           ))
-
 
 class IPhiFn(Interface):
 

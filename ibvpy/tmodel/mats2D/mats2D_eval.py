@@ -10,7 +10,7 @@ from ibvpy.tmodel.mats2D.mats2D_tensor import \
 from ibvpy.tmodel.mats2D.mats2D_tensor import map2d_eps_eng_to_mtx
 from traits.api import \
     Array, Property, cached_property, Callable, Constant
-from bmcs_utils.api import Enum
+from bmcs_utils.api import Enum, Float, View, Item
 
 from ibvpy.tmodel.matsXD.vmatsXD_eval import MATSXDEval
 import numpy as np
@@ -19,6 +19,28 @@ import numpy as np
 class MATS2DEval(MATSXDEval):
 
     n_dims = Constant(2)
+
+    ipw_view = View(
+        Item('E'),
+        Item('nu'),
+        Item('eps_max'),
+        Item('G_f', latex=r'G_\mathrm{f}^{\mathrm{estimate}}', readonly=True),
+    )
+
+    G_f = Property(Float, depends_on='state_changed')
+    @cached_property
+    def _get_G_f(self):
+        eps_max = self.eps_max
+        n_eps = 1000
+        eps11_range = np.linspace(1e-9,eps_max,n_eps)
+        eps_range = np.zeros((len(eps11_range), 2, 2))
+        eps_range[:, 1, 1] = eps11_range
+        state_vars = { var : np.zeros( (len(eps11_range),) + shape )
+            for var, shape in self.state_var_shapes.items()
+        }
+        sig_range, _ = self.get_corr_pred(eps_range, 1, **state_vars)
+        sig11_range = sig_range[:,1,1]
+        return np.trapz(sig11_range, eps11_range)
 
     stress_state = Enum(
         options=['plane_stress', 'plane_strain'], MAT=True
