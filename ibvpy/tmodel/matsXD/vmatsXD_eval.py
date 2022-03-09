@@ -7,7 +7,7 @@ from traits.api import \
     Constant, Property, cached_property, Array,\
     Dict, Str, Callable
 
-from bmcs_utils.api import Float
+from bmcs_utils.api import Float, Int
 import numpy as np
 
 
@@ -32,6 +32,8 @@ class MATSXDEval(MATSEval):
 
     eps_max = Float(0.03, ALG=True)
 
+    n_eps = Int(100, ALG=True)
+
     def subplots(self, fig):
         ax_sig = fig.subplots(1,1)
         ax_d_sig = ax_sig.twinx()
@@ -51,12 +53,10 @@ class MATSXDEval(MATSEval):
         sig11_range = sig_range[:,0,0]
         ax_sig.plot(eps11_range, sig11_range,color='blue')
         d_sig1111_range = D_range[...,0,0,0,0]
-        ax_d_sig.plot(eps11_range, d_sig1111_range,
-                      linestyle='dashed', color='gray')
+        ax_d_sig.plot(eps11_range, d_sig1111_range, linestyle='dashed', color='gray')
         ax_sig.set_xlabel(r'$\varepsilon_{11}$ [-]')
         ax_sig.set_ylabel(r'$\sigma_{11}$ [MPa]')
         ax_d_sig.set_ylabel(r'$\mathrm{d} \sigma_{11} / \mathrm{d} \varepsilon_{11}$ [MPa]')
-
         ax_d_sig.plot(eps11_range[:-1],
                     (sig11_range[:-1]-sig11_range[1:])/(eps11_range[:-1]-eps11_range[1:]),
                     color='orange', linestyle='dashed')
