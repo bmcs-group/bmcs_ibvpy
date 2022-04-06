@@ -1,9 +1,7 @@
 from .i_bcond import \
     IBCond
-from ibvpy.mathkit.mfn import MFnLineArray
-from traits.api import Float, \
-    Int,  Enum, Instance, \
-    List,  Any, provides
+from traits.api import List,  Any, provides
+from bmcs_utils.api import Float, Int, Enum, Instance, View, Item
 from ibvpy.view.ui import BMCSTreeNode
 from ibvpy.tfunction import TimeFunction, TFMonotonic
 
@@ -48,7 +46,8 @@ class BCDof(BMCSTreeNode):
     '''
     node_name = 'boundary condition'
 
-    var = Enum('u', 'f', 'eps', 'sig',
+    name = 'BC DOF'
+    var = Enum(options=['u', 'f', 'eps', 'sig'],
                label='Variable',
                BC=True
                )
@@ -80,12 +79,20 @@ class BCDof(BMCSTreeNode):
     above list.
     '''
 
-    time_function = Instance(TimeFunction, ())
+    time_function = Instance(TimeFunction)
+    def _time_function_default(self):
+        return TFMonotonic()
+
     '''
     Time function prescribing the evolution of the boundary condition.
     '''
-    def _time_function_default(self):
-        return TFMonotonic()
+
+    ipw_view = View(
+        Item('var'),
+        Item('dof'),
+        Item('value'),
+        Item('time_function')
+    )
 
     def is_essential(self):
         return self.var == 'u'
@@ -132,8 +139,12 @@ class BCDof(BMCSTreeNode):
             # The displacement is applied only in the first iteration step!.
             #
             if step_flag == 'predictor':
-                ua_n = self.value * float(self.time_function(t_n))
-                ua_n1 = self.value * float(self.time_function(t_n1))
+                try:
+                    ua_n = self.value * float(self.time_function(t_n))
+                    ua_n1 = self.value * float(self.time_function(t_n1))
+                except ValueError as ex:
+                    print('t_n', t_n, t_n1)
+                    raise ex
                 u_a = ua_n1 - ua_n
             elif step_flag == 'corrector':
                 u_a = 0
@@ -163,6 +174,8 @@ class BCDof(BMCSTreeNode):
                 alpha = np.array(self.link_coeffs, np.float_)
                 R[n_ix] += alpha.transpose() * R_a
 
+    def update_plot(self, axes):
+        self.time_function.update_plot(axes)
 
 if __name__ == '__main__':
 
