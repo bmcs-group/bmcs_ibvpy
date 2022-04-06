@@ -112,8 +112,8 @@ class GfDamageFnSymbExpr(bu.SymbExpr):
     sig_s = E * kappa * f_kappa_0
     subs_c_1 = sp.solve({sp.Eq(sig_s.subs(kappa, kappa_0), E * kappa_0)}, {c_1})
     G_f_ = sp.simplify( sp.integrate(sig_s.subs(subs_c_1), (kappa,0,sp.oo)) ).factor()
-    _, subs_c_2 = sp.solve(sp.Eq(G_f, G_f_), {c_2})
-    g_kappa_ = sp.simplify( f_kappa_0.subs(c_2, subs_c_2).subs(c_1,1) )
+    subs_c_2_1, subs_c_2_2 = sp.solve(sp.Eq(G_f, G_f_), {c_2})
+    g_kappa_ = sp.simplify( f_kappa_0.subs(c_2, subs_c_2_1).subs(c_1,1) )
     omega_ = 1 - g_kappa_
     d_omega_ = omega_.diff(kappa)
 

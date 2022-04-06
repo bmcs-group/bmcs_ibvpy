@@ -84,8 +84,7 @@ class TStepBC(TStep):
     def _reset(self):
         self.step_flag = 'predictor'
 
-    K = tr.Property(
-        tr.Instance(SysMtxAssembly),
+    K = tr.Property(tr.Instance(SysMtxAssembly),
         depends_on='model_structure_changed'
     )
     '''System matrix with registered essencial boundary conditions.
@@ -106,7 +105,7 @@ class TStepBC(TStep):
     matrix) and field representation of the primary variables.
     '''
 
-    fe_domain = tr.Property(depends_on='state_changed')
+    fe_domain = tr.Property(depends_on='model_structure_changed, state_changed')
 
     @tr.cached_property
     def _get_fe_domain(self):

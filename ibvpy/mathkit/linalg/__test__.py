@@ -380,7 +380,7 @@ class TestSysMtxConstraints(unittest.TestCase):
             self.assertAlmostEqual(uu, ue)
 
     def test_bar11(self):
-        '''XXXXXX Zero terms  at the diagonal. combined with zero-value constraints
+        '''Zero terms  at the diagonal. combined with zero-value constraints
         (simulating the deactivation of elements)
         [0]-[1]-[2]-[3]-[4]  [5]-[6]
         u[0] = 0, u[4] = u[5]  u[6] = 0, K[5,6] = 0, R[3] = 1'''
