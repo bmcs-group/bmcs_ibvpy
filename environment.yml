@@ -4,8 +4,7 @@ channels:
 dependencies:
 - appmode
 - jupyter_contrib_nbextensions
-- traits>=6.1.1
-- traitsui==7.1.0
+- traits
 - matplotlib-base
 - numpy
 - scipy

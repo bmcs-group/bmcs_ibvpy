@@ -15,7 +15,6 @@ from traits.api import  \
 import bmcs_utils.api as bu
 import numpy as np
 
-import ipyregulartable as rt
 class MATSEval1D5(MATSEval):
     """Base class defining the plot
     """

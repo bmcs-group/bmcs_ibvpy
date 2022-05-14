@@ -42,7 +42,7 @@ class TFMonotonic(TimeFunction):
         # allow for interactive extensions. The fact
         d_history = np.array([0, 1*self.range_factor])
         t_arr = np.array([0, self.t_max*self.range_factor])
-        return interp1d(t_arr, d_history)
+        return interp1d(t_arr, d_history, bounds_error=False, fill_value='extrapolate')
 
 class TFBilinear(TimeFunction):
     loading_ratio = Float(0.5, TIME=True)
@@ -62,7 +62,7 @@ class TFBilinear(TimeFunction):
         # allow for interactive extensions. The fact
         d_history = np.array([0, 1 *  self.loading_ratio *self.range_factor , 1 *self.range_factor ])
         t_arr = np.array([0, self.t_max  * self.time_ratio * self.range_factor , self.t_max *self.range_factor])
-        return interp1d(t_arr, d_history, bounds_error=False, fill_value=self.t_max)
+        return interp1d(t_arr, d_history, bounds_error=False, fill_value='extrapolate')
 
 
 class TFCyclicSymmetricIncreasing(TimeFunction):
@@ -112,7 +112,7 @@ class TFCyclicSymmetricConstant(TimeFunction):
         d_levels.reshape(-1, 2)[:, 1] = 1
         d_history = d_levels.flatten()
         t_arr = np.linspace(0, self.t_max, len(d_history))
-        return interp1d(t_arr, d_history)
+        return interp1d(t_arr, d_history, bounds_error=False, fill_value=self.t_max)
 
 import sympy as sp
 
@@ -136,7 +136,7 @@ class TFCyclicNonsymmetricConstant(TimeFunction):
         d_history = d_2.flatten()
         d_arr = np.hstack((d_1, d_history))
         t_arr = np.linspace(0, self.t_max, len(d_arr))
-        return interp1d(t_arr, d_arr, bounds_error=False, fill_value=self.t_max)
+        return interp1d(t_arr, d_arr, bounds_error=False, fill_value=d_arr[-1])
 
 
 class TFCyclicSin(TimeFunction):
@@ -168,10 +168,10 @@ class TFSelector(TimeFunction):
         options=[
             ('monotonic', TFMonotonic),
             ('bilinear', TFBilinear),
-            ('cyclic-sym-incr', TFCyclicSymmetricConstant),
-            ('cyclic-sym-const', TFCyclicSymmetricIncreasing),
-            ('cyclic-nonsym-incr', TFCyclicNonsymmetricConstant),
-            ('cyclic-nonsym-const', TFCyclicNonsymmetricIncreasing)
+            ('cyclic-sym-const', TFCyclicSymmetricConstant),
+            ('cyclic-sym-incr', TFCyclicSymmetricIncreasing),
+            ('cyclic-nonsym-const', TFCyclicNonsymmetricConstant),
+            ('cyclic-nonsym-incr', TFCyclicNonsymmetricIncreasing)
         ],
         TIME=True
     )
@@ -188,4 +188,5 @@ class TFSelector(TimeFunction):
         return self.profile_(arg)
 
     def update_plot(self, axes):
+        print('xxxxx')
         self.profile_.update_plot(axes)

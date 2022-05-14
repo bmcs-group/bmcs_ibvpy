@@ -34,7 +34,6 @@ class Hist(Vis2D):
     def _get_record_dict(self):
         ts = self.tstep_source
         for vis in self.vis_record.values():
-            #vis.sim = self.tstep_source.sim
             vis.tstep = ts
         return {key: vis for key, vis in self.vis_record.items()}
 

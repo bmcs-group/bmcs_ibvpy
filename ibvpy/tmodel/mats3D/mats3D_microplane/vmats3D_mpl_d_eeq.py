@@ -191,10 +191,12 @@ class MATS3DMplDamageEEQ(MATS3DEval):
         epsilon_f = self.epsilon_f
         I = np.where(kappa_n >= epsilon_0)
         omega_n[I] = (
-            1.0 - (epsilon_0 / kappa_n[I] *
+            1.0 - (
+                epsilon_0 / kappa_n[I] *
                    np.exp(-1.0 * (kappa_n[I] - epsilon_0) /
                           (epsilon_f - epsilon_0))
-                   ))
+                   )
+        )
         return omega_n
 
     def _get_phi_ab(self, kappa_n):
