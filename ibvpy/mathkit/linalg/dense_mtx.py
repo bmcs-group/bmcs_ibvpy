@@ -29,3 +29,6 @@ class DenseMtx(HasTraits):
     def __str__(self):
         '''String representation - delegate to matrix'''
         return str(self.mtx)
+
+    def __repr__(self):
+        return repr(self.mtx)
