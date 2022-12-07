@@ -176,6 +176,8 @@ class TFSelector(TimeFunction):
         TIME=True
     )
 
+    depends_on = ['profile']
+
     t_max = tr.Property(Float)
     def _get_t_max(self):
         return self.profile_.t_max

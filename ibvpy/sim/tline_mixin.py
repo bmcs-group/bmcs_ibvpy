@@ -9,7 +9,7 @@ import bmcs_utils.api as bu
 from .tline import TLine
 
 
-class TLineMixIn(tr.HasTraits):
+class TLineMixIn(bu.Model):
     #=========================================================================
     # TIME LINE
     #=========================================================================
