@@ -16,6 +16,7 @@ class MATS2DScalarDamage(MATS2DEval):
     name = 'isotropic damage model'
     node_name = 'isotropic damage model'
 
+    depends_on = ['omega_fn','strain_norm']
     tree = ['omega_fn','strain_norm']
 
     omega_fn = EitherType(
