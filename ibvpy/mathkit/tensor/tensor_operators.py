@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # Convert the tensor to an engineering tensor
     eps_tns = np.array([[[1, 2, 3],
                          [2, 1, 4],
-                         [3, 4, 1]]], dtype=np.float)
+                         [3, 4, 1]]], dtype=np.float_)
     eps_eng1 = np.einsum(
         'ki,...ki->...k', DELTA, eps_tns
     )

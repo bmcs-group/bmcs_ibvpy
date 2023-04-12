@@ -125,7 +125,7 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
         N_rin = self.symb.get_dN_xi_ai(self.dof_r.T)
         return np.einsum('rin->inr', N_rin)
 
-    I_sym_abcd = tr.Array(np.float)
+    I_sym_abcd = tr.Array(np.float_)
 
     def _I_sym_abcd_default(self):
         return 0.5 * \

@@ -13,46 +13,25 @@ class COOSparseMtx(HasTraits):
     assemb = Any
 
     ij_map = Property(depends_on='assemb.+')
-
     @cached_property
     def _get_ij_map(self):
         '''
-        Derive the row and column indices of individual values 
+        Derive the row and column indices of individual values
         in every element matrix.
         '''
 
-        ij_dof_map_list = []
+        O_list, P_list = [], []
         # loop over the list of matrix arrays
         for sys_mtx_arr in self.assemb.get_sys_mtx_arrays():
 
-            el_dof_map = sys_mtx_arr.dof_map_arr
-            ij_dof_map = zeros((el_dof_map.shape[0],
-                                2,
-                                el_dof_map.shape[1] ** 2,
-                                ), dtype='int_')
-            for el, dof_map in enumerate(el_dof_map):
-                row_dof_map, col_dof_map = meshgrid(dof_map, dof_map)
-                ij_dof_map[el, ...] = vstack([row_dof_map.flatten(),
-                                              col_dof_map.flatten()])
-            ij_dof_map_list.append(ij_dof_map)
+            O_Eo = sys_mtx_arr.dof_map_arr
+            a = np.arange(2, dtype=np.int_)
+            O, P = (np.einsum('a,Lo->aLo', (1 - a), O_Eo)[:, :, :, None] +
+                    np.einsum('a,Lp->aLp', a, O_Eo)[:, :, None, :])
+            O_list.append(O.flatten())
+            P_list.append(P.flatten())
 
-        return ij_dof_map_list
-
-    x_l = Property(depends_on='el_dof_map')
-
-    @cached_property
-    def _get_x_l(self):
-        '''Helper property to get an array of all row indices'''
-        return hstack([ij_map[:, 0, :].flatten()
-                       for ij_map in self.ij_map])
-
-    y_l = Property(depends_on='el_dof_map')
-
-    @cached_property
-    def _get_y_l(self):
-        '''Helper property to get an array of all column indices'''
-        return hstack([ij_map[:, 1, :].flatten()
-                       for ij_map in self.ij_map])
+        return np.hstack(O_list), np.hstack(P_list)
 
     data_l = Property
 
@@ -66,12 +45,11 @@ class COOSparseMtx(HasTraits):
         the solution for the supplied rhs
         pos_dev - test the positive definiteness of the matrix. 
         '''
-        ij = vstack((self.x_l, self.y_l))
 
         # Assemble the system matrix from the flattened data and
         # sparsity map containing two rows - first one are the row
         # indices and second one are the column indices.
-        mtx = sparse.coo_matrix((self.data_l, ij))
+        mtx = sparse.coo_array((self.data_l, self.ij_map))
         mtx_csr = mtx.tocsr()
 
         pos_def = True
@@ -82,3 +60,6 @@ class COOSparseMtx(HasTraits):
 
         u_vct = linsolve.spsolve(mtx_csr, rhs)
         return u_vct, pos_def
+
+    def toarray(self):
+        return sparse.coo_array((self.data_l, self.ij_map)).toarray()

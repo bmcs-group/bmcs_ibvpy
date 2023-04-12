@@ -27,7 +27,7 @@ class TStep(bu.Model):
     #=========================================================================
     hist_type = tr.Type(Hist)
 
-    hist = tr.Property(tr.Instance(IHist))
+    hist = tr.Property(bu.Instance(IHist))
     r'''History representation of the model response.
     '''
     @tr.cached_property

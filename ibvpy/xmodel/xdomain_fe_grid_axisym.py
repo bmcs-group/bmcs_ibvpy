@@ -30,7 +30,7 @@ class XDomainFEGridAxiSym(XDomainFEGrid):
                            [0, 1]], np.float_)
         return np.einsum('ab,cc->abc', D3D_33, D2D_22)
 
-    Diff1_abcd = Array(np.float)
+    Diff1_abcd = Array(np.float_)
 
     def _Diff1_abcd_default(self):
         delta = np.vstack([np.identity(2),

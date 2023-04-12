@@ -114,7 +114,7 @@ class FETS1D52ULRH(FETSEval):
         '''
         return self.get_dNr_geo_mtx(r_pnt)
 
-    xi_m = Array(value=[[-1], [1]], dtype=np.float)
+    xi_m = Array(value=[[-1], [1]], dtype=np.float_)
     r_m = Array(value=[[-1], [1]], dtype=np.float_)
     w_m = Array(value=[1, 1], dtype=np.float_)
 
@@ -234,10 +234,10 @@ class FETS1D52ULRH(FETSEval):
         N_im = np.einsum('mi->im', N_mi[...,0])
         dN_mir_arr = [np.array(dN_xi_ir.subs(list(zip([xi_1], xi)))).astype(np.float_)
                       for xi in self.xi_m]
-        dN_mir = np.array(dN_mir_arr, dtype=np.float)
+        dN_mir = np.array(dN_mir_arr, dtype=np.float_)
         dN_nir_arr = [np.array(dN_xi_ir.subs(list(zip([xi_1], xi)))).astype(np.float_)
                       for xi in self.vtk_r]
-        dN_nir = np.array(dN_nir_arr, dtype=np.float)
+        dN_nir = np.array(dN_nir_arr, dtype=np.float_)
         dN_imr = np.einsum('mir->imr', dN_mir)
         dN_inr = np.einsum('nir->inr', dN_nir)
         return (N_im, dN_imr, dN_inr)
@@ -263,7 +263,7 @@ class FETS1D52ULRH(FETSEval):
     def _get_dN_inr(self):
         return self.shape_function_values[2]
 
-    I_sym_abcd = tr.Array(np.float)
+    I_sym_abcd = tr.Array(np.float_)
 
     def _I_sym_abcd_default(self):
         delta = np.identity(3)

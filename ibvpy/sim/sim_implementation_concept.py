@@ -333,7 +333,7 @@ class Model(BMCSTreeNode):
     U_shape = tr.Tuple(1,)
 
     def init_state(self):
-        self.U_k = np.zeros(self.U_shape, dtype=np.float)
+        self.U_k = np.zeros(self.U_shape, dtype=np.float_)
         self.U_n = np.copy(self.U_n)
         self.hist.init_state()
 
@@ -343,7 +343,7 @@ class Model(BMCSTreeNode):
     U_k = tr.Array(np.float_, TRIAL_STATE=True)
     U_n = tr.Array(np.float_, FUND_STATE=True)
 
-    S = tr.Dict(tr.Str, tr.Array(np.float), STATE=True)
+    S = tr.Dict(tr.Str, tr.Array(np.float_), STATE=True)
 
     F = tr.Property(depends_on='+TRIAL_STATE,+INPUT')
 

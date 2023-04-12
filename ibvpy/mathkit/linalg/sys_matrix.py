@@ -9,7 +9,9 @@ from scipy.sparse.linalg.dsolve import linsolve
 from time import time
 
 class SysDenseMtx( HasTraits ):
-    
+    """
+    Block of element matrices
+    """
     def __init__(self, n_dofs, el_dof_map ):
         self.el_dof_map = el_dof_map
         self.mtx = zeros( [n_dofs, n_dofs], dtype = float )
@@ -36,8 +38,6 @@ class SysDenseMtx( HasTraits ):
         self._adapt_linked_stiff(dof, n, alpha, Kna, K_aa)
     
     def _const_dof_diag(self, dof, alpha):
-        #print "slice ",self.mtx[:,[a]]
-        #print "alpha ",alpha[newaxis] 
         return dot( self.mtx[:,[dof]], alpha[newaxis] )
     
     def _adapt_linked_stiff(self, dof, n, alpha, Kna, K_aa ):
@@ -54,11 +54,7 @@ class SysDenseMtx( HasTraits ):
         self.mtx[a_n_ix] = alpha[newaxis] * K_aa
 
     def solve(self, rhs):
-        #tf_solve_s = time()
         u_vct = linalg.solve( self.mtx, rhs )
-        #tf_solve_e = time()
-        #dif_solve = tf_solve_e - tf_solve_s
-        #print "Full Solve: %8.2f sec" %dif_solve
         return u_vct
     
 class SysSparseMtx( HasTraits ):
@@ -70,7 +66,6 @@ class SysSparseMtx( HasTraits ):
         defining the sparsity map. The assembly is done from a list
         of element matrices that follow the same order 
         as the one in el_dof_map.''' 
-        #self.mtx = sparse.sparse.coo_matrix((data,ij))
         self.n_dofs = n_dofs
         self.el_dof_map = el_dof_map
         self.Kna_data = []

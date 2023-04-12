@@ -37,13 +37,13 @@ class LinAlgSolve(tr.HasStrictTraits):
 
     A = tr.Array(np.float_)
 
-    R_t = tr.Property(tr.Array(np.float), depends_on='dof_map')
+    R_t = tr.Property(tr.Array(np.float_), depends_on='dof_map')
 
     @tr.cached_property
     def _get_R_t(self):
         return np.zeros((self.n_dofs,), np.float_)
 
-    R_0 = tr.Property(tr.Array(np.float), depends_on='dof_map')
+    R_0 = tr.Property(tr.Array(np.float_), depends_on='dof_map')
 
     @tr.cached_property
     def _get_R_0(self):
