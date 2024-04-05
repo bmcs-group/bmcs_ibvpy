@@ -40,6 +40,13 @@ class DamageFn(BMCSLeafNode):
     E_name = Str('E')
     '''Name of the stiffness variable in the material model'''
 
+    E = Property(bu.Float)
+    def _get_E(self):
+        if self.mats:
+            return getattr(self.mats,self.E_name)
+        else:
+            return self.E_
+
     def get_f_trial(self, eps_eq_Em, kappa_Em):
         k_Em = np.copy(kappa_Em)
         k_Em[k_Em < self.kappa_0] = self.kappa_0
@@ -431,13 +438,6 @@ class GfDamageFn2(DamageFn):
                    desc="Length of the softening zone")
 
     E_ = bu.Float(34000.0, MAT=True, label="E", desc="Young's modulus")
-
-    E = Property(bu.Float)
-    def _get_E(self):
-        if self.mats:
-            return getattr(self.mats,self.E_name)
-        else:
-            return self.E_
 
     f_t = bu.Float(4.5, MAT=True, label="f_t", desc="Tensile strength")
 

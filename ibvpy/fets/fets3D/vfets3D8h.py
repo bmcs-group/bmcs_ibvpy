@@ -9,7 +9,6 @@ import numpy as np
 import sympy as sp
 import traits.api as tr
 from bmcs_utils.api import InjectSymbExpr, SymbExpr
-import k3d
 
 xi_1, xi_2, xi_3 = sp.symbols('xi_1, xi_2, xi_3')
 
@@ -128,21 +127,23 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
     I_sym_abcd = tr.Array(np.float_)
 
     def _I_sym_abcd_default(self):
+        delta = np.eye(3)
         return 0.5 * \
             (np.einsum('ac,bd->abcd', delta, delta) +
              np.einsum('ad,bc->abcd', delta, delta))
 
     plot_backend = 'k3d'
 
-    def update_plot(self, axes):
+    def update_plot(self, k3d_plot):
         ax = axes
         import numpy as np
         v = np.linspace(-1,1,10)
         x, y, z = np.meshgrid(v,v,v)
         X_aIJK = np.array([x, y, z], dtype=np.float_)
         xmin, xmax, ymin, ymax, zmin, zmax = -1, 1, -1, 1, -1, 1
-        N_IJK = fets.symb.get_N_xi_i(X_aIJK)[0,...]
+        N_IJK = self.symb.get_N_xi_i(X_aIJK)[0,...]
         N_IJK.shape
+        import k3d
         plt_iso = k3d.marching_cubes(N_IJK[0,...],compression_level=9,
                                      xmin=xmin, xmax=xmax,
                                  ymin=ymin, ymax=ymax,
