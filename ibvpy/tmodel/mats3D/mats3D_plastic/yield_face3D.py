@@ -3,7 +3,7 @@ import mayavi.mlab as m
 import numpy as np
 import bmcs_utils.api as bu
 from bmcs_utils.api import Float, Int, Model
-ONE = np.ones((1,), dtype=np.float_)
+ONE = np.ones((1,), dtype=np.float64)
 DELTA = np.identity(3)
 
 # Levi Civita symbol
@@ -213,7 +213,7 @@ def show_yield_faces():
     #     yc = YieldConditionJ2(sig_y=6.0)
     sig = np.array([[2, 3, 4],
                     [1, 3, 2],
-                    [3, 4, 5]], dtype=np.float_)
+                    [3, 4, 5]], dtype=np.float64)
 
     yc = YieldConditionExtendedLeonModel()
     f = yc.f(sig)

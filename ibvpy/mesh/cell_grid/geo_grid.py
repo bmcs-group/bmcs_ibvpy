@@ -176,7 +176,7 @@ class GeoCellGrid(SDomain):
         mvpoints = []
         for cell_idx in icells:
             mvpoints += list(self.get_cell_mvpoints(cell_idx))
-        return array(mvpoints, dtype='float_')
+        return array(mvpoints, dtype='float64')
 
     def _get_ielem_polys(self):
         #ncells = len( self.get_elem_intersection() )

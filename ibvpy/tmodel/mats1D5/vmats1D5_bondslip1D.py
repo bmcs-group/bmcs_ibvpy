@@ -69,8 +69,8 @@ class MATS1D5BondSlipMultiLinear(MATSEval1D5):
     s_tau_table = Property(depends_on='state_changed')
     @cached_property
     def _get_s_tau_table(self):
-        s_data = np.fromstring(self.s_data, dtype=np.float_, sep=',')
-        tau_data = np.fromstring(self.tau_data, dtype=np.float_, sep=',')
+        s_data = np.fromstring(self.s_data, dtype=np.float64, sep=',')
+        tau_data = np.fromstring(self.tau_data, dtype=np.float64, sep=',')
         if len(s_data) != len(tau_data):
             raise ValueError('s array and tau array must have the same size')
         return s_data, tau_data
@@ -93,7 +93,7 @@ class MATS1D5BondSlipMultiLinear(MATSEval1D5):
 
     def get_corr_pred(self, eps_n1, t_n1):
         D_shape = eps_n1.shape[:-1] + (3, 3)
-        D = np.zeros(D_shape, dtype=np.float_)
+        D = np.zeros(D_shape, dtype=np.float64)
 
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
@@ -174,7 +174,7 @@ class MATS1D5BondSlipD(MATSEval1D5):
 
     def get_corr_pred(self, eps_n1, t_n1, kappa_n, omega_n):
         D_shape = eps_n1.shape[:-1] + (3, 3)
-        D = np.zeros(D_shape, dtype=np.float_)
+        D = np.zeros(D_shape, dtype=np.float64)
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
         s_n1 = eps_n1[..., 1]
@@ -316,7 +316,7 @@ class MATSBondSlipDP(MATSEval1D5):
                       s_pl_n, alpha_n, z_n, kappa_n, omega_n):
 
         D_shape = eps_n1.shape[:-1] + (3, 3)
-        D = np.zeros(D_shape, dtype=np.float_)
+        D = np.zeros(D_shape, dtype=np.float64)
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
 
@@ -439,7 +439,7 @@ class MATS1D5BondSlipEP(MATSEval1D5):
     def get_corr_pred(self, eps_n1, t_n1, s_pl_n, alpha_n, z_n):
 
         D_shape = eps_n1.shape[:-1] + (3, 3)
-        D = np.zeros(D_shape, dtype=np.float_)
+        D = np.zeros(D_shape, dtype=np.float64)
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
 
@@ -581,7 +581,7 @@ class MATSBondSlipFatigue(MATSEval1D5):
     def get_corr_pred(self, eps_n1, t_n1, xs_pi, alpha, z, kappa, omega):
 
         D_shape = eps_n1.shape[:-1] + (3, 3)
-        D = np.zeros(D_shape, dtype=np.float_)
+        D = np.zeros(D_shape, dtype=np.float64)
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f
 

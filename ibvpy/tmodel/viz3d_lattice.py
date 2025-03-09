@@ -7,8 +7,8 @@ Created on Feb 11, 2018
 import os
 from ibvpy.mathkit.tensor import EPS
 
-from mayavi import mlab
-from tvtk.api import tvtk
+# from mayavi import mlab
+# from tvtk.api import tvtk
 from ibvpy.view.plot3d.viz3d import Vis3D, Viz3D
 
 import numpy as np

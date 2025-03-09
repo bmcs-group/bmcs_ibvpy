@@ -333,17 +333,17 @@ class Model(BMCSTreeNode):
     U_shape = tr.Tuple(1,)
 
     def init_state(self):
-        self.U_k = np.zeros(self.U_shape, dtype=np.float_)
+        self.U_k = np.zeros(self.U_shape, dtype=np.float64)
         self.U_n = np.copy(self.U_n)
         self.hist.init_state()
 
     def get_plot_sheet(self):
         return
 
-    U_k = tr.Array(np.float_, TRIAL_STATE=True)
-    U_n = tr.Array(np.float_, FUND_STATE=True)
+    U_k = tr.Array(np.float64, TRIAL_STATE=True)
+    U_n = tr.Array(np.float64, FUND_STATE=True)
 
-    S = tr.Dict(tr.Str, tr.Array(np.float_), STATE=True)
+    S = tr.Dict(tr.Str, tr.Array(np.float64), STATE=True)
 
     F = tr.Property(depends_on='+TRIAL_STATE,+INPUT')
 

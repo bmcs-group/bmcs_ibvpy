@@ -16,7 +16,7 @@ class SysMtxArray(HasTraits):
     (see e.g. coo_mtx) 
     '''
     dof_map_arr = Array('int_')
-    mtx_arr = Array('float_')
+    mtx_arr = Array('float64')
 
     n_dofs = Property(depends_on='dof_map_arr')
 

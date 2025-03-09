@@ -67,7 +67,7 @@ class MATS1D5BondSlipTriLinear(MATSEval1D5):
 
     def get_corr_pred(self, eps_n1, t_n1):
         D_shape = eps_n1.shape[:-1] + (3, 3)
-        D = np.zeros(D_shape, dtype=np.float_)
+        D = np.zeros(D_shape, dtype=np.float64)
 
         D[..., 0, 0] = self.E_m
         D[..., 2, 2] = self.E_f

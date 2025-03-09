@@ -120,8 +120,8 @@ class DELETEBMCSModel(BMCSRootNode):
     def get_time_idx_arr(self, vot):
         '''Get the index corresponding to visual time
         '''
-        x = np.array(self.timesteps, dtype=np.float_)
-        idx = np.array(np.arange(len(x)), dtype=np.float_)
+        x = np.array(self.timesteps, dtype=np.float64)
+        idx = np.array(np.arange(len(x)), dtype=np.float64)
         t_idx = np.interp(vot, x, idx)
         return np.array(t_idx, np.int_)
 

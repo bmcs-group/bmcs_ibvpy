@@ -72,7 +72,7 @@ class MATS1D5DPCumPress(MATSEval):
     def _get_D_rs(self):
         print('recalculating D_rs')
         return np.array([[self.E_T, 0],
-                         [0, self.E_N]], dtype=np.float_)
+                         [0, self.E_N]], dtype=np.float64)
 
     def init(self, s_pi, alpha, z, omega):
         r'''
@@ -90,7 +90,7 @@ class MATS1D5DPCumPress(MATSEval):
         s = u_r[..., 0]
         w = u_r[..., 1]
         # For normal direction
-        H_w_N = np.array(w <= 0.0, dtype=np.float_)
+        H_w_N = np.array(w <= 0.0, dtype=np.float64)
         E_alg_N = H_w_N * self.E_N
         sig_N = E_alg_N * w
         # For tangential

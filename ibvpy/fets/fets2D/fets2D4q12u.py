@@ -106,7 +106,7 @@ class FETS2D4Q12U(FETSEval):
         r = r_pnt[0]
         s = r_pnt[1]
 
-        N_mtx = zeros((2, 24), dtype='float_')
+        N_mtx = zeros((2, 24), dtype='float64')
         N_mtx[0, 0] = (
             (-1 + r) * (-1 + s) * (9 * s * s + 9 * r * r - 10)) / 32.
         N_mtx[0, 2] = - \
@@ -145,7 +145,7 @@ class FETS2D4Q12U(FETSEval):
         '''
         r = r_pnt[0]
         s = r_pnt[1]
-        dNr = zeros((2, 12), dtype='float_')
+        dNr = zeros((2, 12), dtype='float64')
         dNr[0, 0] = ((-1 + s) * (9 * r * r + 9 * s * s - 10)) / \
             32. + 9. / 16. * (-1 + s) * (-1 + r) * r
         dNr[0, 1] = - ((-1 + s) * (9 * r * r + 9 * s * s - 10)) / \
@@ -193,7 +193,7 @@ class FETS2D4Q12U(FETSEval):
         J_mtx = self.get_J_mtx(r_pnt, X_mtx)
         dNr_mtx = self.get_dNr_mtx(r_pnt)
         dNx_mtx = dot(inv(J_mtx), dNr_mtx)
-        Bx_mtx = zeros((3, 24), dtype='float_')
+        Bx_mtx = zeros((3, 24), dtype='float64')
         for i in range(0, 12):
             Bx_mtx[0, i * 2] = dNx_mtx[0, i]
             Bx_mtx[1, i * 2 + 1] = dNx_mtx[1, i]

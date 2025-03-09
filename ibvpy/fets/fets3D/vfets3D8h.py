@@ -47,18 +47,18 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
 
     symb_class = FETS3D8HSymbExpr
 
-    dof_r = tr.Array(np.float_,
+    dof_r = tr.Array(np.float64,
                      value=[[-1, -1, -1], [1, -1, -1],
                             [-1, 1, -1], [1, 1, -1],
                             [-1, -1, 1], [1, -1, 1],
                             [-1, 1, 1], [1, 1, 1], ])
 
-    geo_r = tr.Array(np.float_,
+    geo_r = tr.Array(np.float64,
                      value=[[-1, -1, -1], [1, -1, -1],
                             [-1, 1, -1], [1, 1, -1],
                             [-1, -1, 1], [1, -1, 1],
                             [-1, 1, 1], [1, 1, 1], ])
-    vtk_r = tr.Array(np.float_,
+    vtk_r = tr.Array(np.float64,
                      value=[[-1, -1, -1], [1, -1, -1],
                             [-1, 1, -1], [1, 1, -1],
                             [-1, -1, 1], [1, -1, 1],
@@ -72,10 +72,10 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
     vtk_cell = [0, 1, 3, 2, 4, 5, 7, 6]
     vtk_cell_type = 'Hexahedron'
 
-    vtk_expand_operator = tr.Array(np.float_, value=np.identity(3))
+    vtk_expand_operator = tr.Array(np.float64, value=np.identity(3))
 
     # numerical integration points (IP) and weights
-    xi_m = tr.Array(np.float_,
+    xi_m = tr.Array(np.float64,
                     value=[[-1.0 / np.sqrt(3.0), -1.0 / np.sqrt(3.0), -1.0 / np.sqrt(3.0)],
                            [1.0 / np.sqrt(3.0), -1.0 /
                             np.sqrt(3.0), -1.0 / np.sqrt(3.0)],
@@ -93,7 +93,7 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
                             1.0 / np.sqrt(3.0)],
                            ])
 
-    w_m = tr.Array(value=[1, 1, 1, 1, 1, 1, 1, 1], dtype=np.float_)
+    w_m = tr.Array(value=[1, 1, 1, 1, 1, 1, 1, 1], dtype=np.float64)
 
     n_m = tr.Property
 
@@ -124,7 +124,7 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
         N_rin = self.symb.get_dN_xi_ai(self.dof_r.T)
         return np.einsum('rin->inr', N_rin)
 
-    I_sym_abcd = tr.Array(np.float_)
+    I_sym_abcd = tr.Array(np.float64)
 
     def _I_sym_abcd_default(self):
         delta = np.eye(3)
@@ -139,7 +139,7 @@ class FETS3D8H(FETS3D, InjectSymbExpr):
         import numpy as np
         v = np.linspace(-1,1,10)
         x, y, z = np.meshgrid(v,v,v)
-        X_aIJK = np.array([x, y, z], dtype=np.float_)
+        X_aIJK = np.array([x, y, z], dtype=np.float64)
         xmin, xmax, ymin, ymax, zmin, zmax = -1, 1, -1, 1, -1, 1
         N_IJK = self.symb.get_N_xi_i(X_aIJK)[0,...]
         N_IJK.shape

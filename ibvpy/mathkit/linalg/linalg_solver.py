@@ -35,19 +35,19 @@ class LinAlgSolve(tr.HasStrictTraits):
     def _get_n_dofs(self):
         return np.max(self.o_I) + 1
 
-    A = tr.Array(np.float_)
+    A = tr.Array(np.float64)
 
-    R_t = tr.Property(tr.Array(np.float_), depends_on='dof_map')
+    R_t = tr.Property(tr.Array(np.float64), depends_on='dof_map')
 
     @tr.cached_property
     def _get_R_t(self):
-        return np.zeros((self.n_dofs,), np.float_)
+        return np.zeros((self.n_dofs,), np.float64)
 
-    R_0 = tr.Property(tr.Array(np.float_), depends_on='dof_map')
+    R_0 = tr.Property(tr.Array(np.float64), depends_on='dof_map')
 
     @tr.cached_property
     def _get_R_0(self):
-        return np.zeros((self.n_dofs,), np.float_)
+        return np.zeros((self.n_dofs,), np.float64)
 
     # The dependency graph
 
@@ -75,7 +75,7 @@ class LinAlgSolve(tr.HasStrictTraits):
         tfarr = carr[:, 2]
         val_arr = np.array(
             [tf(u)
-             for tf, u in zip(tfarr, U_arr)], dtype=np.float_)
+             for tf, u in zip(tfarr, U_arr)], dtype=np.float64)
         return val_arr
 
     def apply_constraints(self):

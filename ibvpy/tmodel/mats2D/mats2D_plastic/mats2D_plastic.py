@@ -4,7 +4,7 @@ from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from numpy import \
     array, zeros, dot, \
     sqrt, vdot, \
-    float_, diag
+    float64, diag
 from scipy.linalg import inv, norm
 from traits.api import \
     Array, Enum, \

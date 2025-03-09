@@ -78,7 +78,7 @@ class FETS2Drotsym(FETSEval):
 
         dNx_mtx = np.dot(inv(J_mtx), dNr_mtx)
 
-        Bx_mtx = np.zeros((6, self.n_e_dofs), dtype='float_')
+        Bx_mtx = np.zeros((6, self.n_e_dofs), dtype='float64')
         for i in range(0, self. n_dof_r):
             Bx_mtx[0, i * 2] = dNx_mtx[0, i]  # eps_z
             Bx_mtx[1, i * 2 + 1] = dNx_mtx[1, i]  # eps_r
@@ -95,7 +95,7 @@ class FETS2Drotsym(FETSEval):
         '''
         #radius = 1.
         circle = 2. * pi * np.dot(self.get_N_geo_mtx(r_pnt), X_mtx[:, 1])
-        return np.array(circle * self._get_J_det(r_pnt, X_mtx), dtype='float_')
+        return np.array(circle * self._get_J_det(r_pnt, X_mtx), dtype='float64')
 
     def adjust_spatial_context_for_point(self, sctx):
         '''Overloaded call to mats_eval.

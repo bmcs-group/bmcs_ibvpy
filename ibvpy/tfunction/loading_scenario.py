@@ -168,7 +168,7 @@ class Viz2DLoadControlFunction(Viz2D):
         bc = self.vis2d.control_bc
         val = bc.value
         tloop = self.vis2d.tloop
-        t_arr = np.array(tloop.t_record, np.float_)
+        t_arr = np.array(tloop.t_record, np.float64)
         if len(t_arr) == 0:
             return
         f_arr = val * bc.time_function(t_arr)
@@ -181,7 +181,7 @@ class Viz2DLoadControlFunction(Viz2D):
         bc = self.vis2d.control_bc
         val = bc.value
         tloop = self.vis2d.tloop
-        t_arr = np.array(tloop.t_record, np.float_)
+        t_arr = np.array(tloop.t_record, np.float64)
         if len(t_arr) == 0:
             return
         f_arr = val * bc.time_function(t_arr)

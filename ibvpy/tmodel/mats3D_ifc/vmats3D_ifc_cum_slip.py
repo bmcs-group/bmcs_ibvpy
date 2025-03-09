@@ -33,7 +33,7 @@ class MATS3DIfcCumSlip(MATSEval):
         s_a = u_b[..., 1:]
         # For normal - distinguish tension and compression
         T = w > 0.0
-        H_w_N = np.array(w <= 0.0, dtype=np.float_)
+        H_w_N = np.array(w <= 0.0, dtype=np.float64)
         E_alg_N = H_w_N * self.E_N
         sig_N = self.E_N * w
         delta_lambda = 0.5 * self.E_N * (w * T) ** 2.0 * self.Ad * (1 + r_N) ** 2
@@ -86,9 +86,9 @@ class MATS3DIfcCumSlip(MATSEval):
         sig = np.zeros_like(u_b)
         sig[..., 0] = sig_N
         sig[..., 1:] = tau_a
-        N_ab = np.zeros((3, 3), dtype=np.float_)
+        N_ab = np.zeros((3, 3), dtype=np.float64)
         N_ab[0, 0] = 1
-        T_ab = np.zeros((3, 3), dtype=np.float_)
+        T_ab = np.zeros((3, 3), dtype=np.float64)
         T_ab[(1, 2), (1, 2)] = 1
         E_NT = (np.einsum('ab,...->...ab', N_ab, E_alg_N) +
                 np.einsum('ab,...ab->...ab', T_ab, E_alg_T))

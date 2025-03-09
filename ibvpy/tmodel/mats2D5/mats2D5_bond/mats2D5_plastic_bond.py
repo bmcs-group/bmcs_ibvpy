@@ -7,7 +7,7 @@ from math import pi as Pi, cos, sin, exp, sqrt as scalar_sqrt
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from numpy import \
      array, zeros, dot, \
-     float_, \
+     float64, \
      sign
 from traits.api import \
      Array, Enum, \
@@ -116,8 +116,8 @@ class MATS2D5PlasticBond(MATS2DEval):
         f_trial = abs(xi_trial) - (self.sigma_y + self.K_bar * alpha_n)
         # f_trial = -xi_trial - ( self.sigma_y + self.K_bar * alpha_n )
 
-        sig_n1 = zeros((1,), dtype='float_')
-        D_n1 = zeros((1, 1), dtype='float_')
+        sig_n1 = zeros((1,), dtype='float64')
+        D_n1 = zeros((1, 1), dtype='float64')
         if f_trial <= 1e-8:
             sig_n1[0] = sigma_trial
             D_n1[0, 0] = G

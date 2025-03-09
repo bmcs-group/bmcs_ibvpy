@@ -26,7 +26,7 @@ from traits.api import \
 class GeoSquare2Circle(HasTraits):
     '''Geometry definition.
     '''
-    circle_center = Array('float_', value=[0.0, 0.0])
+    circle_center = Array('float64', value=[0.0, 0.0])
     circle_radius = Float(0.38)
     square_edge = Float(2.0)
 

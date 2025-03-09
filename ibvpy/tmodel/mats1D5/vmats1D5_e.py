@@ -32,7 +32,7 @@ class MATS1D5Elastic(MATSEval):
     @tr.cached_property
     def _get_D_rs(self):
         return np.array([[self.E_s, 0],
-                         [0, self.E_n]], dtype=np.float_)
+                         [0, self.E_n]], dtype=np.float64)
 
     def get_corr_pred(self, u_r, tn1):
         tau = np.einsum(

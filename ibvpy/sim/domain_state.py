@@ -37,7 +37,7 @@ class DomainState(HasStrictTraits):
         xmodel_shape = self.xmodel.state_var_shape
         tmodel_shapes = self.tmodel.state_var_shapes
         return {
-            name: np.zeros(xmodel_shape + mats_sa_shape, dtype=np.float_)
+            name: np.zeros(xmodel_shape + mats_sa_shape, dtype=np.float64)
             for name, mats_sa_shape
             in list(tmodel_shapes.items())
         }

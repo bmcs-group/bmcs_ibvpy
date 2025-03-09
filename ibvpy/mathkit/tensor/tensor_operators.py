@@ -6,7 +6,7 @@ Created on Jan 23, 2018
 
 import numpy as np
 
-ONE = np.ones((1,), dtype=np.float_)
+ONE = np.ones((1,), dtype=np.float64)
 DELTA = np.identity(3)
 DELTA2D = np.identity(2)
 DELTA1D = np.identity(1)
@@ -25,7 +25,7 @@ I_sym = (np.einsum('ac,bd->abcd', DELTA, DELTA) +
 
 # expansion tensor
 DELTA23_ab = np.array([[1, 0, 0],
-                       [0, 1, 0]], dtype=np.float_)
+                       [0, 1, 0]], dtype=np.float64)
 
 
 if __name__ == '__main__':
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # Convert the tensor to an engineering tensor
     eps_tns = np.array([[[1, 2, 3],
                          [2, 1, 4],
-                         [3, 4, 1]]], dtype=np.float_)
+                         [3, 4, 1]]], dtype=np.float64)
     eps_eng1 = np.einsum(
         'ki,...ki->...k', DELTA, eps_tns
     )

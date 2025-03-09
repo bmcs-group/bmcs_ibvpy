@@ -1,5 +1,5 @@
 from numpy import \
-    ix_, array, int_, dot, newaxis, float_, copy, repeat
+    ix_, array, int_, dot, newaxis, float64, copy, repeat
 from traits.api import Array, Bool, Enum, Float, HasTraits, \
     Int, Trait, Enum, \
     Callable, List, \
@@ -133,7 +133,7 @@ class BCDofGroup(HasTraits):
     def _get_mvpoints(self):
         # blow up
         print('dof_X', self.dof_X)
-        return array(self.dof_X, dtype='float_')
+        return array(self.dof_X, dtype='float64')
 
     def _get_labels(self):
         # blow up

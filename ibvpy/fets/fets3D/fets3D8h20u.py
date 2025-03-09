@@ -99,7 +99,7 @@ class FETS3D8H20U(FETS3D):
         Return the value of shape functions (derived in femple) for the
         specified local coordinate r_pnt
         '''
-        N_geo_mtx = zeros((1, 8), dtype='float_')
+        N_geo_mtx = zeros((1, 8), dtype='float64')
         N_geo_mtx[0, 0] = -((-1 + r_pnt[2]) * (-1 + r_pnt[1]) * \
                              (-1 + r_pnt[0])) / 8.0
         N_geo_mtx[0, 1] = ((-1 + r_pnt[2]) * (-1 + r_pnt[1]) * \
@@ -123,7 +123,7 @@ class FETS3D8H20U(FETS3D):
         Return the matrix of shape function derivatives (derived in femple).
         Used for the construction of the Jacobi matrix.
         '''
-        dNr_geo_mtx = zeros((3, 8), dtype='float_')
+        dNr_geo_mtx = zeros((3, 8), dtype='float64')
         dNr_geo_mtx[0, 0] = -((-1 + r_pnt[2]) * (-1 + r_pnt[1])) / 8.0
         dNr_geo_mtx[0, 1] = ((-1 + r_pnt[2]) * (-1 + r_pnt[1])) / 8.0
         dNr_geo_mtx[0, 2] = ((-1 + r_pnt[2]) * (1 + r_pnt[1])) / 8.0
@@ -163,7 +163,7 @@ class FETS3D8H20U(FETS3D):
         r = r_pnt[0]
         s = r_pnt[1]
         t = r_pnt[2]
-        N_mtx = zeros((3, 60), dtype='float_')
+        N_mtx = zeros((3, 60), dtype='float64')
         N_mtx[0, 0] = ((-1 + s) * (-1 + r) * (-1 + t) * (t + r + s + 2)) / 8.
         N_mtx[0, 3] = -((-1 + s) * (1 + r) * (-1 + t) * (t - r + s + 2)) / 8.
         N_mtx[0, 6] = ((1 + s) * (1 + r) * (-1 + t) * (t - r - s + 2)) / 8.
@@ -233,7 +233,7 @@ class FETS3D8H20U(FETS3D):
         r = r_pnt[0]
         s = r_pnt[1]
         t = r_pnt[2]
-        dNr = zeros((3, 20), dtype='float_')
+        dNr = zeros((3, 20), dtype='float64')
         dNr[0, 0] = ((-1 + s) * (-1 + t) * (r + t + 2 + s)) / 8. + ((-1 + s) * (-1 + t) * (-1 + r)) / 8.
         dNr[0, 1] = ((-1 + s) * (-1 + t) * (r - t - s - 2)) / 8. + ((-1 + s) * (-1 + t) * (1 + r)) / 8.
         dNr[0, 2] = -((1 + s) * (-1 + t) * (r - t - 2 + s)) / 8. - ((1 + s) * (-1 + t) * (1 + r)) / 8.

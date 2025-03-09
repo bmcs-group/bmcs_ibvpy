@@ -125,7 +125,7 @@ class FETS2D4Q9U(FETSEval):
         containing zero entries. The number of rows corresponds to the number of nodal
         dofs. The matrix is evaluated for the specified local coordinate r.
         '''
-        N_dof = zeros((1, 9), dtype='float_')
+        N_dof = zeros((1, 9), dtype='float64')
         N_dof[0, 0] = (
             r_pnt[0] * r_pnt[1] * (-1 + r_pnt[1]) * (-1 + r_pnt[0])) / 0.4e1
         N_dof[0, 1] = (
@@ -153,7 +153,7 @@ class FETS2D4Q9U(FETSEval):
         '''
         Return the derivatives of the shape functions used for the field approximation
         '''
-        dNr_mtx = zeros((2, 9), dtype='float_')
+        dNr_mtx = zeros((2, 9), dtype='float64')
         dNr_mtx[0, 0] = (r_pnt[1] * (-1 + r_pnt[1]) * (-1 + r_pnt[0])
                          ) / 4.0 + (r_pnt[0] * r_pnt[1] * (-1 + r_pnt[1])) / 4.0
         dNr_mtx[0, 1] = (r_pnt[1] * (-1 + r_pnt[1]) * (1 + r_pnt[0])
@@ -196,7 +196,7 @@ class FETS2D4Q9U(FETSEval):
         J_mtx = self.get_J_mtx(r_pnt, X_mtx)
         dNr_mtx = self.get_dNr_mtx(r_pnt)
         dNx_mtx = dot(inv(J_mtx), dNr_mtx)
-        Bx_mtx = zeros((3, 18), dtype='float_')
+        Bx_mtx = zeros((3, 18), dtype='float64')
         for i in range(0, 9):
             Bx_mtx[0, i * 2] = dNx_mtx[0, i]
             Bx_mtx[1, i * 2 + 1] = dNx_mtx[1, i]

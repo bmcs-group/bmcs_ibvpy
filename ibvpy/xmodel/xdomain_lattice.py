@@ -17,7 +17,7 @@ class LatticeTessellation(BMCSLeafNode):
     name = 'Tessellation'
     node_name = 'tessellation'
 
-    X_Ia = Array(np.float_,
+    X_Ia = Array(np.float64,
                  MESH=True,
                  input=True,
                  unit=r'm',
@@ -39,7 +39,7 @@ class LatticeTessellation(BMCSLeafNode):
     def _get_n_dofs(self):
         return len(self.X_Ia) * 6
 
-    vtk_expand_operator = Array(np.float_, value=np.identity(3))
+    vtk_expand_operator = Array(np.float64, value=np.identity(3))
 
     n_nodal_dofs = Constant(3)
 
@@ -110,7 +110,7 @@ class XDomainLattice(BMCSLeafNode):
         Xm_La = np.einsum('ii,Lia->La', DELTA2, X_Lia) / 2
         Xm_Lia = Xm_La[..., np.newaxis, :]
         dXm_Lia = Xm_Lia - X_Lia
-        switch_sign = np.array([-1, 1], dtype=np.float_)
+        switch_sign = np.array([-1, 1], dtype=np.float64)
         S_Liac = np.einsum('i,ii,...Lac->...Liac',
                            switch_sign, DELTA2, self.nT_Lba)
         return np.einsum('pLiac->Lipac', np.array(
@@ -210,7 +210,7 @@ def test01_spring():
         [
             [0, 0, 0],
             [0, 1, 0],
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     I_Li = np.array(
@@ -223,14 +223,14 @@ def test01_spring():
         [
             [0, 0, 0],
             [0, 0, 0],
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     Phi_Ia = np.array(
         [
             [0, 0, 0.0 * np.pi],
             [0, 0, 0.0 * np.pi],
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     fixed_dofs = [0, 1, 2, 3, 4, 5,
@@ -246,7 +246,7 @@ def test02_quad():
             [0, 2, 0],
             [-1, 1, 0],
             [1, 1, 0]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     I_Li = np.array(
@@ -264,7 +264,7 @@ def test02_quad():
             [0, 0, 0],
             [0, 0, 0],
             [0, 0, 0]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     Phi_Ia = np.array(
@@ -273,7 +273,7 @@ def test02_quad():
             [0, 0, -0.1 * np.pi],
             [0, 0, 0.1 * np.pi],
             [0.3 * np.pi, 0, 0.1 * np.pi]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     fixed_dofs = []
@@ -289,7 +289,7 @@ def test03_tetrahedron():
             [1, 0, 0],
             [0, 1, 0],
             [0.3, 0.3, 1.0]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     I_Li = np.array(
@@ -309,7 +309,7 @@ def test03_tetrahedron():
             [0, 0, 0],
             [0, 0, 0],
             [0, 0, 0]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     Phi_Ia = np.array(
@@ -318,7 +318,7 @@ def test03_tetrahedron():
             [0, 0, -0.1 * np.pi],
             [0, 0, 0.1 * np.pi],
             [0.3 * np.pi, 0, 0.1 * np.pi]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     fixed_dofs = [0, 1, 2, 3, 4, 5,
@@ -339,7 +339,7 @@ def test04_pyramide():
             [0, 1, 0],
             [1, 1, 0],
             [0.5, 0.5, 1.0],
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     I_Li = np.array(
@@ -364,7 +364,7 @@ def test04_pyramide():
             [0, 0, 0],
             [0, 0, 0],
             [0.02, 0.03, 0]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     Phi_Ia = np.array(
@@ -374,7 +374,7 @@ def test04_pyramide():
             [0, 0, 0.01 * np.pi],
             [0, 0, -0.01 * np.pi],
             [0.03 * np.pi, 0, 0.01 * np.pi]
-        ], dtype=np.float_
+        ], dtype=np.float64
     )
 
     fixed_dofs = []

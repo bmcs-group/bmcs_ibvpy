@@ -10,7 +10,7 @@ def get_bar_mtx_array(shape):
     a bar discretization
     '''
     el_mtx = array([[10, -10],
-                    [-10, 10]], dtype='float_')
+                    [-10, 10]], dtype='float64')
 
     el_mtx_arr = array([el_mtx for i in range(shape)], dtype=float)
     el_dof_map = array([arange(shape),

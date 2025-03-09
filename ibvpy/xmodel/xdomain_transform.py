@@ -13,7 +13,7 @@ from .xdomain_fe_grid import XDomainFEGrid
 @provides(IXModel)
 class XDomainFEGridTransform(XDomainFEGrid):
 
-    vtk_expand_operator = Array(np.float_)
+    vtk_expand_operator = Array(np.float64)
 
     def _vtk_expand_operator_default(self):
         return np.identity(3)

@@ -28,9 +28,9 @@ xi_3 = sp.symbols('xi_3')
 # Finite element specification
 #=========================================================================
 
-N_xi_i = sp.Matrix([0.5 - xi_1 / 2., 0.5 + xi_1 / 2.], dtype=np.float_)
+N_xi_i = sp.Matrix([0.5 - xi_1 / 2., 0.5 + xi_1 / 2.], dtype=np.float64)
 
-dN_xi_ir = sp.Matrix([[-1. / 2], [1. / 2]], dtype=np.float_)
+dN_xi_ir = sp.Matrix([[-1. / 2], [1. / 2]], dtype=np.float64)
 
 
 @provides(IFETSEval)
@@ -114,9 +114,9 @@ class FETS1D52ULRH(FETSEval):
         '''
         return self.get_dNr_geo_mtx(r_pnt)
 
-    xi_m = Array(value=[[-1], [1]], dtype=np.float_)
-    r_m = Array(value=[[-1], [1]], dtype=np.float_)
-    w_m = Array(value=[1, 1], dtype=np.float_)
+    xi_m = Array(value=[[-1], [1]], dtype=np.float64)
+    r_m = Array(value=[[-1], [1]], dtype=np.float64)
+    w_m = Array(value=[1, 1], dtype=np.float64)
 
     Nr_i_geo = List([(1 - r_) / 2.0,
                      (1 + r_) / 2.0, ])
@@ -131,33 +131,33 @@ class FETS1D52ULRH(FETSEval):
 
     @cached_property
     def _get_N_mi_geo(self):
-        return self.get_N_mi(sp.Matrix(self.Nr_i_geo, dtype=np.float_))
+        return self.get_N_mi(sp.Matrix(self.Nr_i_geo, dtype=np.float64))
 
     dN_mid_geo = Property()
 
     @cached_property
     def _get_dN_mid_geo(self):
-        return self.get_dN_mid(sp.Matrix(self.dNr_i_geo, dtype=np.float_))
+        return self.get_dN_mid(sp.Matrix(self.dNr_i_geo, dtype=np.float64))
 
     N_mi = Property(depends_on='Nr_i_geo')
 
     @cached_property
     def _get_N_mi(self):
-        return self.get_N_mi(sp.Matrix(self.Nr_i, dtype=np.float_))
+        return self.get_N_mi(sp.Matrix(self.Nr_i, dtype=np.float64))
 
     dN_mid = Property(depends_on='dNr_i_geo')
 
     @cached_property
     def _get_dN_mid(self):
-        return self.get_dN_mid(sp.Matrix(self.dNr_i, dtype=np.float_))
+        return self.get_dN_mid(sp.Matrix(self.dNr_i, dtype=np.float64))
 
     def get_N_mi(self, Nr_i):
         return np.array([Nr_i.subs(r_, float(r))
-                         for r in self.r_m], dtype=np.float_)[...,0]
+                         for r in self.r_m], dtype=np.float64)[...,0]
 
     def get_dN_mid(self, dNr_i):
         dN_mdi = np.array([[dNr_i.subs(r_, float(r))]
-                           for r in self.r_m], dtype=np.float_)
+                           for r in self.r_m], dtype=np.float64)
         return np.einsum('mdi->mid', dN_mdi)
 
     n_m = Property(depends_on='w_m')
@@ -170,7 +170,7 @@ class FETS1D52ULRH(FETSEval):
 
     @cached_property
     def _get_A_C(self):
-        return np.array((self.A_f, self.P_b, self.A_m), dtype=np.float_)
+        return np.array((self.A_f, self.P_b, self.A_m), dtype=np.float64)
 
     def get_B_EmisC(self, J_inv_Emdd):
         fets_eval = self
@@ -205,7 +205,7 @@ class FETS1D52ULRH(FETSEval):
         B = np.zeros((n_E, n_m, n_dof_r, n_s, n_nodal_dofs), dtype='f')
         B_N_n_rows, B_N_n_cols, N_idx = [1, 1], [0, 1], [0, 0]
         B_dN_n_rows, B_dN_n_cols, dN_idx = [0, 2], [0, 1], [0, 0]
-        B_factors = np.array([-1, 1], dtype='float_')
+        B_factors = np.array([-1, 1], dtype='float64')
         B[:, :, :, B_N_n_rows, B_N_n_cols] = (B_factors[None, None, :] *
                                               Nx[:, :, N_idx])
         B[:, :, :, B_dN_n_rows, B_dN_n_cols] = dNx[:, :, :, dN_idx]
@@ -230,14 +230,14 @@ class FETS1D52ULRH(FETSEval):
     @tr.cached_property
     def _get_shape_function_values(self):
         N_mi = np.array([N_xi_i.subs(list(zip([xi_1, xi_2, xi_3], xi)))
-                         for xi in self.xi_m], dtype=np.float_)
+                         for xi in self.xi_m], dtype=np.float64)
         N_im = np.einsum('mi->im', N_mi[...,0])
-        dN_mir_arr = [np.array(dN_xi_ir.subs(list(zip([xi_1], xi)))).astype(np.float_)
+        dN_mir_arr = [np.array(dN_xi_ir.subs(list(zip([xi_1], xi)))).astype(np.float64)
                       for xi in self.xi_m]
-        dN_mir = np.array(dN_mir_arr, dtype=np.float_)
-        dN_nir_arr = [np.array(dN_xi_ir.subs(list(zip([xi_1], xi)))).astype(np.float_)
+        dN_mir = np.array(dN_mir_arr, dtype=np.float64)
+        dN_nir_arr = [np.array(dN_xi_ir.subs(list(zip([xi_1], xi)))).astype(np.float64)
                       for xi in self.vtk_r]
-        dN_nir = np.array(dN_nir_arr, dtype=np.float_)
+        dN_nir = np.array(dN_nir_arr, dtype=np.float64)
         dN_imr = np.einsum('mir->imr', dN_mir)
         dN_inr = np.einsum('nir->inr', dN_nir)
         return (N_im, dN_imr, dN_inr)
@@ -263,7 +263,7 @@ class FETS1D52ULRH(FETSEval):
     def _get_dN_inr(self):
         return self.shape_function_values[2]
 
-    I_sym_abcd = tr.Array(np.float_)
+    I_sym_abcd = tr.Array(np.float64)
 
     def _I_sym_abcd_default(self):
         delta = np.identity(3)

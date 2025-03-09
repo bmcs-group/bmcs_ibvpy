@@ -62,10 +62,10 @@ class MATS1DDamage(MATS1DEval):
         return 2
 
     def new_cntl_var(self):
-        return np.zeros(1, np.float_)
+        return np.zeros(1, np.float64)
 
     def new_resp_var(self):
-        return np.zeros(1, np.float_)
+        return np.zeros(1, np.float64)
 
     #-------------------------------------------------------------------------
     # Evaluation - get the corrector and predictor

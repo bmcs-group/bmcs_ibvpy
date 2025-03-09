@@ -37,13 +37,13 @@ class CellSpec( HasTraits ):
 #                         [ 1, 1, 1],
 #                         ] )
 
-    _node_array = Property( Array( 'float_' ), depends_on = 'node_coords' )
+    _node_array = Property( Array( 'float64' ), depends_on = 'node_coords' )
     @cached_property
     def _get__node_array( self ):
-        '''Get the node array as float_
+        '''Get the node array as float64
         '''
         # check that the nodes are equidistant
-        return array( self.node_coords, 'float_' )
+        return array( self.node_coords, 'float64' )
 
     n_dims = Property( depends_on = 'node_coords' )
     @cached_property

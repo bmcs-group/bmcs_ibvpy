@@ -13,28 +13,28 @@ from .xdomain_fe_grid import XDomainFEGrid
 @provides(IXModel)
 class XDomainFEGridAxiSym(XDomainFEGrid):
 
-    vtk_expand_operator = Array(np.float_)
+    vtk_expand_operator = Array(np.float64)
 
     def _vtk_expand_operator_default(self):
         return np.identity(3)
 
     Diff0_factor = bu.Float(1, BC=True)
 
-    Diff0_abc = Array(np.float_)
+    Diff0_abc = Array(np.float64)
 
     def _Diff0_abc_default(self):
         D3D_33 = np.array([[0, 0, 0],
                            [0, 0, 0],
-                           [0, 0, 1]], np.float_)
+                           [0, 0, 1]], np.float64)
         D2D_22 = np.array([[0, 0],
-                           [0, 1]], np.float_)
+                           [0, 1]], np.float64)
         return np.einsum('ab,cc->abc', D3D_33, D2D_22)
 
-    Diff1_abcd = Array(np.float_)
+    Diff1_abcd = Array(np.float64)
 
     def _Diff1_abcd_default(self):
         delta = np.vstack([np.identity(2),
-                           np.zeros((1, 2), dtype=np.float_)])
+                           np.zeros((1, 2), dtype=np.float64)])
         return 0.5 * (
             np.einsum('ac,bd->abcd', delta, delta) +
             np.einsum('ad,bc->abcd', delta, delta)

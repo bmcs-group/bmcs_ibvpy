@@ -12,9 +12,9 @@ from math import pi
 #
 #def shell_stb_arr( points ):
 #    x,y,z = vfn_shell_stb( points[:,0], points[:,1] )
-#    points = c_[ array(x,dtype='float_'),
-#                 array(y,dtype='float_'),
-#                 array(z,dtype='float_') ]
+#    points = c_[ array(x,dtype='float64'),
+#                 array(y,dtype='float64'),
+#                 array(z,dtype='float64') ]
 #    return points
 #
 #mgd = CellGrid( shape   = (2,2),

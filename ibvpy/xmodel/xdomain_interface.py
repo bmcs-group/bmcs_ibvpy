@@ -24,7 +24,7 @@ class XDomainFEInterface(XDomainFEGridTransform):
         n_elems = len(self.o_Epia)
         return (n_elems, self.fets.n_m,)
 
-    vtk_expand_operator = Array(np.float_)
+    vtk_expand_operator = Array(np.float64)
 
     def _vtk_expand_operator_default(self):
         return np.identity(3)
@@ -32,7 +32,7 @@ class XDomainFEInterface(XDomainFEGridTransform):
     DELTA_p = Array()
 
     def _DELTA_p_default(self):
-        return np.array([-1, 1], np.float_)
+        return np.array([-1, 1], np.float64)
 
     I = Instance(IFENodeSlice)
     J = Instance(IFENodeSlice)
@@ -100,13 +100,13 @@ class XDomainFEInterface(XDomainFEGridTransform):
         dx_Emas = np.einsum(
             'ims,Eia->Emas', self.fets.dN_imr, x_Eia
         )
-        DELTA_12 = np.array([[1, 0]], np.float_)
+        DELTA_12 = np.array([[1, 0]], np.float64)
         dx2_Emar = np.einsum('sr,Emas->Emar',
                              DELTA_12, dx_Emas
                              )
         # expansion tensor
         DELTA23_ab = np.array([[1, 0, 0],
-                               [0, 1, 0]], dtype=np.float_)
+                               [0, 1, 0]], dtype=np.float64)
 
         dx3_Emar = np.einsum(
             'ik,...ij,jl->...kl',

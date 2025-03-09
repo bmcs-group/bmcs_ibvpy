@@ -258,7 +258,7 @@ class CellGrid(HasTraits):
         '''
         x_dim_shape = self.point_x_grid.shape[1:]
         return array([self.point_X_arr[:, i].reshape(x_dim_shape)
-                      for i in range(self.n_dims)], dtype='float_')
+                      for i in range(self.n_dims)], dtype='float64')
 
     point_x_arr = Property
 
@@ -481,7 +481,7 @@ class CellGrid(HasTraits):
 
         # augment the points to be 3D
         if self.n_dims < 3:
-            mvpoints = zeros((points.shape[0], 3), dtype='float_')
+            mvpoints = zeros((points.shape[0], 3), dtype='float64')
             mvpoints[:, :self.n_dims] = points
             return mvpoints
         else:
@@ -508,7 +508,7 @@ class CellGrid(HasTraits):
 
         # augment the points to be 3D
         if self.n_dims < 3:
-            mv_points = zeros((point_X_arr.shape[0], 3), dtype='float_')
+            mv_points = zeros((point_X_arr.shape[0], 3), dtype='float64')
             mv_points[:, :self.n_dims] = point_X_arr
             return mv_points
         else:

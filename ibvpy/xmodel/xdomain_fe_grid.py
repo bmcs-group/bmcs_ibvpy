@@ -83,7 +83,7 @@ class XDomainFEGrid(BMCSTreeNode):
     def _get_n_u(self):
        return self.fets.n_nodal_dofs
 
-    Diff1_abcd = Array(np.float_, input=True)
+    Diff1_abcd = Array(np.float64, input=True)
     '''Symmetric operator distributing the first order
     derivatives of the shape functions into the 
     tensor field

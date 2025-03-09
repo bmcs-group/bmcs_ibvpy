@@ -23,7 +23,7 @@ class XDomainFEInterface1D(XDomainFEGrid):
     DELTA_p = Array()
 
     def _DELTA_p_default(self):
-        return np.array([-1, 1], np.float_)
+        return np.array([-1, 1], np.float64)
 
     o_Epia = Property(depends_on='+input')
     '''For a given element, layer, node number and dimension
@@ -78,7 +78,7 @@ class XDomainFEInterface1D(XDomainFEGrid):
         B = np.zeros((n_e, n_ip, n_dof_r, n_s, n_nodal_dofs), dtype='f')
         B_N_n_rows, B_N_n_cols, N_idx = [1, 1], [0, 1], [0, 0]
         B_dN_n_rows, B_dN_n_cols, dN_idx = [0, 2], [0, 1], [0, 0]
-        B_factors = np.array([-1, 1], dtype='float_')
+        B_factors = np.array([-1, 1], dtype='float64')
         B[:, :, :, B_N_n_rows, B_N_n_cols] = (B_factors[None, None, :] *
                                               Nx[:, :, N_idx])
         B[:, :, :, B_dN_n_rows, B_dN_n_cols] = dNx[:, :, :, dN_idx]

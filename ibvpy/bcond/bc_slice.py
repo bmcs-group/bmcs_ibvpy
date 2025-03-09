@@ -209,12 +209,12 @@ class BCSlice(BMCSTreeNode, Vis2D):
 
         p_value = self.value * float(self.time_function(t_n1))
 
-        p_vct = zeros((fets_eval.n_nodal_dofs,), dtype='float_')
+        p_vct = zeros((fets_eval.n_nodal_dofs,), dtype='float64')
         for d in self.dims:
             p_vct[d] = p_value
 
         for el, el_dofs, el_geo_X in zip(self.slice.elems, slice_dofs, slice_geo_X):
-            f_vct = zeros((fets_eval.n_e_dofs,), dtype='float_')
+            f_vct = zeros((fets_eval.n_e_dofs,), dtype='float64')
             for r_pnt, w in zip(r_arr, w_arr):
                 if len(ix) > 0:
                     J_mtx = fets_eval.get_J_mtx(r_pnt, el_geo_X)

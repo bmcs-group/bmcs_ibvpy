@@ -107,7 +107,7 @@ class FETS2DTF(FETSEval):
         dNx_mtx = dot(inv(J_mtx), dNr_mtx)
         N_mtx = self.get_N_mtx(r_pnt)
         N_mtx_red = N_mtx[:2] - N_mtx[2:]
-        Bx_mtx = zeros((8, self.n_e_dofs), dtype='float_')
+        Bx_mtx = zeros((8, self.n_e_dofs), dtype='float64')
         Bx_mtx[[0, 2], ::4] = dNx_mtx[[0, 1]]
         Bx_mtx[[3, 5], 2::4] = dNx_mtx[[0, 1]]
         Bx_mtx[[1, 2], 1::4] = dNx_mtx[[1, 0]]

@@ -88,7 +88,7 @@ class Viz3DScalarField(Viz3DField):
             show_legend=True,
             data_name=var,
             use_default_range=False,
-            data_range=np.array([0, 1], dtype=np.float_),
+            data_range=np.array([0, 1], dtype=np.float64),
         )
 
         lut.scalar_lut_manager.scalar_bar.width = 0.5

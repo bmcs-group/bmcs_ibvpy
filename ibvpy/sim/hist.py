@@ -74,7 +74,7 @@ class Hist(Vis2D):
     #         Eps_Dt = Eps_t[0]
     #     else:
     #         Eps_Dt = {
-    #             key: np.array([Eps[key] for i, Eps in enumerate(Eps_t)], dtype=np.float_)
+    #             key: np.array([Eps[key] for i, Eps in enumerate(Eps_t)], dtype=np.float64)
     #             for key in keys
     #         }
 
@@ -82,13 +82,13 @@ class Hist(Vis2D):
 
     @cached_property
     def _get_U_t(self):
-        return np.array(self.U_list, dtype=np.float_)
+        return np.array(self.U_list, dtype=np.float64)
 
     F_t = Property(depends_on='timesteps_items')
 
     @cached_property
     def _get_F_t(self):
-        return np.array(self.F_list, dtype=np.float_)
+        return np.array(self.F_list, dtype=np.float64)
 
     # todo: capture the mapping between multidomain state representation
     #       and a time slice during evaluation
@@ -102,7 +102,7 @@ class Hist(Vis2D):
 
     @cached_property
     def _get_t(self):
-        return np.array(self.timesteps, dtype=np.float_)
+        return np.array(self.timesteps, dtype=np.float64)
 
     n_t = Property(depends_on='timesteps_items')
 
@@ -116,7 +116,7 @@ class Hist(Vis2D):
         t = self.t
         if len(t) == 0:
             return 0
-        idx = np.array(np.arange(len(t)), dtype=np.float_) + 0.5
+        idx = np.array(np.arange(len(t)), dtype=np.float64) + 0.5
         t_idx = np.interp(vot, t, idx)
         return np.array(t_idx, np.int_)
 

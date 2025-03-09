@@ -5,7 +5,7 @@ from math import sqrt as scalar_sqrt
 from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from ibvpy.tmodel.mats_eval import IMATSEval
 from numpy import \
-     array, zeros, dot, float_
+     array, zeros, dot, float64
 from traits.api import \
      Array, Enum, \
      Trait, Event, provides, \

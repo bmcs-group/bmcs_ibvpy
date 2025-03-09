@@ -80,7 +80,7 @@ class XDomainFE(BMCSTreeNode):
 
     dim_u = Int(2)
 
-    Diff1_abcd = Array(np.float_, input=True)
+    Diff1_abcd = Array(np.float64, input=True)
     '''Symmetric operator distributing the first order
     derivatives of the shape functions into the 
     tensor field

@@ -32,7 +32,7 @@ class TStepBC(TStep):
     t_n = tr.Float(0.0)
     '''Fundamental state time used for time dependent essential BC'
     '''
-    U_n = tr.Property(tr.Array(np.float_),
+    U_n = tr.Property(tr.Array(np.float64),
                       depends_on='model_structure_changed')
     '''Fundamental value of the primary (control variable)
     '''
@@ -42,7 +42,7 @@ class TStepBC(TStep):
 
     '''Current fundamental value of the primary variable.
     '''
-    U_k = tr.Property(tr.Array(np.float_),
+    U_k = tr.Property(tr.Array(np.float64),
                       depends_on='model_structure_changed')
     '''Fundamental value of the primary (control variable)
     '''
@@ -50,7 +50,7 @@ class TStepBC(TStep):
     def _get_U_k(self):
 
         U_var_shape = self.fe_domain.U_var_shape
-        return np.zeros(U_var_shape, dtype=np.float_).flatten()
+        return np.zeros(U_var_shape, dtype=np.float64).flatten()
 
     model_structure_changed = tr.Event
 

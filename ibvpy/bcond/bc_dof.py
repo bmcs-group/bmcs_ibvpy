@@ -125,7 +125,7 @@ class BCDof(BMCSTreeNode):
         '''
         if self.is_essential():
             a = self.dof   # affected dof
-            alpha = np.array(self.link_coeffs, np.float_)
+            alpha = np.array(self.link_coeffs, np.float64)
             n_ix_arr = np.array(list(self.link_dofs), dtype=int)
             self._constraint = K.register_constraint(a=a, u_a=self.value,
                                                      alpha=alpha, ix_a=n_ix_arr)
@@ -171,7 +171,7 @@ class BCDof(BMCSTreeNode):
 
                 # Distribute the load contribution to the proportionally loaded dofs
                 #
-                alpha = np.array(self.link_coeffs, np.float_)
+                alpha = np.array(self.link_coeffs, np.float64)
                 R[n_ix] += alpha.transpose() * R_a
 
     def update_plot(self, axes):

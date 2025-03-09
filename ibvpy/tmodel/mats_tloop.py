@@ -25,9 +25,9 @@ class TLoop(HasStrictTraits):
     step_tolerance = Float(1e-8)
 
     t_record = List
-    U_n = Array(dtype=np.float_)
-    K = Array(dtype=np.float_)
-    state = Array(dtype=np.float_)
+    U_n = Array(dtype=np.float64)
+    K = Array(dtype=np.float64)
+    state = Array(dtype=np.float64)
     F_record = List
     U_record = List
     state_record = List
@@ -63,7 +63,7 @@ class TLoop(HasStrictTraits):
         sa_shapes = self.ts.state_array_shapes
         print('state array generated', sa_shapes)
         return {
-            name: np.zeros(mats_sa_shape, dtype=np.float_)[np.newaxis, ...]
+            name: np.zeros(mats_sa_shape, dtype=np.float64)[np.newaxis, ...]
             for name, mats_sa_shape
             in list(sa_shapes.items())
         }
@@ -149,7 +149,7 @@ class TLoop(HasStrictTraits):
         '''Get the index corresponding to visual time
         '''
         x = self.t_record
-        idx = np.array(np.arange(len(x)), dtype=np.float_)
+        idx = np.array(np.arange(len(x)), dtype=np.float64)
         t_idx = np.interp(vot, x, idx)
         return np.array(t_idx + 0.5, np.int_)
 

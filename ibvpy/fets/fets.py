@@ -30,7 +30,7 @@ def oriented_3d_array(arr, axis):
     '''
     shape = [None, None, None]
     shape[axis] = slice(None)
-    _arr = np.array(arr, dtype='float_')
+    _arr = np.array(arr, dtype='float64')
     return _arr[tuple(shape)]
 
 #-------------------------------------------------------------------
@@ -41,10 +41,10 @@ def oriented_3d_array(arr, axis):
 @provides(IFETSEval)
 class FETSEval(InteractiveModel):
 
-    dof_r = Array(np.float_,
+    dof_r = Array(np.float64,
                   desc='Local coordinates of nodes included in the field ansatz')
 
-    geo_r = Array(np.float_,
+    geo_r = Array(np.float64,
                   desc='Local coordinates of nodes included in the geometry ansatz')
 
     n_nodal_dofs = Int(desc='Number of nodal degrees of freedom')
@@ -69,7 +69,7 @@ class FETSEval(InteractiveModel):
     #-------------------------------------------------------------------------
 
     vtk_r = Array(
-        np.float_, desc='Local coordinates of nodes included in the field visualization')
+        np.float64, desc='Local coordinates of nodes included in the field visualization')
 
     vtk_cell_types = Any(
         desc='Tuple of vtk cell types in the same order as they are specified in the vtk_cells list')
@@ -180,7 +180,7 @@ class FETSEval(InteractiveModel):
         mapping of the visualization point to the integration points
         according to mutual proximity in the local coordinates
         '''
-        vtk_pt_arr = np.zeros((1, 3), dtype='float_')
+        vtk_pt_arr = np.zeros((1, 3), dtype='float64')
         ip_map = np.zeros(vtk_r.shape[0], dtype='int_')
         for i, vtk_pt in enumerate(vtk_r):
             vtk_pt_arr[0, self.dim_slice] = vtk_pt[self.dim_slice]
@@ -330,7 +330,7 @@ class FETSEval(InteractiveModel):
         r_c = np.c_[tuple([r.flatten() for r in r_grid])]
         w_grid = reduce(lambda x, y: x * y, w)
         if isinstance(w_grid, float):
-            w_grid = np.array([w_grid], dtype='float_')
+            w_grid = np.array([w_grid], dtype='float64')
         else:
             w_grid = w_grid.flatten()
         return r_c, w_grid, ix
@@ -374,7 +374,7 @@ class FETSEval(InteractiveModel):
         n_add = 3 - n_dims
         if n_add > 0:
             X3D = np.hstack([X3D,
-                          np.zeros([r_mtx.shape[0], n_add], dtype='float_')])
+                          np.zeros([r_mtx.shape[0], n_add], dtype='float64')])
         return X3D
 
     def get_X_pnt(self, sctx):
@@ -422,10 +422,10 @@ class FETSEval(InteractiveModel):
     # Parameters for the time-loop
     #
     def new_cntl_var(self):
-        return np.zeros(self.n_e_dofs, np.float_)
+        return np.zeros(self.n_e_dofs, np.float64)
 
     def new_resp_var(self):
-        return np.zeros(self.n_e_dofs, np.float_)
+        return np.zeros(self.n_e_dofs, np.float64)
 
     def get_state_array_size(self):
         r_range = max(1, self.ngp_r)
@@ -507,7 +507,7 @@ class FETSEval(InteractiveModel):
     def get_eps0_mtx33(self, sctx, u):
         '''Get epsilon without the initial strain
         '''
-        eps0_mtx33 = np.zeros((3, 3), dtype='float_')
+        eps0_mtx33 = np.zeros((3, 3), dtype='float64')
         if self.mats_eval.initial_strain:
             X_pnt = self.get_X_pnt(sctx)
             x_pnt = self.get_x_pnt(sctx)
@@ -517,7 +517,7 @@ class FETSEval(InteractiveModel):
 
     def get_eps_mtx33(self, sctx, u):
         eps_eng = self.get_eps_eng(sctx, u)
-        eps_mtx33 = np.zeros((3, 3), dtype='float_')
+        eps_mtx33 = np.zeros((3, 3), dtype='float64')
         eps_mtx33[self.dim_slice, self.dim_slice] = self.mats_eval.map_eps_eng_to_mtx(
             eps_eng)
         return eps_mtx33

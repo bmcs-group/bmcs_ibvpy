@@ -264,12 +264,12 @@ class BendingHistory(Hist, Model):
              color_U='green', color_W='black'):
         vis_energy = self['energy']
         t = vis_energy.get_t()
-        U_bar_t = np.array(vis_energy.U_bar_t, dtype=np.float_)
+        U_bar_t = np.array(vis_energy.U_bar_t, dtype=np.float64)
         W_t = vis_energy.get_W_t()
         ax.plot(t, W_t, color=color_W, label=label_W)
         ax.plot(t, U_bar_t, color=color_U, label=label_U)
         # Energy contribution relevant evaluated using internal variables
-        # G_omega_t = np.array(vis_energy.G_omega_t, dtype=np.float_)
+        # G_omega_t = np.array(vis_energy.G_omega_t, dtype=np.float64)
         # ax.plot(t, U_bar_t+G_omega_t, color='black', linestyle='dashed', label='G_t')
         ax.fill_between(t, W_t, U_bar_t, facecolor='gray', alpha=0.5,
                         label='G(t)')
@@ -650,7 +650,7 @@ class BendingTestModel(TStepBC, Model):
                          (x_loc - support_width / 2, -support_width),
                          (x_loc, 0)]
 
-        vertices = np.array(vertices, np.float_)
+        vertices = np.array(vertices, np.float64)
         path = Path(vertices, codes)
         path_patch = PathPatch(path, facecolor='gray', edgecolor='gray')
         ax.add_patch(path_patch)

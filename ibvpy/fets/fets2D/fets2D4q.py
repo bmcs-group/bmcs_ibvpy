@@ -76,7 +76,7 @@ class FETS2D4Q(FETSEval):
 
     @cached_property
     def _get_A_C(self):
-        return np.array((1.0, 1.0, 1.0), dtype=np.float_)
+        return np.array((1.0, 1.0, 1.0), dtype=np.float64)
 
     #---------------------------------------------------------------------
     # Method required to represent the element geometry
@@ -85,7 +85,7 @@ class FETS2D4Q(FETSEval):
         '''
         Return the value of shape functions for the specified local coordinate r
         '''
-        cx = np.array(self.geo_r, dtype='float_')
+        cx = np.array(self.geo_r, dtype='float64')
         Nr = np.array([[1 / 4. * (1 + r_pnt[0] * cx[i, 0]) * (1 + r_pnt[1] * cx[i, 1])
                         for i in range(0, 4)]])
         return Nr
@@ -100,7 +100,7 @@ class FETS2D4Q(FETSEval):
         operator.
         '''
         #cx = self._node_coord_map
-        cx = np.array(self.geo_r, dtype='float_')
+        cx = np.array(self.geo_r, dtype='float64')
         dNr_geo = np.array([[1 / 4. * cx[i, 0] * (1 + r_pnt[1] * cx[i, 1])
                              for i in range(0, 4)],
                             [1 / 4. * cx[i, 1] * (1 + r_pnt[0] * cx[i, 0])
@@ -132,7 +132,7 @@ class FETS2D4Q(FETSEval):
         J_mtx = self.get_J_mtx(r_pnt, X_mtx)
         dNr_mtx = self.get_dNr_mtx(r_pnt)
         dNx_mtx = np.dot(inv(J_mtx), dNr_mtx)
-        Bx_mtx = np.zeros((3, 8), dtype='float_')
+        Bx_mtx = np.zeros((3, 8), dtype='float64')
         for i in range(0, 4):
             Bx_mtx[0, i * 2] = dNx_mtx[0, i]
             Bx_mtx[1, i * 2 + 1] = dNx_mtx[1, i]

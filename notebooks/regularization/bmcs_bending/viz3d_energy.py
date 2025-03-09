@@ -6,7 +6,7 @@ Created on May 30, 2018
 
 from scipy import interpolate as ip
 from ibvpy.view.plot2d import Viz2D, Vis2D
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid as cumtrapz
 import numpy as np
 import traits.api as tr
 
@@ -84,7 +84,7 @@ class Vis2DEnergy(Vis2D):
     G_omega_t = tr.Property
     def _get_G_omega_t(self):
         tstep = self.tstep
-        Y_Em_t = np.array(self.Y_Em_t, dtype=np.float_)
+        Y_Em_t = np.array(self.Y_Em_t, dtype=np.float64)
         hist = tstep.hist
         t = hist.t
         omega_Em_t = np.array([state[0]['omega'] for state in hist.state_vars])
@@ -101,7 +101,7 @@ class Vis2DEnergy(Vis2D):
     G_t = tr.Property
 
     def _get_G_t(self):
-        U_bar_t = np.array(self.U_bar_t, dtype=np.float_)
+        U_bar_t = np.array(self.U_bar_t, dtype=np.float64)
         W_t = self.get_W_t()
         G = W_t - U_bar_t
         return G
@@ -117,7 +117,7 @@ class Vis2DCrackBand(Vis2D):
 
     tstep = tr.WeakRef
 
-    X_E = tr.Array(np.float_)
+    X_E = tr.Array(np.float64)
     eps_t = tr.List
     sig_t = tr.List
     a_t = tr.List
@@ -171,7 +171,7 @@ class Vis2DCrackBand(Vis2D):
         self.sig_t.append(sig_E1)
 
     def get_t(self):
-        return np.array(self.tstep.hist.t, dtype=np.float_)
+        return np.array(self.tstep.hist.t, dtype=np.float64)
 
     def get_a_x(self):
         return self.X_E
@@ -183,7 +183,7 @@ class Vis2DCrackBand(Vis2D):
         return self.sig_t[t_idx]
 
     def get_a_t(self):
-        return np.array(self.a_t, dtype=np.float_)
+        return np.array(self.a_t, dtype=np.float64)
 
     def get_da_dt(self):
         a = self.get_a_t()

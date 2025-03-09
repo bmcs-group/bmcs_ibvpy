@@ -351,7 +351,7 @@ class LiDamageFn(DamageFn):
         alpha_1 = self.alpha_1
         alpha_2 = self.alpha_2
         s_0 = self.s_0
-        omega = np.zeros_like(kappa, dtype=np.float_)
+        omega = np.zeros_like(kappa, dtype=np.float64)
         d_idx = np.where(kappa >= s_0)[0]
         k = kappa[d_idx]
         omega[d_idx] = 1. / \
@@ -399,8 +399,8 @@ class MultilinearDamageFn(DamageFn):
 
     @observe('state_changed')
     def _update_damage_law(self, event=None):
-        s_data = np.fromstring(self.s_data, dtype=np.float_, sep=',')
-        omega_data = np.fromstring(self.omega_data, dtype=np.float_, sep=',')
+        s_data = np.fromstring(self.s_data, dtype=np.float64, sep=',')
+        omega_data = np.fromstring(self.omega_data, dtype=np.float64, sep=',')
         s_data = np.hstack([[0, self.s_0], s_data])
         omega_data = np.hstack([[0, 0], omega_data])
         n = np.min([len(s_data), len(omega_data)])
@@ -441,7 +441,7 @@ class GfDamageFn2(DamageFn):
 
     f_t = bu.Float(4.5, MAT=True, label="f_t", desc="Tensile strength")
 
-    f_t_Em = Array(np.float_, value=None)
+    f_t_Em = Array(np.float64, value=None)
 
     G_f = bu.Float(0.004, MAT=True, label="G_f", desc="Fracture energy",)
 
@@ -534,7 +534,7 @@ class FRPDamageFn(DamageFn):
 #             (np.exp(-b * s_0) - np.exp(-2.0 * b * s_0)) - 2.0 * b * Gf / Eb
 #         s_0 = newton(f_s, 0.00000001, tol=1e-5, maxiter=20)
 
-        omega = np.zeros_like(kappa, dtype=np.float_)
+        omega = np.zeros_like(kappa, dtype=np.float64)
         I = np.where(kappa >= s_0)[0]
         kappa_I = kappa[I]
 

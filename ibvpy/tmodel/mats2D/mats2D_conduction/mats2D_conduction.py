@@ -5,7 +5,7 @@ from ibvpy.tmodel.mats2D.mats2D_eval import MATS2DEval
 from ibvpy.tmodel.mats_eval import IMATSEval
 from numpy import \
     array, zeros, dot, \
-    float_, \
+    float64, \
     eye
 from traits.api import \
     Array, Enum, Float, \
@@ -63,10 +63,10 @@ class MATS2DConduction(MATS2DEval):
     #-------------------------------------------------------------------------
 
     def new_cntl_var(self):
-        return zeros(3, float_)
+        return zeros(3, float64)
 
     def new_resp_var(self):
-        return zeros(3, float_)
+        return zeros(3, float64)
 
     #-------------------------------------------------------------------------
     # Evaluation - get the corrector and predictor

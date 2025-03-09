@@ -71,7 +71,7 @@ class MATS2D5MicroplaneDamage(MATS3DMicroplaneDamage):
     @cached_property
     def _get__MPN(self):
         mpn2D_arr = self.mats2D_cmdm._MPN
-        mpnZ_arr = np.zeros((mpn2D_arr.shape[0], 1), dtype = 'float_')
+        mpnZ_arr = np.zeros((mpn2D_arr.shape[0], 1), dtype = 'float64')
         mpn3D_arr = np.append(mpn2D_arr, mpnZ_arr, axis = 1)
         return np.append(mpn3D_arr, [[0.0, 0.0, 1.0]], axis = 0)
 

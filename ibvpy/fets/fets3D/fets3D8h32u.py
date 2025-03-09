@@ -139,7 +139,7 @@ class FETS3D8H32U(FETS3D):
         Return the value of shape functions (derived in femple) for the
         specified local coordinate r_pnt
         '''
-        N_geo_mtx = zeros((1, 8), dtype='float_')
+        N_geo_mtx = zeros((1, 8), dtype='float64')
         N_geo_mtx[0, 0] = -((-1 + r_pnt[2]) * (-1 + r_pnt[1]) * (-1 + r_pnt[0])) / 8.0
         N_geo_mtx[0, 1] = ((-1 + r_pnt[2]) * (-1 + r_pnt[1]) * (1 + r_pnt[0])) / 8.0
         N_geo_mtx[0, 2] = ((-1 + r_pnt[2]) * (1 + r_pnt[1]) * (-1 + r_pnt[0])) / 8.0
@@ -155,7 +155,7 @@ class FETS3D8H32U(FETS3D):
         Return the matrix of shape function derivatives (derived in femple).
         Used for the construction of the Jacobi matrix.
         '''
-        dNr_geo_mtx = zeros((3, 8), dtype='float_')
+        dNr_geo_mtx = zeros((3, 8), dtype='float64')
         dNr_geo_mtx[0, 0] = -((-1 + r_pnt[2]) * (-1 + r_pnt[1])) / 8.0
         dNr_geo_mtx[0, 1] = ((-1 + r_pnt[2]) * (-1 + r_pnt[1])) / 8.0
         dNr_geo_mtx[0, 2] = ((-1 + r_pnt[2]) * (1 + r_pnt[1])) / 8.0
@@ -195,7 +195,7 @@ class FETS3D8H32U(FETS3D):
         r = r_pnt[0]
         s = r_pnt[1]
         t = r_pnt[2]
-        N_mtx = zeros((3, 96), dtype='float_')
+        N_mtx = zeros((3, 96), dtype='float64')
         N_mtx[0, 0] = 0.296875 * t + 0.296875 * s + 0.296875 * r - 0.296875 * r * s - 0.296875 * r * t - 0.296875 * s * t + 0.296875 * r * s * t - 0.140625 * r * r * s - 0.140625 * r * r * t + 0.140625 * r * r * s * t + 0.140625 * r * r - 0.296875 - 0.140625 * r * s * s - 0.140625 * s * s * t + 0.140625 * r * s * s * t + 0.140625 * s * s + 0.140625 * pow(r, 3) * s + 0.140625 * pow(r, 3) * t - 0.140625 * pow(r, 3) * s * t - 0.140625 * pow(r, 3) + 0.140625 * r * pow(s, 3) + 0.140625 * pow(s, 3) * t - 0.140625 * r * pow(s, 3) * t - 0.140625 * pow(s, 3) - 0.140625 * r * t * t - 0.140625 * s * t * t + 0.140625 * r * s * t * t + 0.140625 * r * pow(t, 3) + 0.140625 * s * pow(t, 3) - 0.140625 * r * s * pow(t, 3) + 0.140625 * t * t - 0.140625 * pow(t, 3)
         N_mtx[0, 3] = 0.140625 - 0.421875 * r - 0.140625 * r * r + 0.421875 * pow(r, 3) - 0.140625 * s + 0.421875 * r * s + 0.140625 * r * r * s - 0.421875 * pow(r, 3) * s - 0.140625 * t + 0.421875 * r * t + 0.140625 * r * r * t - 0.421875 * pow(r, 3) * t + 0.140625 * s * t - 0.421875 * r * s * t - 0.140625 * r * r * s * t + 0.421875 * pow(r, 3) * s * t
         N_mtx[0, 6] = 0.140625 + 0.421875 * r - 0.140625 * r * r - 0.421875 * pow(r, 3) - 0.140625 * s - 0.421875 * r * s + 0.140625 * r * r * s + 0.421875 * pow(r, 3) * s - 0.140625 * t - 0.421875 * r * t + 0.140625 * r * r * t + 0.421875 * pow(r, 3) * t + 0.140625 * s * t + 0.421875 * r * s * t - 0.140625 * r * r * s * t - 0.421875 * pow(r, 3) * s * t
@@ -301,7 +301,7 @@ class FETS3D8H32U(FETS3D):
         r = r_pnt[0]
         s = r_pnt[1]
         t = r_pnt[2]
-        dNr_mtx = zeros((3, 32), dtype='float_')
+        dNr_mtx = zeros((3, 32), dtype='float64')
         dNr_mtx[0, 0] = 0.296875 - 0.296875 * s - 0.296875 * t + 0.296875 * s * t - 0.281250 * r * s - 0.281250 * r * t + 0.281250 * r * s * t + 0.281250 * r - 0.140625 * s * s + 0.140625 * s * s * t + 0.421875 * r * r * s + 0.421875 * r * r * t - 0.421875 * r * r * s * t - 0.421875 * r * r + 0.140625 * pow(s, 3) - 0.140625 * pow(s, 3) * t - 0.140625 * t * t + 0.140625 * s * t * t + 0.140625 * pow(t, 3) - 0.140625 * s * pow(t, 3)
         dNr_mtx[0, 1] = -0.421875 - 0.281250 * r + 1.265625 * r * r + 0.421875 * s + 0.281250 * r * s - 1.265625 * r * r * s + 0.421875 * t + 0.281250 * r * t - 1.265625 * r * r * t - 0.421875 * s * t - 0.281250 * r * s * t + 1.265625 * r * r * s * t
         dNr_mtx[0, 2] = 0.421875 - 0.281250 * r - 1.265625 * r * r - 0.421875 * s + 0.281250 * r * s + 1.265625 * r * r * s - 0.421875 * t + 0.281250 * r * t + 1.265625 * r * r * t + 0.421875 * s * t - 0.281250 * r * s * t - 1.265625 * r * r * s * t

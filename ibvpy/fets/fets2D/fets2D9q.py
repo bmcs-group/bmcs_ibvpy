@@ -102,7 +102,7 @@ class FETS2D9Q(FETSEval):
         '''
         Return the value of shape functions for the specified local coordinate r
         '''
-        N_geo_mtx = np.zeros((1, 9), dtype='float_')
+        N_geo_mtx = np.zeros((1, 9), dtype='float64')
         N_geo_mtx[0, 0] = (
             r_pnt[0] * r_pnt[1] * (-1 + r_pnt[1]) * (-1 + r_pnt[0])) / 4.0
         N_geo_mtx[0, 1] = (
@@ -128,7 +128,7 @@ class FETS2D9Q(FETSEval):
         Return the matrix of shape function derivatives.
         Used for the construction of the Jacobi matrix.
         '''
-        dNr_geo_mtx = np.zeros((2, 9), dtype='float_')
+        dNr_geo_mtx = np.zeros((2, 9), dtype='float64')
         dNr_geo_mtx[0, 0] = (r_pnt[1] * (-1 + r_pnt[1]) * (-1 + r_pnt[0])
                              ) / 4.0 + (r_pnt[0] * r_pnt[1] * (-1 + r_pnt[1])) / 4.0
         dNr_geo_mtx[0, 1] = (r_pnt[1] * (-1 + r_pnt[1]) * (1 + r_pnt[0])
@@ -193,7 +193,7 @@ class FETS2D9Q(FETSEval):
         J_mtx = self.get_J_mtx(r_pnt, X_mtx)
         dNr_mtx = self.get_dNr_mtx(r_pnt)
         dNx_mtx = np.dot(inv(J_mtx), dNr_mtx)
-        Bx_mtx = np.zeros((3, 18), dtype='float_')
+        Bx_mtx = np.zeros((3, 18), dtype='float64')
         for i in range(0, 9):
             Bx_mtx[0, i * 2] = dNx_mtx[0, i]
             Bx_mtx[1, i * 2 + 1] = dNx_mtx[1, i]

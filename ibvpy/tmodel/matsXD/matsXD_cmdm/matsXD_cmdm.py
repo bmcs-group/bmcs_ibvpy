@@ -16,7 +16,7 @@ from math import sqrt as scalar_sqrt
 from numpy import \
     array, zeros, outer, inner, transpose, dot, \
     fabs, identity, tensordot, \
-    float_, \
+    float64, \
     sqrt as arr_sqrt, copy
 from scipy.linalg import \
     eigh, inv
@@ -511,10 +511,10 @@ class MATSXDMicroplaneDamage(PolarDiscr):
     # Control variables and update state method
     #-------------------------------------------------------------------------
     def new_cntl_var(self):
-        return zeros(self.n_eng, float_)
+        return zeros(self.n_eng, float64)
 
     def new_resp_var(self):
-        return zeros(self.n_eng, float_)
+        return zeros(self.n_eng, float64)
 
     def update_state(self, sctx, eps_app_eng):
         '''

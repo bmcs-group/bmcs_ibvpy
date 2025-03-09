@@ -121,7 +121,7 @@ class MATS1D5DPCum(MATSEval):
         s = u_r[..., 0]
         w = u_r[..., 1]
         # For normal
-        H_w_N = np.array(w <= 0.0, dtype=np.float_)
+        H_w_N = np.array(w <= 0.0, dtype=np.float64)
         E_alg_N = H_w_N * self.E_N
         sig_N = E_alg_N * w
         sig_pi_trial = self.E_T * (s - s_p)

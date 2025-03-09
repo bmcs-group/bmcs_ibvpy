@@ -59,10 +59,10 @@ class MATS1DElastic(MATS1DEval):
         super(MATS1DElastic, self).__init__(**kwtraits)
 
     def new_cntl_var(self):
-        return np.zeros(1, np.float_)
+        return np.zeros(1, np.float64)
 
     def new_resp_var(self):
-        return np.zeros(1, np.float_)
+        return np.zeros(1, np.float64)
 
     #-------------------------------------------------------------------------
     # Evaluation - get the corrector and predictor

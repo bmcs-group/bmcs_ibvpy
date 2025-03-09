@@ -17,7 +17,7 @@ def get_bar_mtx_array(shape, k=10):
     a bar discretization
     '''
     el_mtx = array([[k, -k],
-                    [-k, k]], dtype='float_')
+                    [-k, k]], dtype='float64')
 
     el_mtx_arr = array([el_mtx for i in range(shape)], dtype=float)
     el_dof_map = array([arange(shape),
@@ -48,7 +48,7 @@ class TestSysMtxSolver(unittest.TestCase):
         n_dofs = 3
         shape = 2
         el_mtx = array([[1, -1],
-                        [-1, 1]], dtype='float_')
+                        [-1, 1]], dtype='float64')
 
         el_mtx_arr = array([el_mtx for i in range(shape)], dtype=float)
         el_dof_map = array([arange(n_dofs - 1),

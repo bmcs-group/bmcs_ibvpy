@@ -91,10 +91,10 @@ class MATS1DPlastic(MATS1DEval):
         return 3
 
     def new_cntl_var(self):
-        return np.zeros(1, np.float_)
+        return np.zeros(1, np.float64)
 
     def new_resp_var(self):
-        return np.zeros(1, np.float_)
+        return np.zeros(1, np.float64)
 
     #-------------------------------------------------------------------------
     # Evaluation - get the corrector and predictor
@@ -119,8 +119,8 @@ class MATS1DPlastic(MATS1DEval):
         xi_trial = sigma_trial - q_n
         f_trial = abs(xi_trial) - (self.sigma_y + self.K_bar * alpha_n)
 
-        sig_n1 = np.zeros((1,), dtype='float_')
-        D_n1 = np.zeros((1, 1), dtype='float_')
+        sig_n1 = np.zeros((1,), dtype='float64')
+        D_n1 = np.zeros((1, 1), dtype='float64')
         if f_trial <= 1e-8:
             sig_n1[0] = sigma_trial
             D_n1[0, 0] = E
@@ -162,7 +162,7 @@ class MATS1DPlastic(MATS1DEval):
             q_n += d_gamma * self.H_bar * sign(xi_trial)
             alpha_n += d_gamma
 
-        newarr = np.array([eps_p_n, q_n, alpha_n], dtype='float_')
+        newarr = np.array([eps_p_n, q_n, alpha_n], dtype='float64')
 
         return newarr
 

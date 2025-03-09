@@ -31,7 +31,7 @@ class MATS3DIfcElastic(MATSEval):
     def _get_D_rs(self):
         return np.array([[self.E_n, 0, 0],
                          [0, self.E_s, 0],
-                         [0, 0, self.E_s]], dtype=np.float_)
+                         [0, 0, self.E_s]], dtype=np.float64)
 
     def get_corr_pred(self, u_r, tn1):
         tau = np.einsum(
